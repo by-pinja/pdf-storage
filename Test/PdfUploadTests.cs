@@ -33,16 +33,18 @@ namespace Pdf.Storage.Test
             host.Get($"/v1/pdf/{groupId}/{Guid.NewGuid()}.pdf")
                 .ExpectStatusCode(HttpStatusCode.NotFound)
                 .WithContentOf<string>()
-                .Passing(x => x.Should().Match("*404*Invalid*PDF*"));
+                .Passing(x => x.Should().Match("*404*PDF*doesn't*exist*"));
         }
 
-        [Fact]
+        [Fact(Skip = "Ignored because isnt valid case until work queues are implemented.")]
         public void WhenFileExistsButIsStillProcessing_ThenReturnProcessingErrorMessage()
         {
             var host = TestHost.Run<TestStartup>();
             var groupId = Guid.NewGuid();
 
-            host.Get($"/v1/pdf/{groupId}/{Guid.NewGuid()}.pdf")
+            var newPdf = AddPdf(host, groupId);
+
+            host.Get($"/v1/pdf/{groupId}/{newPdf.Id}.pdf")
                 .ExpectStatusCode(HttpStatusCode.NotFound)
                 .WithContentOf<string>()
                 .Passing(x => x.Should().Match("*404*PDF*is*processing*later*"));
