@@ -44,7 +44,7 @@ podTemplate(label: 'dotnet', idleMinutes:30,
               image.push("latest-$branch")
               image.push(tag)
 
-              configFileProvider([configFile(fileId: "888b53ec-9509-46e1-8cb5-953f4de43f58", targetLocation: "/home/jenkins/.kube/config")]) {
+              configFileProvider([configFile(fileId: "11564861-9c61-4af0-aadd-aea8c6990876", targetLocation: "/home/jenkins/.kube/config")]) {
                   sh """
                       kubectl apply -f $deploymentYaml --namespace=pdf-storage
                       kubectl set image deployment/pdf-storage-$branch pdf-storage-$branch=eu.gcr.io/ptcs-docker-registry/$project:$tag --namespace=pdf-storage
