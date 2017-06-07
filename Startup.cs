@@ -47,7 +47,6 @@ namespace Pdf.Storage
 
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
             }
 
             app.UseSwagger();
