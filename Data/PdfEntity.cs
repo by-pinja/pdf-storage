@@ -4,6 +4,8 @@ namespace Pdf.Storage.Data
 {
     public class PdfEntity
     {
+        protected PdfEntity() {}
+
         public PdfEntity(string groupId, string originalHtml)
         {
             GroupId = groupId;

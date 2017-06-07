@@ -16,21 +16,50 @@ namespace Pdf.Storage.Test
             var host = TestHost.Run<TestStartup>();
             var groupId = Guid.NewGuid();
 
-            var newPdf = host.Post($"/v1/pdf/{groupId}/", new NewPdfRequest
-            {
-                Html = "<body> {{ TEXT }} </body>",
-                Data = JObject.FromObject(new
-                {
-                    TEXT = "something"
-                })
-            }).ExpectStatusCode(HttpStatusCode.Accepted)
-                .WithContentOf<NewPdfResponse>()
-                .Select();
+            var newPdf = AddPdf(host, groupId);
 
             host.Get($"/v1/pdf/{groupId}/{newPdf.Id}.pdf")
                 .ExpectStatusCode(HttpStatusCode.OK)
-                .WithContentOf<Byte[]>()
+                .WithContentOf<byte[]>()
                 .Passing(x => x.Length.Should().BeGreaterThan(1));
+        }
+
+        [Fact]
+        public void WhenFileDoesntExistAtAll_ThenReturn404WithNotAvailableErrorMessage()
+        {
+            var host = TestHost.Run<TestStartup>();
+            var groupId = Guid.NewGuid();
+
+            host.Get($"/v1/pdf/{groupId}/{Guid.NewGuid()}.pdf")
+                .ExpectStatusCode(HttpStatusCode.NotFound)
+                .WithContentOf<string>()
+                .Passing(x => x.Should().Match("*404*Invalid*PDF*"));
+        }
+
+        [Fact]
+        public void WhenFileExistsButIsStillProcessing_ThenReturnProcessingErrorMessage()
+        {
+            var host = TestHost.Run<TestStartup>();
+            var groupId = Guid.NewGuid();
+
+            host.Get($"/v1/pdf/{groupId}/{Guid.NewGuid()}.pdf")
+                .ExpectStatusCode(HttpStatusCode.NotFound)
+                .WithContentOf<string>()
+                .Passing(x => x.Should().Match("*404*PDF*is*processing*later*"));
+        }
+
+        private static NewPdfResponse AddPdf(TestHost host, Guid groupId)
+        {
+            return host.Post($"/v1/pdf/{groupId}/", new NewPdfRequest
+                {
+                    Html = "<body> {{ TEXT }} </body>",
+                    Data = JObject.FromObject(new
+                    {
+                        TEXT = "something"
+                    })
+                }).ExpectStatusCode(HttpStatusCode.Accepted)
+                .WithContentOf<NewPdfResponse>()
+                .Select();
         }
     }
 }
