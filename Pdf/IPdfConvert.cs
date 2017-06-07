@@ -1,4 +1,4 @@
-﻿namespace Pdf.Service.Pdf
+﻿namespace Pdf.Storage.Pdf
 {
     public interface IPdfConvert
     {

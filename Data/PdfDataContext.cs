@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Pdf.Service.Data
+namespace Pdf.Storage.Data
 {
     public class PdfDataContext : DbContext
     {

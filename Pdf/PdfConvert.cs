@@ -1,6 +1,10 @@
-﻿using Microsoft.AspNetCore.NodeServices;
+﻿using System;
+using System.Collections.Generic;
+using System.Dynamic;
+using System.Linq;
+using Microsoft.AspNetCore.NodeServices;
 
-namespace Pdf.Service.Pdf
+namespace Pdf.Storage.Pdf
 {
     public class PdfConvert : IPdfConvert
     {
@@ -12,8 +16,22 @@ namespace Pdf.Service.Pdf
 
         public (byte[] data, string html) CreatePdfFromHtml(string html)
         {
-            dynamic pdf = _nodeServices.InvokeAsync<object>(@"./node/convert.js", html).Result;
-            return (new byte[]{}, html);
+            var pdf = _nodeServices.InvokeAsync<ExpandoObject>(@"./node/convert.js", html, new {}).Result;
+
+            var data = pdf.SingleOrDefault(x => x.Key == "data").Value;
+
+            if (data == null)
+            {
+                throw new InvalidOperationException("Didn't get data from node service.");
+            }
+
+            if (data is List<object> objects)
+            {
+                var pdfAsBytes = objects.Select(Convert.ToByte).ToArray();
+                return (pdfAsBytes, html);
+            }
+
+            throw new InvalidOperationException($"Something unexpected occurred, cannot parse result from '{data}'");
         }
     }
 }

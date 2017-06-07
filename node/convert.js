@@ -1,8 +1,8 @@
 ﻿var app = require('html-to-pdf');
 
-module.exports = function (callback, html) {
+module.exports = function (callback, html, data) {
     app
-        .createBuffer("c:\\temp\\example.html", "c:\\temp\\foo.pdf", {})
+        .createBuffer(html, data, {})
         .then(resultBuffer => {
             callback(/* error */ null, resultBuffer);
         })

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
 
-namespace Pdf.Service.Util
+namespace Pdf.Storage.Util
 {
     public class ValidateModelAttribute : ActionFilterAttribute
     {

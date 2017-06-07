@@ -1,4 +1,4 @@
-﻿namespace Pdf.Service.Util
+﻿namespace Pdf.Storage.Util
 {
     public class ApiError
     {

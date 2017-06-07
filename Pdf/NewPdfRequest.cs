@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json.Linq;
 
-namespace Pdf.Service.Pdf
+namespace Pdf.Storage.Pdf
 {
     public class NewPdfRequest
     {

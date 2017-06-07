@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Pdf.Service.Pdf
+﻿namespace Pdf.Storage.Pdf
 {
     public class NewPdfResponse
     {

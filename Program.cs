@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using Microsoft.AspNetCore.Hosting;
 
-namespace Pdf.Service
+namespace Pdf.Storage
 {
     public class Program
     {

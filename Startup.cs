@@ -5,11 +5,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.PlatformAbstractions;
-using Pdf.Service.Data;
-using Pdf.Service.Util;
+using Pdf.Storage.Data;
+using Pdf.Storage.Pdf;
+using Pdf.Storage.Test;
+using Pdf.Storage.Util;
 using Swashbuckle.AspNetCore.Swagger;
 
-namespace Pdf.Service
+namespace Pdf.Storage
 {
     public class Startup
     {
@@ -17,9 +19,7 @@ namespace Pdf.Service
         {
             services.AddMvc(options => options.Filters.Add(new ValidateModelAttribute()));
 
-            services.AddNodeServices(o =>
-            {
-            });
+            services.AddNodeServices();
 
             services.AddSwaggerGen(c =>
             {
@@ -35,6 +35,9 @@ namespace Pdf.Service
             });
 
             services.AddDbContext<PdfDataContext>(opt => opt.UseInMemoryDatabase());
+
+            services.AddTransient<IPdfConvert, PdfConvert>();
+            services.AddSingleton<IPdfStorage, InMemoryPdfStorage>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
