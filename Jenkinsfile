@@ -1,5 +1,6 @@
 podTemplate(label: 'dotnet', idleMinutes:30,
   containers: [
+    containerTemplate(name: 'node', image: 'node:boron', ttyEnabled: true, command: '/bin/sh -c', args: 'cat'),
     containerTemplate(name: 'dotnet', image: 'microsoft/dotnet:1.1.1-sdk', ttyEnabled: true, command: '/bin/sh -c', args: 'cat'),
     containerTemplate(name: 'docker', image: 'ptcos/docker-client:latest', alwaysPullImage: true, ttyEnabled: true, command: '/bin/sh -c', args: 'cat')
   ]
@@ -15,14 +16,13 @@ podTemplate(label: 'dotnet', idleMinutes:30,
       }
       stage('Build') {
         container('dotnet') {
+          container('node') {
           sh """
-            apt-get -qq update
-            apt-get install -y npm && apt-get install -y nodejs
-
             npm install
             dotnet restore
             dotnet publish -c Release -o out
           """
+          }
         }
       }
       stage('Test') {
