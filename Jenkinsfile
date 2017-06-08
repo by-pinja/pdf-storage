@@ -29,6 +29,7 @@ podTemplate(label: 'dotnet', idleMinutes:30,
       stage('Test') {
         container('dotnet') {
           sh """
+            node --version
             dotnet test
           """
         }
