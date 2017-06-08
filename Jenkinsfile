@@ -28,10 +28,12 @@ podTemplate(label: 'dotnet', idleMinutes:30,
         }
       }
       stage('Test') {
-        container('dotnet') {
-          sh """
-            dotnet test
-          """
+        container('node') {
+          container('dotnet') {
+            sh """
+              dotnet test
+            """
+          }
         }
       }
       stage('Package') {
