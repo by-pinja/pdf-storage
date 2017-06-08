@@ -18,7 +18,6 @@ podTemplate(label: 'dotnet', idleMinutes:30,
           sh """
             apt-get -qq update
             apt-get install -y npm && apt-get install -y nodejs
-            alias node=nodejs
 
             npm install
             dotnet restore
@@ -29,6 +28,8 @@ podTemplate(label: 'dotnet', idleMinutes:30,
       stage('Test') {
         container('dotnet') {
           sh """
+            alias node=nodejs
+            nodejs --version
             node --version
             dotnet test
           """
