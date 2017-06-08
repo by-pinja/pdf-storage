@@ -15,9 +15,13 @@ podTemplate(label: 'dotnet', idleMinutes:30,
 	        checkout scm
       }
       stage('Build') {
-        container('dotnet') {
+        container('node') {
           sh """
             npm install
+          """
+        }
+        container('dotnet') {
+          sh """
             dotnet restore
             dotnet publish -c Release -o out
           """
