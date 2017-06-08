@@ -16,6 +16,7 @@ podTemplate(label: 'dotnet', idleMinutes:30,
       stage('Build') {
         container('dotnet') {
           sh """
+            apt-get -qq update
             apt-get install -y nodejs
             npm install
             dotnet restore
