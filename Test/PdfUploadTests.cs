@@ -36,6 +36,32 @@ namespace Pdf.Storage.Test
                 .Passing(x => x.Should().Match("*404*PDF*doesn't*exist*"));
         }
 
+        [Fact]
+        public void WhenFileIsUploaded_ThenResponseTellsUsefullInformationAboutProcessing()
+        {
+            var host = TestHost.Run<TestStartup>();
+            var groupId = Guid.NewGuid();
+
+            var newPdf = AddPdf(host, groupId);
+
+            newPdf.PfdUri.Should().Be($"http://localhost:5000/v1/pdf/{groupId}/{newPdf.Id}.pdf");
+            newPdf.Id.Should().Be(newPdf.Id);
+            newPdf.GroupId.Should().Be(groupId.ToString());
+        }
+
+        [Fact]
+        public void WhenMultiplePdfsAreCreated_ThenTheyShouldBeAvailable()
+        {
+            var host = TestHost.Run<TestStartup>();
+            var groupId = Guid.NewGuid();
+
+            var newPdf = AddPdf(host, groupId);
+
+            newPdf.PfdUri.Should().Be($"http://localhost:5000/v1/pdf/{groupId}/{newPdf.Id}.pdf");
+            newPdf.Id.Should().Be(newPdf.Id);
+            newPdf.GroupId.Should().Be(groupId.ToString());
+        }
+
         [Fact(Skip = "Ignored because isnt valid case until work queues are implemented.")]
         public void WhenFileExistsButIsStillProcessing_ThenReturnProcessingErrorMessage()
         {
