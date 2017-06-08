@@ -29,7 +29,7 @@ podTemplate(label: 'dotnet', idleMinutes:30,
           sh """
             apt-get -qq update
             apt-get install -y nodejs
-
+            PATH=/usr/bin/node:$PATH
             dotnet test
           """
         }
