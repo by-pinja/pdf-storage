@@ -17,7 +17,9 @@ podTemplate(label: 'dotnet', idleMinutes:30,
         container('dotnet') {
           sh """
             apt-get -qq update
-            apt-get install -y npm
+            apt-get install -y npm && apt-get install -y nodejs
+            alias node=nodejs
+
             npm install
             dotnet restore
             dotnet publish -c Release -o out
@@ -27,8 +29,6 @@ podTemplate(label: 'dotnet', idleMinutes:30,
       stage('Test') {
         container('dotnet') {
           sh """
-            PATH=/usr/bin/node:\$PATH
-            node --version
             dotnet test
           """
         }
