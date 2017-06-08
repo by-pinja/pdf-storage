@@ -3,10 +3,12 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp1.1</TargetFramework>
     <PreserveCompilationContext>true</PreserveCompilationContext>
+    <AssemblyName>Pdf.Storage</AssemblyName>
     <OutputType>Exe</OutputType>
+    <PackageId>Pdf.Storate</PackageId>
+    <RuntimeFrameworkVersion>1.1.1</RuntimeFrameworkVersion>
+    <PackageTargetFallback>dotnet5.6;portable-net45+win8</PackageTargetFallback>
     <GenerateProgramFile>false</GenerateProgramFile>
-    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
 
   <ItemGroup>
