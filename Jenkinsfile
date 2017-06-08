@@ -18,6 +18,7 @@ podTemplate(label: 'dotnet', idleMinutes:30,
           sh """
             apt-get -qq update
             apt-get install -y nodejs
+            apt-get install -y npm
             npm install
             dotnet restore
             dotnet publish -c Release -o out
