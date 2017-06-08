@@ -9,9 +9,9 @@ namespace Pdf.Storage.Test
     {
         private readonly Startup _original;
 
-        public TestStartup()
+        public TestStartup(IHostingEnvironment env)
         {
-            _original = new Startup();
+            _original = new Startup(env);
         }
 
         public void ConfigureServices(IServiceCollection services)

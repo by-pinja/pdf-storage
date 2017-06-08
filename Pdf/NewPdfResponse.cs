@@ -2,13 +2,15 @@
 {
     public class NewPdfResponse
     {
-        public NewPdfResponse(string id, string uri)
+        public NewPdfResponse(string id, string groupId, string pfdUri)
         {
             Id = id;
-            Uri = uri;
+            GroupId = groupId;
+            PfdUri = pfdUri;
         }
 
-        public string Uri { get; }
+        public string PfdUri { get; }
         public string Id { get; }
+        public string GroupId { get; }
     }
 }

@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Pdf.Storage.Data;
 using Pdf.Storage.Test;
 
@@ -13,25 +15,33 @@ namespace Pdf.Storage.Pdf
         private readonly IPdfConvert _pdfService;
         private readonly PdfDataContext _context;
         private readonly IPdfStorage _pdfStorage;
+        private readonly AppSettings _settings;
 
-        public PdfController(IPdfConvert pdfService, PdfDataContext context, IPdfStorage pdfStorage)
+        public PdfController(IPdfConvert pdfService, PdfDataContext context, IPdfStorage pdfStorage, IOptions<AppSettings> settings)
         {
             _pdfService = pdfService;
             _context = context;
             _pdfStorage = pdfStorage;
+            _settings = settings.Value;
         }
 
         [HttpPost("/v1/pdf/{groupId}/")]
-        public IActionResult AddNewPdf([Required] string groupId, [FromBody] NewPdfRequest request)
+        public IActionResult AddNewPdf([Required] string groupId, [FromBody] IEnumerable<NewPdfRequest> request)
         {
-            var pdf = _pdfService.CreatePdfFromHtml(request.Html);
-            var entity = _context.PdfFiles.Add(new PdfEntity(groupId, request.Html)).Entity;
-            entity.Processed = true;
-            _context.SaveChanges();
+            var responses = request.ToList().Select(r =>
+            {
+                var pdf = _pdfService.CreatePdfFromHtml(r.Html);
+                var entity = _context.PdfFiles.Add(new PdfEntity(groupId, r.Html)).Entity;
+                entity.Processed = true;
+                _context.SaveChanges();
 
-            _pdfStorage.AddPdf(new StoredPdf(entity.GroupId, entity.FileId, pdf.data));
+                _pdfStorage.AddPdf(new StoredPdf(entity.GroupId, entity.FileId, pdf.data));
 
-            return StatusCode(202, new NewPdfResponse(entity.FileId, entity.FileId));
+                var pdfUri = $"{_settings.BaseUrl}/v1/pdf/{groupId}/{entity.FileId}.pdf";
+                return new NewPdfResponse(entity.FileId, entity.GroupId, pdfUri);
+            });
+
+            return StatusCode(202, responses.ToList());
         }
 
         [HttpGet("/v1/pdf/{groupId}/{pdfId}.pdf")]
