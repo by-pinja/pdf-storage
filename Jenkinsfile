@@ -27,9 +27,8 @@ podTemplate(label: 'dotnet', idleMinutes:30,
       stage('Test') {
         container('dotnet') {
           sh """
-            apt-get -qq update
-            apt-get install -y nodejs
-            PATH=/usr/bin/node:$PATH
+            PATH=/usr/bin/node:\$PATH
+            node --version
             dotnet test
           """
         }
