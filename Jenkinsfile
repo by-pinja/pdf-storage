@@ -17,7 +17,6 @@ podTemplate(label: 'dotnet', idleMinutes:30,
         container('dotnet') {
           sh """
             apt-get -qq update
-            apt-get install -y nodejs
             apt-get install -y npm
             npm install
             dotnet restore
@@ -28,6 +27,9 @@ podTemplate(label: 'dotnet', idleMinutes:30,
       stage('Test') {
         container('dotnet') {
           sh """
+            apt-get -qq update
+            apt-get install -y nodejs
+
             dotnet test
           """
         }
