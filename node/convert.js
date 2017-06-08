@@ -5,8 +5,8 @@ module.exports = function (callback, html, data) {
         .createBuffer(html, data, {})
         .then(resultBuffer => {
             callback(/* error */ null, resultBuffer);
-        })
+        }, error => callback(/* error */ null, error))
         .catch((error) => {
-            callback(error, null);
+            callback(/* error */ null, error);
         });
 };

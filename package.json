@@ -5,5 +5,8 @@
   "main": "index.js",
   "scripts": {},
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "html-to-pdf": "git+https://github.com/protacon/html-to-pdf.git"
+  }
 }

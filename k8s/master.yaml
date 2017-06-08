@@ -1,0 +1,79 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: pdf-storage-master
+    version: master
+  name: pdf-storage-master
+  namespace: pdf-storage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pdf-storage-master
+      version: master
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: pdf-storage-master
+        version: master
+      name: pdf-storage-master
+    spec:
+      containers:
+      - image: eu.gcr.io/ptcs-docker-registry/pdf-storage:latest-master
+        imagePullPolicy: Always
+        name: pdf-storage-master
+        env:
+          - name: ASPNETCORE_ENVIRONMENT
+            value: master
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: pdf-storage-master
+    version: master
+  name: pdf-storage-master
+  namespace: pdf-storage
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 5000
+  selector:
+    app: pdf-storage-master
+    version: master
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: pdf-storage-ingress
+  namespace: pdf-storage
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+    - host: pdf-storage-master.protacon.cloud
+      http:
+        paths:
+          - backend:
+              serviceName: pdf-storage-master
+              servicePort: 80
+  tls:
+    - hosts:
+      - pdf-storage-master.protacon.cloud
+      secretName: eventale-crt
