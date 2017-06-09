@@ -7,7 +7,8 @@ namespace Pdf.Storage.Pdf
     {
         [Required]
         public string Html { get; set; }
-
-        public JObject Data { get; set; } = new JObject();
+        public JObject BaseData { get; set; } = new JObject();
+        [Required]
+        public JObject[] RowData { get; set; } = new JObject[0];
     }
 }

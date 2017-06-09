@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using Microsoft.AspNetCore.NodeServices;
-using Newtonsoft.Json.Linq;
 
 namespace Pdf.Storage.Pdf
 {
@@ -15,11 +14,11 @@ namespace Pdf.Storage.Pdf
             _nodeServices = nodeServices;
         }
 
-        public (byte[] data, string html) CreatePdfFromHtml(string html)
+        public (byte[] data, string html) CreatePdfFromHtml(string html, object templateData)
         {
             Console.WriteLine("Creting from: " + html);
 
-            var pdf = _nodeServices.InvokeAsync<ExpandoObject>(@"./node/convert.js", html, new {}).Result;
+            var pdf = _nodeServices.InvokeAsync<ExpandoObject>(@"./node/convert.js", html, templateData).Result;
 
             var data = pdf.SingleOrDefault(x => x.Key == "data").Value;
 
