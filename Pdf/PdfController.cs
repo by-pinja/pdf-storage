@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
@@ -26,19 +24,20 @@ namespace Pdf.Storage.Pdf
         }
 
         [HttpPost("/v1/pdf/{groupId}/")]
-        public IActionResult AddNewPdf([Required] string groupId, [FromBody] IEnumerable<NewPdfRequest> request)
+        public IActionResult AddNewPdf([Required] string groupId, [FromBody] NewPdfRequest request)
         {
-            var responses = request.ToList().Select(r =>
+            var responses = request.RowData.ToList().Select(row =>
             {
-                var pdf = _pdfService.CreatePdfFromHtml(r.Html);
-                var entity = _context.PdfFiles.Add(new PdfEntity(groupId, r.Html)).Entity;
+                var pdf = _pdfService.CreatePdfFromHtml(request.Html, TemplateDataUtils.GetTemplateData(request.BaseData, request.RowData));
+
+                var entity = _context.PdfFiles.Add(new PdfEntity(groupId, request.Html)).Entity;
                 entity.Processed = true;
                 _context.SaveChanges();
 
                 _pdfStorage.AddPdf(new StoredPdf(entity.GroupId, entity.FileId, pdf.data));
 
                 var pdfUri = $"{_settings.BaseUrl}/v1/pdf/{groupId}/{entity.FileId}.pdf";
-                return new NewPdfResponse(entity.FileId, entity.GroupId, pdfUri);
+                return new NewPdfResponse(entity.FileId, entity.GroupId, pdfUri, row);
             });
 
             return StatusCode(202, responses.ToList());
