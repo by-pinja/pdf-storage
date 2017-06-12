@@ -77,3 +77,76 @@ spec:
     - hosts:
       - pdf-storage-master.protacon.cloud
       secretName: eventale-crt
+
+---
+
+---
+
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  namespace: pdf-storage
+  labels:
+    app: pdf-storage-db-master
+    role: db
+  name: pdf-storage-db-master
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: pdf-storage-db-master
+        version: master
+      name: pdf-storage-db-master
+    spec:
+      containers:
+      - image: postgres
+        imagePullPolicy: Always
+        name: pdf-storage-db-master
+        env:
+          - name: POSTGRES_PASSWORD
+            value: "S4XfPVzHXP3Sct"
+        volumeMounts:
+        - mountPath: /var/lib/postgresql
+          name: pdf-storage-db-master-storage
+      volumes:
+      - name: pdf-storage-db-master-storage
+        persistentVolumeClaim:
+          claimName: pdf-storage-db-master-storage
+
+---
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: pdf-storage-db-master-storage
+  namespace: pdf-storage
+  annotations:
+    volume.beta.kubernetes.io/storage-class: fast
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: pdf-storage-db
+  namespace: pdf-storage
+  labels:
+    app: pdf-storage-db-master-service
+    role: db
+spec:
+  type: ClusterIP
+  clusterIP: "None"
+  selector:
+    app: pdf-storage-db-master
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+      name: db
