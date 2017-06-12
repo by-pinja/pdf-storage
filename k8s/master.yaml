@@ -80,8 +80,6 @@ spec:
 
 ---
 
----
-
 apiVersion: v1
 kind: ReplicationController
 metadata:
