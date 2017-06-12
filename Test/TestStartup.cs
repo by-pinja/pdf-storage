@@ -1,16 +1,11 @@
-﻿using System;
-using System.Linq.Expressions;
-using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
-using FluentAssertions;
-using Hangfire;
+﻿using Hangfire;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using NSubstitute;
-using Pdf.Storage.Pdf;
+using Pdf.Storage.Data;
 using Protacon.NetCore.WebApi.TestUtil;
-using Expression = System.Linq.Expressions.Expression;
 
 namespace Pdf.Storage.Test
 {
@@ -26,11 +21,20 @@ namespace Pdf.Storage.Test
         public void ConfigureServices(IServiceCollection services)
         {
             _original.ConfigureServices(services);
+
+            services
+                .RemoveService<PdfDataContext>()
+                .RemoveService<DbContextOptions<PdfDataContext>>()
+                .AddDbContext<PdfDataContext>(opt => opt.UseInMemoryDatabase());
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            _original.Configure(app, env, loggerFactory);
+            loggerFactory.AddConsole();
+            loggerFactory.AddDebug();
+
+            app.UseHangfireServer();
+            app.UseMvc();
         }
     }
 }
