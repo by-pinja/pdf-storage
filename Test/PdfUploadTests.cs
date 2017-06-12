@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Dynamic;
 using System.Linq;
 using System.Net;
 using FluentAssertions;
@@ -17,11 +18,12 @@ namespace Pdf.Storage.Test
                     new NewPdfRequest
                     {
                         Html = "<body> {{ TEXT }} </body>",
-                        RowData = new [] {JObject.FromObject(new
-                        {
-                            Key = "keyHere",
-                            TEXT = "something"
-                        })}
+                        RowData = new object[] {
+                            new
+                            {
+                                Key = "keyHere",
+                                TEXT = "something"
+                            }}
                     }
                 ).ExpectStatusCode(HttpStatusCode.Accepted)
                 .WithContentOf<NewPdfResponse[]>()
@@ -66,7 +68,7 @@ namespace Pdf.Storage.Test
             newPdf.PfdUri.Should().Be($"http://localhost:5000/v1/pdf/{groupId}/{newPdf.Id}.pdf");
             newPdf.Id.Should().Be(newPdf.Id);
             newPdf.GroupId.Should().Be(groupId.ToString());
-            newPdf.Data["Key"].Value<string>().Should().Be("keyHere");
+            ((JObject) newPdf.Data)["Key"].Value<string>().Should().Be("keyHere");
         }
 
         [Fact]

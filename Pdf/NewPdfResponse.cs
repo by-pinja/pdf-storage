@@ -4,7 +4,7 @@ namespace Pdf.Storage.Pdf
 {
     public class NewPdfResponse
     {
-        public NewPdfResponse(string id, string groupId, string pfdUri, JObject data)
+        public NewPdfResponse(string id, string groupId, string pfdUri, object data)
         {
             Id = id;
             GroupId = groupId;
@@ -15,6 +15,6 @@ namespace Pdf.Storage.Pdf
         public string PfdUri { get; }
         public string Id { get; }
         public string GroupId { get; }
-        public JObject Data { get; }
+        public object Data { get; }
     }
 }

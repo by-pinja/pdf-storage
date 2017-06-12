@@ -7,7 +7,7 @@ namespace Pdf.Storage.Pdf
     {
         public static ExpandoObject GetTemplateData(object templateData, object rowData)
         {
-            var templateDataAsJ = JObject.FromObject(rowData);
+            var templateDataAsJ = JObject.FromObject(templateData);
 
             templateDataAsJ.Merge(JObject.FromObject(rowData), 
                 new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Replace });
