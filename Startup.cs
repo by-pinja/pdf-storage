@@ -1,4 +1,6 @@
 ﻿using System.IO;
+using Hangfire;
+using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +24,7 @@ namespace Pdf.Storage
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", true, true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true)
-                .AddJsonFile($"appsettings.secrets.json", true)
+                .AddJsonFile("appsettings.secrets.json", true)
                 .AddEnvironmentVariables();
 
             Configuration = builder.Build();
@@ -44,7 +46,7 @@ namespace Pdf.Storage
                 c.SwaggerDoc("v1",
                     new Info
                     {
-                        Title = "Pdf service",
+                        Title = "Pdf.Storage",
                         Version = "v1",
                         Description = File.ReadAllText(Path.Combine(basePath, "ApiDescription.md"))
                     });
@@ -56,6 +58,9 @@ namespace Pdf.Storage
 
             services.AddTransient<IPdfConvert, PdfConvert>();
             services.AddSingleton<IPdfStorage, InMemoryPdfStorage>();
+            services.AddTransient<IPdfQueue, PdfQueue>();
+
+            services.AddHangfire(config => config.UseMemoryStorage());
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
@@ -71,9 +76,12 @@ namespace Pdf.Storage
 
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Authorization Service");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pdf.Storage");
                 c.RoutePrefix = "doc";
             });
+
+            app.UseHangfireServer();
+            app.UseHangfireDashboard();
 
             app.UseMvc();
         }

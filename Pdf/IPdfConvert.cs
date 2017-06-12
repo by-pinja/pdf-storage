@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-
-namespace Pdf.Storage.Pdf
+﻿namespace Pdf.Storage.Pdf
 {
     public interface IPdfConvert
     {

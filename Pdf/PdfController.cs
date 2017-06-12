@@ -1,6 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
+using Hangfire;
+using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Pdf.Storage.Data;
@@ -10,16 +13,16 @@ namespace Pdf.Storage.Pdf
 {
     public class PdfController : Controller
     {
-        private readonly IPdfConvert _pdfService;
         private readonly PdfDataContext _context;
         private readonly IPdfStorage _pdfStorage;
+        private readonly IBackgroundJobClient _backgroundJobs;
         private readonly AppSettings _settings;
 
-        public PdfController(IPdfConvert pdfService, PdfDataContext context, IPdfStorage pdfStorage, IOptions<AppSettings> settings)
+        public PdfController(PdfDataContext context, IPdfStorage pdfStorage, IOptions<AppSettings> settings, IBackgroundJobClient backgroundJob)
         {
-            _pdfService = pdfService;
             _context = context;
             _pdfStorage = pdfStorage;
+            _backgroundJobs = backgroundJob;
             _settings = settings.Value;
         }
 
@@ -28,17 +31,15 @@ namespace Pdf.Storage.Pdf
         {
             var responses = request.RowData.ToList().Select(row =>
             {
-                var pdf = _pdfService.CreatePdfFromHtml(request.Html, TemplateDataUtils.GetTemplateData(request.BaseData, row));
-
-                var entity = _context.PdfFiles.Add(new PdfEntity(groupId, request.Html)).Entity;
-
-                entity.Processed = true;
-
+                var entity = _context.PdfFiles.Add(new PdfEntity(groupId)).Entity;
                 _context.SaveChanges();
 
-                _pdfStorage.AddPdf(new StoredPdf(entity.GroupId, entity.FileId, pdf.data));
+                var templateData = TemplateDataUtils.GetTemplateData(request.BaseData, row);
+
+                _backgroundJobs.Enqueue<IPdfQueue>(que => que.CreatePdf(entity.Id, request.Html, templateData));
 
                 var pdfUri = $"{_settings.BaseUrl}/v1/pdf/{groupId}/{entity.FileId}.pdf";
+
                 return new NewPdfResponse(entity.FileId, entity.GroupId, pdfUri, row);
             });
 

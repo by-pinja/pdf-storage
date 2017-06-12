@@ -5,16 +5,17 @@ namespace Pdf.Storage.Test
 {
     public class InMemoryPdfStorage : IPdfStorage
     {
-        private readonly Dictionary<string, StoredPdf> _localStore = new Dictionary<string, StoredPdf>();
+        // Currently theres issues with jobmanagement di, forces for static workaround: https://github.com/HangfireIO/Hangfire/issues/808
+        private static readonly Dictionary<string, StoredPdf> LocalStore = new Dictionary<string, StoredPdf>();
 
         public void AddPdf(StoredPdf pdf)
         {
-            _localStore.Add($"{pdf.Group}_{pdf.Id}", pdf);
+            LocalStore.Add($"{pdf.Group}_{pdf.Id}", pdf);
         }
 
         public StoredPdf GetPdf(string groupId, string pdfId)
         {
-            return _localStore[$"{groupId}_{pdfId}"];
+            return LocalStore[$"{groupId}_{pdfId}"];
         }
     }
 }

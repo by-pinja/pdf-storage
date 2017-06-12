@@ -8,6 +8,7 @@
     <PackageId>Pdf.Storate</PackageId>
     <PackageTargetFallback>dotnet5.6;portable-net45+win8</PackageTargetFallback>
     <GenerateProgramFile>false</GenerateProgramFile>
+    <UserSecretsId>42fe4b42-1d47-4d5c-a8e6-6c3360564734</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,6 +21,9 @@
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="4.19.2" />
+    <PackageReference Include="Hangfire" Version="1.6.13" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.6.13" />
+    <PackageReference Include="Hangfire.MemoryStorage" Version="1.5.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.3" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="1.1.3" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="1.1.3" />
@@ -31,6 +35,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.Design" Version="1.1.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="1.1.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="1.1.2" />
+    <PackageReference Include="NSubstitute" Version="2.0.3" />
     <PackageReference Include="Protacon.NetCore.WebApi.TestUtil" Version="1.0.0-beta5" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="1.1.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="1.1.1" />
