@@ -2,7 +2,11 @@
 using System.Dynamic;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using FluentAssertions;
+using Hangfire;
+using Hangfire.SqlServer;
+using Hangfire.Storage;
 using Newtonsoft.Json.Linq;
 using Pdf.Storage.Pdf;
 using Protacon.NetCore.WebApi.TestUtil;
@@ -40,7 +44,11 @@ namespace Pdf.Storage.Test
             host.Get($"/v1/pdf/{groupId}/{Guid.NewGuid()}.pdf")
                 .ExpectStatusCode(HttpStatusCode.NotFound)
                 .WithContentOf<string>()
-                .Passing(x => x.Should().Match("*404*PDF*doesn't*exist*"));
+                .Passing(x =>
+                {
+                    host.MockPassing<IPersistentJobQueueMonitoringApi>(a => { });
+                    x.Should().Match("*404*PDF*doesn't*exist*");
+                });
         }
 
         [Fact(Skip = "Ignored because isnt valid case until work queues are implemented.")]
@@ -92,10 +100,30 @@ namespace Pdf.Storage.Test
 
             var newPdf = AddPdf(host, groupId);
 
-            host.Get($"/v1/pdf/{groupId}/{newPdf.Id}.pdf")
+            WaitForOk(host, newPdf.PfdUri)
                 .ExpectStatusCode(HttpStatusCode.OK)
                 .WithContentOf<byte[]>()
                 .Passing(x => x.Length.Should().BeGreaterThan(1));
+        }
+
+        // Ugly workaround, waiting for better idea.
+        private CallResponse WaitForOk(TestHost host, string path)
+        {
+            Thread.Sleep(3000);
+
+            for (int i = 0; i < 10; i++)
+            {
+                try
+                {
+                    var response = host.Get(path).ExpectStatusCode(HttpStatusCode.OK);
+                    return response;
+                }
+                catch (ExpectedStatusCodeException)
+                {
+                    Thread.Sleep(1000);
+                }
+            }
+            throw new InvalidOperationException("Timeout");
         }
     }
 }
