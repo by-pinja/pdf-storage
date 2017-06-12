@@ -51,10 +51,10 @@ namespace Pdf.Storage
                         Description = File.ReadAllText(Path.Combine(basePath, "ApiDescription.md"))
                     });
             });
-
-            services.AddDbContext<PdfDataContext>(opt => opt.UseInMemoryDatabase());
-
             services.Configure<AppSettings>(Configuration);
+
+            services.AddDbContext<PdfDataContext>(opt => 
+                opt.UseNpgsql(Configuration["ConnectionString"]));
 
             services.AddTransient<IPdfConvert, PdfConvert>();
             services.AddSingleton<IPdfStorage, InMemoryPdfStorage>();
@@ -72,6 +72,8 @@ namespace Pdf.Storage
             {
             }
 
+            MigrateDb(app);
+
             app.UseSwagger();
 
             app.UseSwaggerUI(c =>
@@ -84,6 +86,12 @@ namespace Pdf.Storage
             app.UseHangfireDashboard();
 
             app.UseMvc();
+        }
+
+        private static void MigrateDb(IApplicationBuilder app)
+        {
+            var context = app.ApplicationServices.GetService<PdfDataContext>();
+            context.Database.Migrate();
         }
     }
 }
