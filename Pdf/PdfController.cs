@@ -28,10 +28,12 @@ namespace Pdf.Storage.Pdf
         {
             var responses = request.RowData.ToList().Select(row =>
             {
-                var pdf = _pdfService.CreatePdfFromHtml(request.Html, TemplateDataUtils.GetTemplateData(request.BaseData, request.RowData));
+                var pdf = _pdfService.CreatePdfFromHtml(request.Html, TemplateDataUtils.GetTemplateData(request.BaseData, row));
 
                 var entity = _context.PdfFiles.Add(new PdfEntity(groupId, request.Html)).Entity;
+
                 entity.Processed = true;
+
                 _context.SaveChanges();
 
                 _pdfStorage.AddPdf(new StoredPdf(entity.GroupId, entity.FileId, pdf.data));
