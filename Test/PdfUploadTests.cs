@@ -5,6 +5,7 @@ using FluentAssertions;
 using Hangfire.SqlServer;
 using Newtonsoft.Json.Linq;
 using Pdf.Storage.Pdf;
+using Pdf.Storage.Pdf.Dto;
 using Protacon.NetCore.WebApi.TestUtil;
 using Xunit;
 
