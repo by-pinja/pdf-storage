@@ -16,9 +16,9 @@ namespace Pdf.Storage.Pdf
         {
             _settings = settings.Value;
 
-            var bar = File.ReadAllText(_settings.GoogleAuthFile);
+            var googleAuthConfig = File.ReadAllText(_settings.GoogleAuthFile);
 
-            _storageClient = StorageClient.Create(credential: GoogleCredential.FromJson(bar).CreateScoped(new List<string>
+            _storageClient = StorageClient.Create(credential: GoogleCredential.FromJson(googleAuthConfig).CreateScoped(new List<string>
             {
                 StorageService.Scope.DevstorageFullControl
             }));
