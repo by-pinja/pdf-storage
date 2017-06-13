@@ -16,7 +16,7 @@ namespace Pdf.Storage.Pdf
         {
             _settings = settings.Value;
 
-            var bar = File.ReadAllText(@"C:\Users\psa\AppData\Roaming\gcloud\application_default_credentials.json");
+            var bar = File.ReadAllText(_settings.GoogleAuthFile);
 
             _storageClient = StorageClient.Create(credential: GoogleCredential.FromJson(bar).CreateScoped(new List<string>
             {
