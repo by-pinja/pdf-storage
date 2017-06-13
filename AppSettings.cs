@@ -4,5 +4,6 @@
     {
         public string BaseUrl { get; set; }
         public string GoogleBucketName { get; set; }
+        public string GoogleAuthFile { get; set; }
     }
 }
