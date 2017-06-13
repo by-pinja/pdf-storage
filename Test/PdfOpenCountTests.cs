@@ -42,6 +42,27 @@ namespace Pdf.Storage.Test
                 });
         }
 
+        [Fact]
+        public void WhenPdfIsOpenedWithNoCountQuery_ThenDontCountIsAsOpened()
+        {
+            var host = TestHost.Run<TestStartup>();
+            var group = "default";
+
+            var pdf = AddPdf(host, group);
+
+            host.WaitForOk($"{pdf.PdfUri}?noCount=true");
+
+            host.Get($"/v1/usage/{group}/")
+                .ExpectStatusCode(HttpStatusCode.OK)
+                .WithContentOf<IEnumerable<PdfUsageCountSimpleResponse>>()
+                .Passing(x => x.Should().HaveCount(0));
+
+            host.Get($"/v1/usage/{group}/{pdf.Id}.pdf")
+                .ExpectStatusCode(HttpStatusCode.OK)
+                .WithContentOf<PdfUsageCountResponse>()
+                .Passing(x => x.Opened.Should().HaveCount(0));
+        }
+
         private NewPdfResponse AddPdf(TestHost host, string groupId)
         {
             return host.Post($"/v1/pdf/{groupId}/",
