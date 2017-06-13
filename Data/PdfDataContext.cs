@@ -8,6 +8,13 @@ namespace Pdf.Storage.Data
         {
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<PdfOpenedEntity>()
+                .HasOne(x => x.Parent)
+                .WithMany(x => x.Usage);
+        }
+
         public DbSet<PdfEntity> PdfFiles { get; set; }
     }
 }

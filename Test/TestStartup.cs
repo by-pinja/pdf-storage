@@ -26,6 +26,9 @@ namespace Pdf.Storage.Test
                 .RemoveService<PdfDataContext>()
                 .RemoveService<DbContextOptions<PdfDataContext>>()
                 .AddDbContext<PdfDataContext>(opt => opt.UseInMemoryDatabase());
+
+            services.RemoveService<IPdfStorage>()
+                .AddSingleton<IPdfStorage, InMemoryPdfStorage>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)

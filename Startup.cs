@@ -57,7 +57,7 @@ namespace Pdf.Storage
                 opt.UseNpgsql(Configuration["ConnectionString"]));
 
             services.AddTransient<IPdfConvert, PdfConvert>();
-            services.AddSingleton<IPdfStorage, InMemoryPdfStorage>();
+            services.AddSingleton<IPdfStorage, GoogleCloudPdfStorage>();
             services.AddTransient<IPdfQueue, PdfQueue>();
 
             services.AddHangfire(config => config.UseMemoryStorage());
