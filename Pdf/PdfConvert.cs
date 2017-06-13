@@ -16,8 +16,6 @@ namespace Pdf.Storage.Pdf
 
         public (byte[] data, string html) CreatePdfFromHtml(string html, object templateData)
         {
-            Console.WriteLine("Creting from: " + html);
-
             var pdf = _nodeServices.InvokeAsync<ExpandoObject>(@"./node/convert.js", html, templateData).Result;
 
             var data = pdf.SingleOrDefault(x => x.Key == "data").Value;

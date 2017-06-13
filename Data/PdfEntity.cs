@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Pdf.Storage.Data
 {
@@ -17,5 +19,7 @@ namespace Pdf.Storage.Data
         public string FileId { get; protected set; }
         public bool Processed { get; set; }
         public int OpenedTimes { get; set; }
+
+        public ICollection<PdfOpenedEntity> Usage { get; protected set; } = new List<PdfOpenedEntity>();
     }
 }

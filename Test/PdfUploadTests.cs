@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
-using System.Threading;
 using FluentAssertions;
 using Hangfire.SqlServer;
 using Newtonsoft.Json.Linq;
@@ -48,7 +47,7 @@ namespace Pdf.Storage.Test
                 });
         }
 
-        [Fact(Skip = "Ignored because isnt valid case until work queues are implemented.")]
+        [Fact]
         public void WhenFileExistsButIsStillProcessing_ThenReturnProcessingErrorMessage()
         {
             var host = TestHost.Run<TestStartup>();
@@ -59,7 +58,7 @@ namespace Pdf.Storage.Test
             host.Get($"/v1/pdf/{groupId}/{newPdf.Id}.pdf")
                 .ExpectStatusCode(HttpStatusCode.NotFound)
                 .WithContentOf<string>()
-                .Passing(x => x.Should().Match("*404*PDF*is*processing*later*"));
+                .Passing(x => x.Should().Match("*404*PDF*is*waiting*to*be*processed*"));
         }
 
         [Fact]
@@ -70,7 +69,7 @@ namespace Pdf.Storage.Test
 
             var newPdf = AddPdf(host, groupId);
 
-            newPdf.PfdUri.Should().Be($"http://localhost:5000/v1/pdf/{groupId}/{newPdf.Id}.pdf");
+            newPdf.PdfUri.Should().Be($"http://localhost:5000/v1/pdf/{groupId}/{newPdf.Id}.pdf");
             newPdf.Id.Should().Be(newPdf.Id);
             newPdf.GroupId.Should().Be(groupId.ToString());
             ((JObject) newPdf.Data)["Key"].Value<string>().Should().Be("keyHere");
@@ -84,7 +83,7 @@ namespace Pdf.Storage.Test
 
             var newPdf = AddPdf(host, groupId);
 
-            newPdf.PfdUri.Should().Be($"http://localhost:5000/v1/pdf/{groupId}/{newPdf.Id}.pdf");
+            newPdf.PdfUri.Should().Be($"http://localhost:5000/v1/pdf/{groupId}/{newPdf.Id}.pdf");
             newPdf.Id.Should().Be(newPdf.Id);
             newPdf.GroupId.Should().Be(groupId.ToString());
         }
@@ -97,30 +96,10 @@ namespace Pdf.Storage.Test
 
             var newPdf = AddPdf(host, groupId);
 
-            WaitForOk(host, newPdf.PfdUri)
-                .ExpectStatusCode(HttpStatusCode.OK)
+            host.WaitForOk(newPdf.PdfUri)
                 .WithContentOf<byte[]>()
                 .Passing(x => x.Length.Should().BeGreaterThan(1));
         }
 
-        // Ugly workaround, waiting for better idea.
-        private CallResponse WaitForOk(TestHost host, string path)
-        {
-            Thread.Sleep(3000);
-
-            for (int i = 0; i < 10; i++)
-            {
-                try
-                {
-                    var response = host.Get(path).ExpectStatusCode(HttpStatusCode.OK);
-                    return response;
-                }
-                catch (ExpectedStatusCodeException)
-                {
-                    Thread.Sleep(1000);
-                }
-            }
-            throw new InvalidOperationException("Timeout");
-        }
     }
 }

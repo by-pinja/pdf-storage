@@ -1,12 +1,11 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using Hangfire;
-using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Pdf.Storage.Data;
+using Pdf.Storage.Pdf.Dto;
 using Pdf.Storage.Test;
 
 namespace Pdf.Storage.Pdf
@@ -47,7 +46,7 @@ namespace Pdf.Storage.Pdf
         }
 
         [HttpGet("/v1/pdf/{groupId}/{pdfId}.pdf")]
-        public IActionResult GetPdf(string groupId, string pdfId)
+        public IActionResult GetPdf(string groupId, string pdfId, [FromQuery] bool noCount)
         {
             var pdfEntity = _context.PdfFiles.SingleOrDefault(x => x.GroupId == groupId && x.FileId == pdfId);
 
@@ -72,6 +71,12 @@ namespace Pdf.Storage.Pdf
             }
 
             var pdf = _pdfStorage.GetPdf(pdfEntity.GroupId, pdfEntity.FileId);
+
+            if (!noCount)
+            {
+                pdfEntity.Usage.Add(new PdfOpenedEntity());
+                _context.SaveChanges();
+            }
 
             return new FileStreamResult(new MemoryStream(pdf.Data), "application/pdf");
         }
