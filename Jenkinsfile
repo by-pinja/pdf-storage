@@ -1,8 +1,8 @@
 podTemplate(label: 'dotnet', idleMinutes:30,
   containers: [
     containerTemplate(name: 'node', image: 'node:boron', ttyEnabled: true, command: '/bin/sh -c', args: 'cat'),
-    containerTemplate(name: 'dotnet', image: 'microsoft/dotnet:1.1.1-sdk', ttyEnabled: true, command: '/bin/sh -c', args: 'cat'),
-    containerTemplate(name: 'docker', image: 'ptcos/docker-client:latest', alwaysPullImage: true, ttyEnabled: true, command: '/bin/sh -c', args: 'cat')
+    containerTemplate(name: 'dotnetWithNode', image: 'ptcos/docker-dotnet-node-sdk:latest', ttyEnabled: true, command: '/bin/sh -c', args: 'cat'),
+    containerTemplate(name: 'docker', image: 'ptcos/docker-client:latest', alwaysPullImage: true, ttyEnabled: true, command: '/bin/sh -c', args: 'cat'),
   ]
 ) {
     def version = '1.0.0'
@@ -20,7 +20,7 @@ podTemplate(label: 'dotnet', idleMinutes:30,
             npm install
           """
         }
-        container('dotnet') {
+        container('dotnetWithNode') {
           sh """
             dotnet restore
             dotnet publish -c Release -o out
@@ -28,7 +28,7 @@ podTemplate(label: 'dotnet', idleMinutes:30,
         }
       }
       stage('Test') {
-        container('dotnet') {
+        container('dotnetWithNode') {
           sh """
           """
         }
