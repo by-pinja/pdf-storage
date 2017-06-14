@@ -30,6 +30,7 @@ podTemplate(label: 'dotnet', idleMinutes:30,
       stage('Test') {
         container('dotnetWithNode') {
           sh """
+            dotnet test
           """
         }
       }
