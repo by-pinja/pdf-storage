@@ -29,7 +29,6 @@ namespace Pdf.Storage.Pdf
             entity.Processed = true;
 
             _context.SaveChanges();
-
         }
     }
 }
