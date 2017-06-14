@@ -31,7 +31,7 @@ namespace Pdf.Storage.Pdf
             return $"{groupId}_{fileId}.pdf";
         }
 
-        public void AddPdf(StoredPdf pdf)
+        public void AddOrReplacePdf(StoredPdf pdf)
         {
             using (Stream stream = new MemoryStream(pdf.Data))
             {
