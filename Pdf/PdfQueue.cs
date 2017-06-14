@@ -24,7 +24,7 @@ namespace Pdf.Storage.Pdf
 
             var pdf = _pdfConverter.CreatePdfFromHtml(html, templateData);
 
-            _pdfStorage.AddPdf(new StoredPdf(entity.GroupId, entity.FileId, pdf.data));
+            _pdfStorage.AddOrReplacePdf(new StoredPdf(entity.GroupId, entity.FileId, pdf.data));
 
             entity.Processed = true;
 

@@ -4,7 +4,7 @@ namespace Pdf.Storage.Test
 {
     public interface IPdfStorage
     {
-        void AddPdf(StoredPdf pdf);
+        void AddOrReplacePdf(StoredPdf pdf);
         StoredPdf GetPdf(string groupId, string fileId);
     }
 }

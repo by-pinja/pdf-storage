@@ -46,7 +46,7 @@ namespace Pdf.Storage.Test
         public void WhenPdfIsOpenedWithNoCountQuery_ThenDontCountIsAsOpened()
         {
             var host = TestHost.Run<TestStartup>();
-            var group = "default";
+            var group = Guid.NewGuid().ToString();
 
             var pdf = AddPdf(host, group);
 
