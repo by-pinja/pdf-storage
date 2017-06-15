@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.PlatformAbstractions;
 using Pdf.Storage.Data;
 using Pdf.Storage.Pdf;
+using Pdf.Storage.Pdf.CustomPages;
 using Pdf.Storage.Test;
 using Pdf.Storage.Util;
 using Swashbuckle.AspNetCore.Swagger;
@@ -59,6 +60,7 @@ namespace Pdf.Storage
             services.AddTransient<IPdfConvert, PdfConvert>();
             services.AddTransient<IPdfStorage, GoogleCloudPdfStorage>();
             services.AddTransient<IPdfQueue, PdfQueue>();
+            services.AddTransient<IErrorPages, ErrorPages>();
 
             services.AddHangfire(config => config.UseMemoryStorage());
         }

@@ -59,7 +59,7 @@ namespace Pdf.Storage.Test
             host.Get($"/v1/pdf/{groupId}/{newPdf.Id}.pdf")
                 .ExpectStatusCode(HttpStatusCode.NotFound)
                 .WithContentOf<string>()
-                .Passing(x => x.Should().Match("*404*PDF*is*waiting*to*be*processed*"));
+                .Passing(x => x.Should().Match("*PDF*tiedostoa*prosessoidaan*"));
         }
 
         [Fact]
