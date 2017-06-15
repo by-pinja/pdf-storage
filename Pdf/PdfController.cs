@@ -55,12 +55,7 @@ namespace Pdf.Storage.Pdf
 
             if (pdfEntity == null)
             {
-                return new ContentResult
-                {
-                    Content = "404: PDF doesn't exists. Check url and if it is correct contact customer support.",
-                    ContentType = "text/html",
-                    StatusCode = 404
-                };
+                return _errorPages.PdfNotFoundResponse();
             }
 
             if (!pdfEntity.Processed)

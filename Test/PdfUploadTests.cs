@@ -4,7 +4,6 @@ using System.Net;
 using FluentAssertions;
 using Hangfire.SqlServer;
 using Newtonsoft.Json.Linq;
-using Pdf.Storage.Pdf;
 using Pdf.Storage.Pdf.Dto;
 using Protacon.NetCore.WebApi.TestUtil;
 using Xunit;
@@ -44,7 +43,7 @@ namespace Pdf.Storage.Test
                 .Passing(x =>
                 {
                     host.MockPassing<IPersistentJobQueueMonitoringApi>(a => { });
-                    x.Should().Match("*404*PDF*doesn't*exist*");
+                    x.Should().Match("*PDF*not*found*");
                 });
         }
 
@@ -59,7 +58,7 @@ namespace Pdf.Storage.Test
             host.Get($"/v1/pdf/{groupId}/{newPdf.Id}.pdf")
                 .ExpectStatusCode(HttpStatusCode.NotFound)
                 .WithContentOf<string>()
-                .Passing(x => x.Should().Match("*PDF*tiedostoa*prosessoidaan*"));
+                .Passing(x => x.Should().Match("*PDF*processing*"));
         }
 
         [Fact]
