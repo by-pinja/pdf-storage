@@ -5,6 +5,7 @@ using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Pdf.Storage.Data;
+using Pdf.Storage.Pdf.CustomPages;
 using Pdf.Storage.Pdf.Dto;
 using Pdf.Storage.Test;
 
@@ -15,13 +16,15 @@ namespace Pdf.Storage.Pdf
         private readonly PdfDataContext _context;
         private readonly IPdfStorage _pdfStorage;
         private readonly IBackgroundJobClient _backgroundJobs;
+        private readonly IErrorPages _errorPages;
         private readonly AppSettings _settings;
 
-        public PdfController(PdfDataContext context, IPdfStorage pdfStorage, IOptions<AppSettings> settings, IBackgroundJobClient backgroundJob)
+        public PdfController(PdfDataContext context, IPdfStorage pdfStorage, IOptions<AppSettings> settings, IBackgroundJobClient backgroundJob, IErrorPages errorPages)
         {
             _context = context;
             _pdfStorage = pdfStorage;
             _backgroundJobs = backgroundJob;
+            _errorPages = errorPages;
             _settings = settings.Value;
         }
 
@@ -62,12 +65,7 @@ namespace Pdf.Storage.Pdf
 
             if (!pdfEntity.Processed)
             {
-                return new ContentResult
-                {
-                    Content = "404: PDF is waiting to be processed. Please try again later. This should not take longer than few minutes.",
-                    ContentType = "text/html",
-                    StatusCode = 404
-                };
+                return _errorPages.PdfIsStillProcessingResponse();
             }
 
             var pdf = _pdfStorage.GetPdf(pdfEntity.GroupId, pdfEntity.FileId);
