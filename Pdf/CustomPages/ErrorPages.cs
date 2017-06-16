@@ -7,7 +7,7 @@ namespace Pdf.Storage.Pdf.CustomPages
     public class ErrorPages : IErrorPages
     {
         private readonly string _filePathForProcessing;
-        private string _filePathForNotFound;
+        private readonly string _filePathForNotFound;
 
         public ErrorPages(IHostingEnvironment env)
         {
