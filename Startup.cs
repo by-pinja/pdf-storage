@@ -13,6 +13,7 @@ using Pdf.Storage.Pdf;
 using Pdf.Storage.Pdf.CustomPages;
 using Pdf.Storage.Test;
 using Pdf.Storage.Util;
+using Protacon.NetCore.WebApi.ApiKeyAuth;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace Pdf.Storage
@@ -51,6 +52,8 @@ namespace Pdf.Storage
                         Version = "v1",
                         Description = File.ReadAllText(Path.Combine(basePath, "ApiDescription.md"))
                     });
+
+                c.OperationFilter<ApplyApiKeySecurityToDocument>();
             });
             services.Configure<AppSettings>(Configuration);
 
@@ -61,6 +64,8 @@ namespace Pdf.Storage
             services.AddTransient<IPdfStorage, GoogleCloudPdfStorage>();
             services.AddTransient<IPdfQueue, PdfQueue>();
             services.AddTransient<IErrorPages, ErrorPages>();
+
+            services.Configure<ApiKeyAuthenticationOptions>(Configuration.GetSection("ApiAuthentication"));
 
             services.AddHangfire(config => config.UseMemoryStorage());
         }
@@ -73,6 +78,8 @@ namespace Pdf.Storage
             if (env.IsDevelopment())
             {
             }
+
+            app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
 
             MigrateDb(app);
 

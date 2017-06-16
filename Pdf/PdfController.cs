@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using Hangfire;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Pdf.Storage.Data;
@@ -28,6 +29,7 @@ namespace Pdf.Storage.Pdf
             _settings = settings.Value;
         }
 
+        [Authorize(ActiveAuthenticationSchemes = "ApiKey")]
         [HttpPost("/v1/pdf/{groupId}/")]
         public IActionResult AddNewPdf([Required] string groupId, [FromBody] NewPdfRequest request)
         {

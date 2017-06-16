@@ -11,8 +11,8 @@ namespace Pdf.Storage.Pdf.CustomPages
 
         public ErrorPages(IHostingEnvironment env)
         {
-            _filePathForProcessing = $@"{env.ContentRootPath}\Pdf\CustomPages\processing.html";
-            _filePathForNotFound = $@"{env.ContentRootPath}\Pdf\CustomPages\404.html";
+            _filePathForProcessing = $@"{env.ContentRootPath}/Pdf/CustomPages/processing.html";
+            _filePathForNotFound = $@"{env.ContentRootPath}/Pdf/CustomPages/404.html";
         }
 
         public ContentResult PdfIsStillProcessingResponse()
