@@ -42,7 +42,6 @@ namespace Pdf.Storage.Test
                 .WithContentOf<string>()
                 .Passing(x =>
                 {
-                    host.MockPassing<IPersistentJobQueueMonitoringApi>(a => { });
                     x.Should().Match("*PDF*not*found*");
                 });
         }

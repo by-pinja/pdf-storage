@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Pdf.Storage.Data;
+using Pdf.Storage.Test.Utils;
 using Protacon.NetCore.WebApi.TestUtil;
 
 namespace Pdf.Storage.Test
@@ -36,6 +37,7 @@ namespace Pdf.Storage.Test
             loggerFactory.AddConsole();
             loggerFactory.AddDebug();
 
+            app.UseMiddleware<TestAuthenticationMiddlewareForApiKey>();
             app.UseHangfireServer();
             app.UseMvc();
         }
