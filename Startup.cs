@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using Hangfire;
 using Hangfire.MemoryStorage;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -67,7 +68,7 @@ namespace Pdf.Storage
 
             services.Configure<ApiKeyAuthenticationOptions>(Configuration.GetSection("ApiAuthentication"));
 
-            services.AddHangfire(config => config.UseMemoryStorage());
+            services.AddHangfire(config => config.UsePostgreSqlStorage(Configuration["ConnectionString"]));
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)

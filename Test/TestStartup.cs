@@ -1,4 +1,5 @@
 ﻿using Hangfire;
+using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +31,9 @@ namespace Pdf.Storage.Test
 
             services.RemoveService<IPdfStorage>()
                 .AddSingleton<IPdfStorage, InMemoryPdfStorage>();
+
+            // Hack... Hangfire DI support is terrible.
+            GlobalConfiguration.Configuration.UseMemoryStorage();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
