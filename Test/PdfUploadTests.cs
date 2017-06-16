@@ -18,6 +18,7 @@ namespace Pdf.Storage.Test
                     new NewPdfRequest
                     {
                         Html = "<body> {{ TEXT }} </body>",
+                        BaseData = new { BaseKey = "baseKeyValue"},
                         RowData = new object[] {
                             new
                             {
@@ -71,7 +72,7 @@ namespace Pdf.Storage.Test
             newPdf.PdfUri.Should().Be($"http://localhost:5000/v1/pdf/{groupId}/{newPdf.Id}.pdf");
             newPdf.Id.Should().Be(newPdf.Id);
             newPdf.GroupId.Should().Be(groupId.ToString());
-            ((JObject) newPdf.Data)["Key"].Value<string>().Should().Be("keyHere");
+            ((JObject)newPdf.Data)["Key"].Value<string>().Should().Be("keyHere");
         }
 
         [Fact]
