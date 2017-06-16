@@ -69,6 +69,7 @@ namespace Pdf.Storage.Test
                     new NewPdfRequest
                     {
                         Html = "<body> {{ TEXT }} </body>",
+                        BaseData = new {},
                         RowData = new object[] {
                             new {}}
                     }
