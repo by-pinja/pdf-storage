@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using Hangfire;
-using Hangfire.MemoryStorage;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -93,6 +92,7 @@ namespace Pdf.Storage
             });
 
             app.UseHangfireServer();
+
             app.UseHangfireDashboard();
 
             app.UseMvc();
