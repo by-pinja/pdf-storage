@@ -57,7 +57,7 @@ namespace Pdf.Storage
             });
             services.Configure<AppSettings>(Configuration);
 
-            services.AddDbContext<PdfDataContext>(opt => 
+            services.AddDbContext<PdfDataContext>(opt =>
                 opt.UseNpgsql(Configuration["ConnectionString"]));
 
             services.AddTransient<IPdfConvert, PdfConvert>();

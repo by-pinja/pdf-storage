@@ -1,39 +1,52 @@
-﻿using Hangfire;
+﻿using System.IO;
+using Hangfire;
 using Hangfire.MemoryStorage;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.PlatformAbstractions;
 using Pdf.Storage.Data;
+using Pdf.Storage.Pdf;
+using Pdf.Storage.Pdf.CustomPages;
 using Pdf.Storage.Test.Utils;
+using Pdf.Storage.Util;
+using Protacon.NetCore.WebApi.ApiKeyAuth;
 using Protacon.NetCore.WebApi.TestUtil;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace Pdf.Storage.Test
 {
     public class TestStartup
     {
-        private readonly Startup _original;
 
         public TestStartup(IHostingEnvironment env)
         {
-            _original = new Startup(env);
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
-            _original.ConfigureServices(services);
+            services.AddMvc(options => options.Filters.Add(new ValidateModelAttribute()));
 
-            services
-                .RemoveService<PdfDataContext>()
-                .RemoveService<DbContextOptions<PdfDataContext>>()
-                .AddDbContext<PdfDataContext>(opt => opt.UseInMemoryDatabase());
+            services.AddNodeServices();
 
-            services.RemoveService<IPdfStorage>()
-                .AddSingleton<IPdfStorage, InMemoryPdfStorage>();
+            services.AddTransient<IPdfConvert, PdfConvert>();
+            services.AddTransient<IPdfStorage, GoogleCloudPdfStorage>();
+            services.AddTransient<IPdfQueue, PdfQueue>();
+            services.AddTransient<IErrorPages, ErrorPages>();
 
-            // Hack... Hangfire DI support is terrible.
-            GlobalConfiguration.Configuration.UseMemoryStorage();
+            services.AddDbContext<PdfDataContext>(opt => opt.UseInMemoryDatabase());
+
+            services.AddSingleton<IPdfStorage, InMemoryPdfStorage>();
+
+            services.AddHangfire(config => config.UseMemoryStorage());
+
+            services.Configure<AppSettings>(a => a.BaseUrl = "http://localhost:5000");
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
