@@ -89,7 +89,7 @@ metadata:
     role: db
   name: pdf-storage-db-master
 spec:
-  replicas: 1
+  replicas: 2
   template:
     metadata:
       labels:
