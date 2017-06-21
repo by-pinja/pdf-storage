@@ -37,6 +37,15 @@ namespace Pdf.Storage
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy",
+                    builder => builder.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials());
+            });
+
             services.AddMvc(options => options.Filters.Add(new ValidateModelAttribute()));
 
             services.AddNodeServices();
