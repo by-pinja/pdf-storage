@@ -81,6 +81,8 @@ namespace Pdf.Storage
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            app.UseCors("CorsPolicy");
+
             loggerFactory.AddConsole();
             loggerFactory.AddDebug();
 
