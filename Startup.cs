@@ -26,7 +26,7 @@ namespace Pdf.Storage
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", true, true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true)
-                .AddJsonFile("appsettings.secrets.json", true)
+                .AddJsonFile($"./config/appsettings.{env.EnvironmentName}.json", true)
                 .AddEnvironmentVariables();
 
             Configuration = builder.Build();

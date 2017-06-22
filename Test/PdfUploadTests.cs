@@ -100,6 +100,5 @@ namespace Pdf.Storage.Test
                 .WithContentOf<byte[]>()
                 .Passing(x => x.Length.Should().BeGreaterThan(1));
         }
-
     }
 }
