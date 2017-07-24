@@ -37,6 +37,36 @@ namespace Pdf.Storage.Test
                 .Passing(x => x.Length.Should().BeGreaterThan(1));
         }
 
+        [Fact]
+        public void WhenOneOrLessPdfDefinedForMerging_ThenReturnBadRequest()
+        {
+            var host = TestHost.Run<TestStartup>();
+
+            var group = Guid.NewGuid();
+            var pdf = AddPdf(host, group);
+
+            host.Post($"v1/merge/{group}", new[]
+                {
+                    new MergeRequest {Group = pdf.GroupId, PdfId = pdf.Id},
+                })
+                .ExpectStatusCode(HttpStatusCode.BadRequest);
+        }
+
+        [Fact]
+        public void WhenDefinedPdfFilesDoesntExist_ThenReturnBadRequest()
+        {
+            var host = TestHost.Run<TestStartup>();
+
+            var group = Guid.NewGuid();
+
+            host.Post($"v1/merge/{group}", new[]
+                {
+                    new MergeRequest {Group = Guid.NewGuid().ToString(), PdfId = Guid.NewGuid().ToString()},
+                    new MergeRequest {Group = Guid.NewGuid().ToString(), PdfId = Guid.NewGuid().ToString()}
+                })
+                .ExpectStatusCode(HttpStatusCode.BadRequest);
+        }
+
         private NewPdfResponse AddPdf(TestHost host, Guid groupId)
         {
             var pdf =  host.Post($"/v1/pdf/{groupId}/",
