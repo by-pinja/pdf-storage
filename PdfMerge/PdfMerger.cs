@@ -69,7 +69,9 @@ namespace Pdf.Storage.PdfMerge
             p.Start();
             p.WaitForExit();
 
-            return File.ReadAllBytes(Path.Combine(tempPath, "concat.pdf"));
+            _logger.LogInformation("Console returned: " + p.StandardOutput.ReadToEnd());
+
+            return File.ReadAllBytes(Path.Combine(tempPath, "concat.pdf")).ToArray();
         }
 
         private Process GetCorrectProcessForSystem(string tempPath, IEnumerable<string> tempFiles)
@@ -83,7 +85,9 @@ namespace Pdf.Storage.PdfMerge
                         WorkingDirectory = tempPath,
                         FileName = $@"{_env.ContentRootPath}\PdfMerge\PdfTkForWin\pdftk.exe",
                         Arguments = tempFiles.Aggregate("", (a, b) => a + " " + b) + " cat output concat.pdf",
-                        UseShellExecute = false
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true
                     }
                 };
             }
@@ -95,7 +99,9 @@ namespace Pdf.Storage.PdfMerge
                     WorkingDirectory = tempPath,
                     FileName = "/usr/bin/pdftk",
                     Arguments = tempFiles.Aggregate("", (a,b) => a + " " + b) + $" cat output {tempPath}/concat.pdf",
-                    UseShellExecute = true
+                    UseShellExecute = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
                 }
             };
         }
