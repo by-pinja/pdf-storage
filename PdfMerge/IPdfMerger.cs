@@ -2,6 +2,6 @@
 {
     public interface IPdfMerger
     {
-        void MergePdf(string entityFileId, MergeRequest[] requests);
+        void MergePdf(string entityGroupId, string fileId, MergeRequest[] requests);
     }
 }

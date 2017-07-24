@@ -11,7 +11,7 @@ namespace Pdf.Storage.PdfMerge
     {
         private readonly IBackgroundJobClient _backgroundJob;
         private readonly PdfDataContext _context;
-        private AppSettings _settings;
+        private readonly AppSettings _settings;
 
         public MergerController(IBackgroundJobClient backgroundJob, PdfDataContext context, IOptions<AppSettings> settings)
         {
@@ -21,13 +21,15 @@ namespace Pdf.Storage.PdfMerge
         }
 
         [HttpPost("v1/merge/{groupId}/")]
-        public IActionResult MergePdfs(string groupId, [Required] MergeRequest[] requests)
+        public IActionResult MergePdfs(string groupId, [Required][FromBody] MergeRequest[] requests)
         {
             var entity = _context.PdfFiles.Add(new PdfEntity(groupId)).Entity;
 
             var filePath = $"{_settings.BaseUrl}/v1/pdf/{groupId}/{entity.FileId}.pdf";
 
-            _backgroundJob.Enqueue<IPdfMerger>(merger => merger.MergePdf(entity.FileId, requests));
+            _context.SaveChanges();
+
+            _backgroundJob.Enqueue<IPdfMerger>(merger => merger.MergePdf(entity.GroupId, entity.FileId, requests));
 
             return Accepted(new MergeResponse(entity.FileId, filePath));
         }
