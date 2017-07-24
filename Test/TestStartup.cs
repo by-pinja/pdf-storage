@@ -1,30 +1,20 @@
-﻿using System.IO;
-using Hangfire;
+﻿using Hangfire;
 using Hangfire.MemoryStorage;
-using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.PlatformAbstractions;
 using Pdf.Storage.Data;
 using Pdf.Storage.Pdf;
 using Pdf.Storage.Pdf.CustomPages;
 using Pdf.Storage.Test.Utils;
 using Pdf.Storage.Util;
-using Protacon.NetCore.WebApi.ApiKeyAuth;
-using Protacon.NetCore.WebApi.TestUtil;
-using Swashbuckle.AspNetCore.Swagger;
 
 namespace Pdf.Storage.Test
 {
     public class TestStartup
     {
-
         public TestStartup(IHostingEnvironment env)
         {
         }

@@ -10,7 +10,7 @@ namespace Pdf.Storage.Test
 {
     public static class TestUtil
     {
-        public static CallResponse WaitForOk(this TestHost host, string path)
+        public static CallResponse WaitForOk(this TestHost host, string path, string reason = "Timeout")
         {
             for (int i = 0; i < 10; i++)
             {
@@ -24,7 +24,7 @@ namespace Pdf.Storage.Test
                     Thread.Sleep(1000);
                 }
             }
-            throw new InvalidOperationException("Timeout");
+            throw new InvalidOperationException(reason);
         }
     }
 }
