@@ -58,16 +58,7 @@ namespace Pdf.Storage.PdfMerge
 
         private byte[] MergeFiles(string tempPath, IEnumerable<string> tempFiles)
         {
-            Process p = new Process
-            {
-                StartInfo =
-                {
-                    WorkingDirectory = tempPath,
-                    FileName = ResolveStartupPathForPdfTk(),
-                    Arguments = tempFiles.Aggregate("", (a,b) => a + " " + b) + " cat output concat.pdf",
-                    UseShellExecute = false
-                }
-            };
+            var p = GetCorrectProcessForSystem(tempPath, tempFiles);
 
             p.Start();
             p.WaitForExit();
@@ -75,9 +66,32 @@ namespace Pdf.Storage.PdfMerge
             return File.ReadAllBytes(Path.Combine(tempPath, "concat.pdf"));
         }
 
-        private string ResolveStartupPathForPdfTk()
+        private Process GetCorrectProcessForSystem(string tempPath, IEnumerable<string> tempFiles)
         {
-            return RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? $@"{_env.ContentRootPath}\PdfMerge\PdfTkForWin\pdftk.exe" : "/usr/bin/pdftk";
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return new Process
+                {
+                    StartInfo =
+                    {
+                        WorkingDirectory = tempPath,
+                        FileName = $@"{_env.ContentRootPath}\PdfMerge\PdfTkForWin\pdftk.exe",
+                        Arguments = tempFiles.Aggregate("", (a, b) => a + " " + b) + " cat output concat.pdf",
+                        UseShellExecute = false
+                    }
+                };
+            }
+
+            return new Process
+            {
+                StartInfo =
+                {
+                    WorkingDirectory = tempPath,
+                    FileName = "/usr/bin/pdftk",
+                    Arguments = tempFiles.Aggregate("", (a,b) => a + " " + b) + " cat output concat.pdf",
+                    UseShellExecute = true
+                }
+            };
         }
 
         private string ResolveTemporaryDirectory()
