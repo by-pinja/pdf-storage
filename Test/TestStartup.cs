@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Pdf.Storage.Data;
 using Pdf.Storage.Pdf;
 using Pdf.Storage.Pdf.CustomPages;
+using Pdf.Storage.PdfMerge;
 using Pdf.Storage.Test.Utils;
 using Pdf.Storage.Util;
 
@@ -33,6 +34,8 @@ namespace Pdf.Storage.Test
             services.AddDbContext<PdfDataContext>(opt => opt.UseInMemoryDatabase());
 
             services.AddSingleton<IPdfStorage, InMemoryPdfStorage>();
+
+            services.AddTransient<IPdfMerger, PdfMerger>();
 
             services.AddHangfire(config => config.UseMemoryStorage());
 

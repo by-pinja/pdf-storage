@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using FluentAssertions;
 using Pdf.Storage.Pdf.Dto;
 using Pdf.Storage.PdfMerge;
@@ -20,7 +21,7 @@ namespace Pdf.Storage.Test
             var firstPdf = AddPdf(host, group);
             var secondPdf = AddPdf(host, group);
 
-            var response = host.Post("v1/merge/pdf/", new[]
+            var response = host.Post($"v1/merge/{group}", new[]
             {
                 new MergeRequest { Group = firstPdf.GroupId, PdfId = firstPdf.Id },
                 new MergeRequest { Group = secondPdf.GroupId, PdfId = secondPdf.Id }
@@ -38,7 +39,7 @@ namespace Pdf.Storage.Test
 
         private NewPdfResponse AddPdf(TestHost host, Guid groupId)
         {
-            return host.Post($"/v1/pdf/{groupId}/",
+            var pdf =  host.Post($"/v1/pdf/{groupId}/",
                     new NewPdfRequest
                     {
                         Html = "<body> {{ TEXT }} </body>",
@@ -50,10 +51,15 @@ namespace Pdf.Storage.Test
                                 TEXT = "something"
                             }}
                     }
-                ).ExpectStatusCode(HttpStatusCode.Accepted)
+                )
+                .ExpectStatusCode(HttpStatusCode.Accepted)
                 .WithContentOf<NewPdfResponse[]>()
                 .Select()
                 .Single();
+
+            host.WaitForOk(pdf.PdfUri, reason: $"Waiting for pdf '{pdf.PdfUri}' to get ready.");
+
+            return pdf;
         }
     }
 }

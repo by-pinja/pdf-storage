@@ -11,6 +11,7 @@ using Microsoft.Extensions.PlatformAbstractions;
 using Pdf.Storage.Data;
 using Pdf.Storage.Pdf;
 using Pdf.Storage.Pdf.CustomPages;
+using Pdf.Storage.PdfMerge;
 using Pdf.Storage.Test;
 using Pdf.Storage.Util;
 using Protacon.NetCore.WebApi.ApiKeyAuth;
@@ -73,6 +74,7 @@ namespace Pdf.Storage
             services.AddTransient<IPdfStorage, GoogleCloudPdfStorage>();
             services.AddTransient<IPdfQueue, PdfQueue>();
             services.AddTransient<IErrorPages, ErrorPages>();
+            services.AddTransient<IPdfMerger, PdfMerger>();
 
             services.Configure<ApiKeyAuthenticationOptions>(Configuration.GetSection("ApiAuthentication"));
 

@@ -24,6 +24,7 @@ namespace Pdf.Storage.Test
                     Thread.Sleep(1000);
                 }
             }
+
             throw new InvalidOperationException(reason);
         }
     }
