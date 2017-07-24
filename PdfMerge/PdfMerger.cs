@@ -70,6 +70,7 @@ namespace Pdf.Storage.PdfMerge
             p.WaitForExit();
 
             _logger.LogInformation("Console returned: " + p.StandardOutput.ReadToEnd());
+            _logger.LogInformation("Console errors: " + p.StandardError.ReadToEnd());
 
             return File.ReadAllBytes(Path.Combine(tempPath, "concat.pdf")).ToArray();
         }
