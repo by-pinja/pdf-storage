@@ -6,6 +6,8 @@ RUN apt-get update \
     && apt-get -y install bzip2 \
     && apt-get -y install libfontconfig
 
+RUN apt-get -y install pdftk
+
 WORKDIR /app
 COPY out .
 COPY node_modules node_modules

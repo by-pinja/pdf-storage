@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
-using System.Threading;
 using FluentAssertions;
 using Pdf.Storage.Pdf.Dto;
 using Pdf.Storage.PdfMerge;
