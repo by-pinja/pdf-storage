@@ -77,9 +77,7 @@ namespace Pdf.Storage.PdfMerge
 
         private string ResolveStartupPathForPdfTk()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                return $@"{_env.ContentRootPath}\PdfMerge\PdfTkForWin\pdftk.exe";
-            return "pdftk";
+            return RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? $@"{_env.ContentRootPath}\PdfMerge\PdfTkForWin\pdftk.exe" : "/usr/bin/pdftk";
         }
 
         private string ResolveTemporaryDirectory()
