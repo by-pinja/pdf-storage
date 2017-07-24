@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 using Pdf.Storage.Data;
 using Pdf.Storage.Pdf;
 using Pdf.Storage.Test;
@@ -16,17 +17,21 @@ namespace Pdf.Storage.PdfMerge
         private readonly IHostingEnvironment _env;
         private readonly IPdfStorage _pdfStorage;
         private readonly PdfDataContext _context;
+        private readonly ILogger<PdfMerger> _logger;
 
-        public PdfMerger(IHostingEnvironment env, IPdfStorage pdfStorage, PdfDataContext context)
+        public PdfMerger(IHostingEnvironment env, IPdfStorage pdfStorage, PdfDataContext context, ILogger<PdfMerger> logger)
         {
             _env = env;
             _pdfStorage = pdfStorage;
             _context = context;
+            _logger = logger;
         }
 
         public void MergePdf(string groupId, string fileId, MergeRequest[] requests)
         {
             var temp = ResolveTemporaryDirectory();
+
+            _logger.LogInformation($"Using temporary folder: {temp}");
 
             try
             {
@@ -52,6 +57,7 @@ namespace Pdf.Storage.PdfMerge
             }
             finally
             {
+                _logger.LogInformation($"Removing temporary folder: {temp}");
                 Directory.Delete(temp, true);
             }
         }
@@ -88,7 +94,7 @@ namespace Pdf.Storage.PdfMerge
                 {
                     WorkingDirectory = tempPath,
                     FileName = "/usr/bin/pdftk",
-                    Arguments = tempFiles.Aggregate("", (a,b) => a + " " + b) + " cat output concat.pdf",
+                    Arguments = tempFiles.Aggregate("", (a,b) => a + " " + b) + $" cat output {tempPath}/concat.pdf",
                     UseShellExecute = true
                 }
             };
