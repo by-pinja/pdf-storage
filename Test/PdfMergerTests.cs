@@ -20,11 +20,7 @@ namespace Pdf.Storage.Test
             var firstPdf = AddPdf(host, group);
             var secondPdf = AddPdf(host, group);
 
-            var response = host.Post($"v1/merge/{group}", new[]
-            {
-                new MergeRequest { Group = firstPdf.GroupId, PdfId = firstPdf.Id },
-                new MergeRequest { Group = secondPdf.GroupId, PdfId = secondPdf.Id }
-            })
+            var response = host.Post($"v1/merge/{group}", new PdfMergeRequest(firstPdf.Id, secondPdf.Id))
                 .ExpectStatusCode(HttpStatusCode.Accepted)
                 .WithContentOf<MergeResponse>()
                 .Passing(x => x.PdfUri.Should().StartWith("http"))
@@ -37,17 +33,13 @@ namespace Pdf.Storage.Test
         }
 
         [Fact]
-        public void WhenOneOrLessPdfDefinedForMerging_ThenReturnBadRequest()
+        public void WhenZeroPdfsAreDefinedForMerging_ThenReturnBadRequest()
         {
             var host = TestHost.Run<TestStartup>();
 
             var group = Guid.NewGuid();
-            var pdf = AddPdf(host, group);
 
-            host.Post($"v1/merge/{group}", new[]
-                {
-                    new MergeRequest {Group = pdf.GroupId, PdfId = pdf.Id},
-                })
+            host.Post($"v1/merge/{group}", new PdfMergeRequest() { PdfIds = new string[]{}})
                 .ExpectStatusCode(HttpStatusCode.BadRequest);
         }
 
@@ -58,11 +50,7 @@ namespace Pdf.Storage.Test
 
             var group = Guid.NewGuid();
 
-            host.Post($"v1/merge/{group}", new[]
-                {
-                    new MergeRequest {Group = Guid.NewGuid().ToString(), PdfId = Guid.NewGuid().ToString()},
-                    new MergeRequest {Group = Guid.NewGuid().ToString(), PdfId = Guid.NewGuid().ToString()}
-                })
+            host.Post($"v1/merge/{group}", new PdfMergeRequest(Guid.NewGuid().ToString(), Guid.NewGuid().ToString()))
                 .ExpectStatusCode(HttpStatusCode.BadRequest);
         }
 

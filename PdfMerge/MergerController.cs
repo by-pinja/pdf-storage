@@ -22,12 +22,12 @@ namespace Pdf.Storage.PdfMerge
         }
 
         [HttpPost("v1/merge/{groupId}/")]
-        public IActionResult MergePdfs(string groupId, [Required][FromBody] MergeRequest[] requests)
+        public IActionResult MergePdfs(string groupId, [Required][FromBody] PdfMergeRequest request)
         {
-            if (requests.Length < 2)
+            if (request.PdfIds.Length < 1)
                 return BadRequest();
 
-            if (!AllRequestedFilesExists(requests))
+            if (!AllRequestedFilesExists(request.PdfIds, groupId))
                 return BadRequest();
 
             var entity = _context.PdfFiles.Add(new PdfEntity(groupId)).Entity;
@@ -36,16 +36,15 @@ namespace Pdf.Storage.PdfMerge
 
             _context.SaveChanges();
 
-            _backgroundJob.Enqueue<IPdfMerger>(merger => merger.MergePdf(entity.GroupId, entity.FileId, requests));
+            _backgroundJob.Enqueue<IPdfMerger>(merger => merger.MergePdf(entity.GroupId, entity.FileId, request.PdfIds));
 
             return Accepted(new MergeResponse(entity.FileId, filePath));
         }
 
-        private bool AllRequestedFilesExists(MergeRequest[] requests)
+        private bool AllRequestedFilesExists(string[] pdfIds, string groupId)
         {
-            var groups = requests.Select(x => x.Group).Distinct();
-            var keys = _context.PdfFiles.Where(x => groups.Any(g => g == x.GroupId)).Select(x => $"{x.GroupId}_{x.FileId}");
-            return requests.All(r => keys.Any(k => k == $"{r.Group}_{r.PdfId}"));
+            var pdfIdsInDatabase = _context.PdfFiles.Where(x => x.GroupId == groupId).Select(x => x.FileId);
+            return pdfIds.All(pdfId => pdfIdsInDatabase.Any(id => id == pdfId));
         }
     }
 }

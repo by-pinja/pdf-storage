@@ -27,7 +27,7 @@ namespace Pdf.Storage.PdfMerge
             _logger = logger;
         }
 
-        public void MergePdf(string groupId, string fileId, MergeRequest[] requests)
+        public void MergePdf(string groupId, string fileId, string[] pdfIds)
         {
             var temp = ResolveTemporaryDirectory();
 
@@ -37,12 +37,12 @@ namespace Pdf.Storage.PdfMerge
             {
                 var mergedFile = _context.PdfFiles.Single(x => x.GroupId == groupId && x.FileId == fileId);
 
-                var pdfs = requests
-                    .Select(x => _pdfStorage.GetPdf(x.Group, x.PdfId))
-                    .Select(x => new
+                var pdfs = pdfIds
+                    .Select(id => _pdfStorage.GetPdf(groupId, id))
+                    .Select(pdf => new
                     {
-                        TempFile = Path.Combine($@"{temp}", $"{x.Id}.pdf"),
-                        x.Data
+                        TempFile = Path.Combine($@"{temp}", $"{pdf.Id}.pdf"),
+                        pdf.Data
                     }).ToList();
 
                 pdfs.ForEach(x => File.WriteAllBytes(x.TempFile, x.Data));
