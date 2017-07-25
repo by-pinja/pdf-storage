@@ -94,8 +94,8 @@ namespace Pdf.Storage
             }
 
             app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
-//
-//            MigrateDb(app);
+
+            MigrateDb(app);
 
             app.UseSwagger();
 
