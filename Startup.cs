@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Hangfire;
+using Hangfire.MemoryStorage;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -66,7 +67,6 @@ namespace Pdf.Storage
                 c.OperationFilter<ApplyApiKeySecurityToDocument>();
             });
             services.Configure<AppSettings>(Configuration);
-
             services.AddDbContext<PdfDataContext>(opt =>
                 opt.UseNpgsql(Configuration["ConnectionString"]));
 
@@ -81,6 +81,7 @@ namespace Pdf.Storage
             services.AddHangfire(config => config.UsePostgreSqlStorage(Configuration["ConnectionString"]));
         }
 
+
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             app.UseCors("CorsPolicy");
@@ -93,8 +94,8 @@ namespace Pdf.Storage
             }
 
             app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
-
-            MigrateDb(app);
+//
+//            MigrateDb(app);
 
             app.UseSwagger();
 

@@ -41,7 +41,7 @@ namespace Pdf.Storage.PdfMerge
                     .Select(x => _pdfStorage.GetPdf(x.Group, x.PdfId))
                     .Select(x => new
                     {
-                        TempFile = $@"{temp}\{x.Id}.pdf",
+                        TempFile = Path.Combine($@"{temp}", $"{x.Id}.pdf"),
                         x.Data
                     }).ToList();
 
@@ -58,7 +58,7 @@ namespace Pdf.Storage.PdfMerge
             finally
             {
                 _logger.LogInformation($"Removing temporary folder: {temp}");
-                Directory.Delete(temp, true);
+                //Directory.Delete(temp, true);
             }
         }
 
@@ -69,8 +69,15 @@ namespace Pdf.Storage.PdfMerge
             p.Start();
             p.WaitForExit();
 
-            _logger.LogInformation("Console returned: " + p.StandardOutput.ReadToEnd());
-            _logger.LogInformation("Console errors: " + p.StandardError.ReadToEnd());
+            var consoleOutput = p.StandardOutput.ReadToEnd();
+
+            if (!string.IsNullOrEmpty(consoleOutput))
+                _logger.LogInformation("Console returned: " + p.StandardOutput.ReadToEnd());
+
+            var consoleErrors = p.StandardError.ReadToEnd();
+
+            if (!string.IsNullOrEmpty(consoleOutput))
+                throw new InvalidOperationException("Console threw error message:" + consoleErrors);
 
             return File.ReadAllBytes(Path.Combine(tempPath, "concat.pdf")).ToArray();
         }
@@ -79,31 +86,33 @@ namespace Pdf.Storage.PdfMerge
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                return new Process
-                {
-                    StartInfo =
-                    {
-                        WorkingDirectory = tempPath,
-                        FileName = $@"{_env.ContentRootPath}\PdfMerge\PdfTkForWin\pdftk.exe",
-                        Arguments = tempFiles.Aggregate("", (a, b) => a + " " + b) + " cat output concat.pdf",
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true
-                    }
-                };
+                return CreateProcess(
+                    workingDir: tempPath, 
+                    fileName: $@"{_env.ContentRootPath}\PdfMerge\PdfTkForWin\pdftk.exe", 
+                    arguments: tempFiles.Aggregate("", (a, b) => a + " " + b) + " cat output concat.pdf");
             }
+
+            return CreateProcess(
+                workingDir: tempPath,
+                fileName: "/bin/bash",
+                arguments: "-c \"/usr/bin/pdftk" + tempFiles.Aggregate("", (a, b) => a + " " + b) + " cat output concat.pdf\"");
+        }
+
+        private Process CreateProcess(string workingDir, string fileName, string arguments)
+        {
+            _logger.LogInformation($"Running '{fileName} {arguments}'");
 
             return new Process
             {
                 StartInfo =
-                {
-                    WorkingDirectory = tempPath,
-                    FileName = "/bin/bash",
-                    Arguments = "pdftk " + tempFiles.Aggregate("", (a,b) => a + " " + b) + $" cat output {tempPath}/concat.pdf",
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true
-                }
+                    {
+                        WorkingDirectory = workingDir,
+                        FileName = fileName,
+                        Arguments = arguments,
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true
+                    }
             };
         }
 
