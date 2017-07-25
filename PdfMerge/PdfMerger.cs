@@ -99,7 +99,7 @@ namespace Pdf.Storage.PdfMerge
                 {
                     WorkingDirectory = tempPath,
                     FileName = "/bin/bash",
-                    Arguments = "/usr/bin/pdftk " + tempFiles.Aggregate("", (a,b) => a + " " + b) + $" cat output {tempPath}/concat.pdf",
+                    Arguments = "pdftk " + tempFiles.Aggregate("", (a,b) => a + " " + b) + $" cat output {tempPath}/concat.pdf",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true
