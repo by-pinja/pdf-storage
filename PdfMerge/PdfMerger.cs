@@ -69,15 +69,8 @@ namespace Pdf.Storage.PdfMerge
             p.Start();
             p.WaitForExit();
 
-            var consoleOutput = p.StandardOutput.ReadToEnd();
-
-            if (!string.IsNullOrEmpty(consoleOutput))
-                _logger.LogInformation("Console returned: " + p.StandardOutput.ReadToEnd());
-
-            var consoleErrors = p.StandardError.ReadToEnd();
-
-            if (!string.IsNullOrEmpty(consoleOutput))
-                throw new InvalidOperationException("Console threw error message:" + consoleErrors);
+            _logger.LogInformation("StdOut: " + p.StandardOutput.ReadToEnd());
+            _logger.LogInformation("StdError: " + p.StandardError.ReadToEnd());
 
             return File.ReadAllBytes(Path.Combine(tempPath, "concat.pdf")).ToArray();
         }
