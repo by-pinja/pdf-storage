@@ -16,6 +16,7 @@ podTemplate(label: 'dotnet', idleMinutes:30,
       stage('Build') {
         container('dotnet-with-node') {
           sh """
+            apt-get -y install pdftk
             npm install
             dotnet restore
             dotnet publish -c Release -o out
