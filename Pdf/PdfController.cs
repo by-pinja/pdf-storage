@@ -1,9 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Pdf.Storage.Data;
 using Pdf.Storage.Pdf.CustomPages;
@@ -18,14 +21,16 @@ namespace Pdf.Storage.Pdf
         private readonly IPdfStorage _pdfStorage;
         private readonly IBackgroundJobClient _backgroundJobs;
         private readonly IErrorPages _errorPages;
+        private readonly ILogger<PdfController> _logger;
         private readonly AppSettings _settings;
 
-        public PdfController(PdfDataContext context, IPdfStorage pdfStorage, IOptions<AppSettings> settings, IBackgroundJobClient backgroundJob, IErrorPages errorPages)
+        public PdfController(PdfDataContext context, IPdfStorage pdfStorage, IOptions<AppSettings> settings, IBackgroundJobClient backgroundJob, IErrorPages errorPages, ILogger<PdfController> logger)
         {
             _context = context;
             _pdfStorage = pdfStorage;
             _backgroundJobs = backgroundJob;
             _errorPages = errorPages;
+            _logger = logger;
             _settings = settings.Value;
         }
 
@@ -35,7 +40,11 @@ namespace Pdf.Storage.Pdf
         {
             var responses = request.RowData.ToList().Select(row =>
             {
-                var entity = _context.PdfFiles.Add(new PdfEntity(groupId)).Entity;
+                var entity = _context.PdfFiles.Add(new PdfEntity(groupId)
+                {
+                    PdfOpenedCallbackUri = request.PdfOpenedCallback
+                }).Entity;
+
                 _context.SaveChanges();
 
                 var templateData = TemplateDataUtils.GetTemplateData(request.BaseData, row);
@@ -71,9 +80,30 @@ namespace Pdf.Storage.Pdf
             {
                 pdfEntity.Usage.Add(new PdfOpenedEntity());
                 _context.SaveChanges();
+
+                // TODO remove this after message queues are implemented.
+                SendCallbackMessageIfRequired(pdfEntity);
             }
 
             return new FileStreamResult(new MemoryStream(pdf.Data), "application/pdf");
+        }
+
+        private void SendCallbackMessageIfRequired(PdfEntity pdfEntity)
+        {
+            if (!string.IsNullOrEmpty(pdfEntity.PdfOpenedCallbackUri))
+                try
+                {
+                    new HttpClient().GetAsync(pdfEntity.PdfOpenedCallbackUri)
+                        .ContinueWith(x =>
+                        {
+                            if (x.IsFaulted)
+                                _logger.LogError(x.Exception.Message);
+                        });
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message);
+                }
         }
     }
 }

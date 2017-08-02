@@ -12,5 +12,7 @@ namespace Pdf.Storage.Pdf.Dto
 
         [Required]
         public object[] RowData { get; set; } = new object[0];
+
+        public string PdfOpenedCallback { get; set; }
     }
 }

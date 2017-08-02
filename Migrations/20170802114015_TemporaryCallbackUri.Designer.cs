@@ -8,9 +8,10 @@ using Pdf.Storage.Data;
 namespace Pdf.Storage.Migrations
 {
     [DbContext(typeof(PdfDataContext))]
-    partial class PdfDataContextModelSnapshot : ModelSnapshot
+    [Migration("20170802114015_TemporaryCallbackUri")]
+    partial class TemporaryCallbackUri
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)

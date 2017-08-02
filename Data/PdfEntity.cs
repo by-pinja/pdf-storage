@@ -19,6 +19,9 @@ namespace Pdf.Storage.Data
         public bool Processed { get; set; }
         public int OpenedTimes { get; set; }
 
+        // TODO: Remove this after message queues are implemented.
+        public string PdfOpenedCallbackUri { get; set; }
+
         public ICollection<PdfOpenedEntity> Usage { get; protected set; } = new List<PdfOpenedEntity>();
     }
 }
