@@ -12,14 +12,8 @@ spec:
     matchLabels:
       app: pdf-storage-master
       version: master
-  strategy:
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
-    type: RollingUpdate
   template:
     metadata:
-      creationTimestamp: null
       labels:
         app: pdf-storage-master
         version: master
@@ -32,10 +26,6 @@ spec:
         env:
           - name: ASPNETCORE_ENVIRONMENT
             value: master
-      dnsPolicy: ClusterFirst
-      restartPolicy: Always
-      terminationGracePeriodSeconds: 30
-
 ---
 
 apiVersion: v1
