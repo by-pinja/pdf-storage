@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using FluentAssertions;
+using Pdf.Storage.Pdf;
 using Pdf.Storage.Pdf.Dto;
 using Pdf.Storage.PdfMerge;
 using Protacon.NetCore.WebApi.TestUtil;
@@ -30,6 +32,29 @@ namespace Pdf.Storage.Test
                 .WaitForOk(response.PdfUri, reason: "Did not receive merged pdf.")
                 .WithContentOf<byte[]>()
                 .Passing(x => x.Length.Should().BeGreaterThan(1));
+        }
+
+        [Fact]
+        public void WhenPdfFilesAreMerged_ThenMarkOriginalFilesAsOpened()
+        {
+            var host = TestHost.Run<TestStartup>();
+
+            var group = Guid.NewGuid();
+            var firstPdf = AddPdf(host, group);
+
+            host.Post($"v1/merge/{group}", new PdfMergeRequest(firstPdf.Id))
+                .ExpectStatusCode(HttpStatusCode.Accepted)
+                .WithContentOf<MergeResponse>();
+
+            host.Get($"/v1/usage/{group}/")
+                .ExpectStatusCode(HttpStatusCode.OK)
+                .WithContentOf<IEnumerable<PdfUsageCountSimpleResponse>>()
+                .Passing(x =>
+                {
+                    x.Should().HaveCount(1);
+                    x.Single().IsOpened.Should().BeTrue();
+                    x.Single().PdfId.Should().Be(firstPdf.Id);
+                });
         }
 
         [Fact]
@@ -74,7 +99,7 @@ namespace Pdf.Storage.Test
                 .Select()
                 .Single();
 
-            host.WaitForOk(pdf.PdfUri, reason: $"Waiting for pdf '{pdf.PdfUri}' to get ready.");
+            host.WaitForOk($"{pdf.PdfUri}?noCount=true", reason: $"Waiting for pdf '{pdf.PdfUri}' to get ready.");
 
             return pdf;
         }

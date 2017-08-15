@@ -21,16 +21,14 @@ namespace Pdf.Storage.Pdf
         private readonly IPdfStorage _pdfStorage;
         private readonly IBackgroundJobClient _backgroundJobs;
         private readonly IErrorPages _errorPages;
-        private readonly ILogger<PdfController> _logger;
         private readonly AppSettings _settings;
 
-        public PdfController(PdfDataContext context, IPdfStorage pdfStorage, IOptions<AppSettings> settings, IBackgroundJobClient backgroundJob, IErrorPages errorPages, ILogger<PdfController> logger)
+        public PdfController(PdfDataContext context, IPdfStorage pdfStorage, IOptions<AppSettings> settings, IBackgroundJobClient backgroundJob, IErrorPages errorPages)
         {
             _context = context;
             _pdfStorage = pdfStorage;
             _backgroundJobs = backgroundJob;
             _errorPages = errorPages;
-            _logger = logger;
             _settings = settings.Value;
         }
 
@@ -40,10 +38,7 @@ namespace Pdf.Storage.Pdf
         {
             var responses = request.RowData.ToList().Select(row =>
             {
-                var entity = _context.PdfFiles.Add(new PdfEntity(groupId)
-                {
-                    PdfOpenedCallbackUri = request.PdfOpenedCallback
-                }).Entity;
+                var entity = _context.PdfFiles.Add(new PdfEntity(groupId)).Entity;
 
                 _context.SaveChanges();
 
@@ -80,30 +75,9 @@ namespace Pdf.Storage.Pdf
             {
                 pdfEntity.Usage.Add(new PdfOpenedEntity());
                 _context.SaveChanges();
-
-                // TODO remove this after message queues are implemented.
-                SendCallbackMessageIfRequired(pdfEntity);
             }
 
             return new FileStreamResult(new MemoryStream(pdf.Data), "application/pdf");
-        }
-
-        private void SendCallbackMessageIfRequired(PdfEntity pdfEntity)
-        {
-            if (!string.IsNullOrEmpty(pdfEntity.PdfOpenedCallbackUri))
-                try
-                {
-                    new HttpClient().GetAsync(pdfEntity.PdfOpenedCallbackUri)
-                        .ContinueWith(x =>
-                        {
-                            if (x.IsFaulted)
-                                _logger.LogError(x.Exception.Message);
-                        });
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex.Message);
-                }
         }
     }
 }
