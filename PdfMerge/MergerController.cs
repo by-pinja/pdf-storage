@@ -34,6 +34,8 @@ namespace Pdf.Storage.PdfMerge
 
             var filePath = $"{_settings.BaseUrl}/v1/pdf/{groupId}/{entity.FileId}.pdf";
 
+            request.PdfIds.ToList().ForEach(id => _context.PdfFiles.Single(x => x.FileId == id).Usage.Add(new PdfOpenedEntity()));
+
             _context.SaveChanges();
 
             _backgroundJob.Enqueue<IPdfMerger>(merger => merger.MergePdf(entity.GroupId, entity.FileId, request.PdfIds));

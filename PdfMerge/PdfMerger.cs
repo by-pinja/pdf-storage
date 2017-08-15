@@ -58,7 +58,7 @@ namespace Pdf.Storage.PdfMerge
             finally
             {
                 _logger.LogInformation($"Removing temporary folder: {temp}");
-                //Directory.Delete(temp, true);
+                Directory.Delete(temp, true);
             }
         }
 
