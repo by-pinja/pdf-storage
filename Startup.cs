@@ -68,7 +68,7 @@ namespace Pdf.Storage
             });
             services.Configure<AppSettings>(Configuration);
             services.AddDbContext<PdfDataContext>(opt =>
-                opt.UseNpgsql(Configuration["ConnectionString"]));
+                opt.UseNpgsql(Configuration["connectionString"]));
 
             services.AddTransient<IPdfConvert, PdfConvert>();
             services.AddTransient<IPdfStorage, GoogleCloudPdfStorage>();
@@ -78,7 +78,7 @@ namespace Pdf.Storage
 
             services.Configure<ApiKeyAuthenticationOptions>(Configuration.GetSection("ApiAuthentication"));
 
-            services.AddHangfire(config => config.UsePostgreSqlStorage(Configuration["ConnectionString"]));
+            services.AddHangfire(config => config.UsePostgreSqlStorage(Configuration["connectionString"]));
         }
 
 
@@ -86,11 +86,11 @@ namespace Pdf.Storage
         {
             app.UseCors("CorsPolicy");
 
-            loggerFactory.AddConsole();
-            loggerFactory.AddDebug();
+            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
 
             if (env.IsDevelopment())
             {
+                loggerFactory.AddDebug();
             }
 
             app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
