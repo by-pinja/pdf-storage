@@ -47,6 +47,10 @@ podTemplate(label: 'dotnet.1.1.2', idleMinutes:30,
               image.push("latest-$branch")
               image.push(tag)
 
+              if (env.GIT_TAG_NAME) {
+                image.push(env.GIT_TAG_NAME)
+              }
+
               configFileProvider([configFile(fileId: "11564861-9c61-4af0-aadd-aea8c6990876", targetLocation: "/home/jenkins/.kube/config")]) {
                   sh """
                       kubectl set image deployment/pdf-storage-$branch pdf-storage-$branch=eu.gcr.io/ptcs-docker-registry/$project:$tag --namespace=eventale
