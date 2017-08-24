@@ -1,15 +1,14 @@
-podTemplate(label: 'dotnet', idleMinutes:30,
+podTemplate(label: 'dotnet.1.1.2', idleMinutes:30,
   containers: [
     containerTemplate(name: 'dotnet-with-node', image: 'ptcos/docker-dotnet-node-sdk:1.1.2', ttyEnabled: true, command: '/bin/sh -c', args: 'cat'),
-    containerTemplate(name: 'docker', image: 'ptcos/docker-client:latest', alwaysPullImage: true, ttyEnabled: true, command: '/bin/sh -c', args: 'cat'),
+    containerTemplate(name: 'docker', image: 'ptcos/docker-client:1.1.18', ttyEnabled: true, command: '/bin/sh -c', args: 'cat'),
   ]
 ) {
-    def version = '1.0.0'
     def project = 'pdf-storage'
     def branch = (env.BRANCH_NAME)
     def deploymentYaml = "./k8s/${branch}.yaml"
 
-    node('dotnet') {
+    node('dotnet.1.1.2') {
       stage('Checkout') {
 	        checkout scm
       }
@@ -41,7 +40,7 @@ podTemplate(label: 'dotnet', idleMinutes:30,
 
               def image = docker.image("${env.PTCS_DOCKER_REGISTRY}/$project")
 
-              def tag = "$version-$branch-${env.BUILD_NUMBER}"
+              def tag = "$branch-${env.BUILD_NUMBER}"
 
               image.push("latest-$branch")
               image.push(tag)
