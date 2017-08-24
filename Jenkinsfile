@@ -1,3 +1,5 @@
+@Library("PTCSLibrary") _
+
 podTemplate(label: 'dotnet.1.1.2', idleMinutes:30,
   containers: [
     containerTemplate(name: 'dotnet-with-node', image: 'ptcos/docker-dotnet-node-sdk:1.1.2', ttyEnabled: true, command: '/bin/sh -c', args: 'cat'),
@@ -10,7 +12,7 @@ podTemplate(label: 'dotnet.1.1.2', idleMinutes:30,
 
     node('dotnet.1.1.2') {
       stage('Checkout') {
-	        checkout scm
+        checkout_with_tags()
       }
       stage('Build') {
         container('dotnet-with-node') {
