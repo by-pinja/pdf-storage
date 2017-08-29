@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Hangfire;
 using Hangfire.MemoryStorage;
 using Hangfire.PostgreSql;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.PlatformAbstractions;
 using Pdf.Storage.Data;
+using Pdf.Storage.Mq;
 using Pdf.Storage.Pdf;
 using Pdf.Storage.Pdf.CustomPages;
 using Pdf.Storage.PdfMerge;
@@ -35,7 +37,6 @@ namespace Pdf.Storage
         }
 
         public IConfigurationRoot Configuration { get; }
-
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -66,7 +67,9 @@ namespace Pdf.Storage
 
                 c.OperationFilter<ApplyApiKeySecurityToDocument>();
             });
+
             services.Configure<AppSettings>(Configuration);
+
             services.AddDbContext<PdfDataContext>(opt =>
                 opt.UseNpgsql(Configuration["connectionString"]));
 
@@ -75,8 +78,19 @@ namespace Pdf.Storage
             services.AddTransient<IPdfQueue, PdfQueue>();
             services.AddTransient<IErrorPages, ErrorPages>();
             services.AddTransient<IPdfMerger, PdfMerger>();
+            services.AddTransient<Uris>();
+
+            if (bool.Parse(Configuration["Development:DisableMq"] ?? "false"))
+            {
+                services.AddTransient<IMqMessages, MqMessagesNullObject>();
+            }
+            else
+            {
+                services.AddTransient<IMqMessages, MqMessages>();
+            }
 
             services.Configure<ApiKeyAuthenticationOptions>(Configuration.GetSection("ApiAuthentication"));
+            services.Configure<MqConfig>(Configuration.GetSection("Mq"));
 
             services.AddHangfire(config => config.UsePostgreSqlStorage(Configuration["connectionString"]));
         }

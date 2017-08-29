@@ -1,17 +1,15 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Pdf.Storage.Data;
+using Pdf.Storage.Mq;
 using Pdf.Storage.Pdf.CustomPages;
 using Pdf.Storage.Pdf.Dto;
 using Pdf.Storage.Test;
+using Pdf.Storage.Util;
 
 namespace Pdf.Storage.Pdf
 {
@@ -19,17 +17,21 @@ namespace Pdf.Storage.Pdf
     {
         private readonly PdfDataContext _context;
         private readonly IPdfStorage _pdfStorage;
+        private readonly Uris _uris;
         private readonly IBackgroundJobClient _backgroundJobs;
         private readonly IErrorPages _errorPages;
-        private readonly AppSettings _settings;
+        private readonly IMqMessages _mqMessages;
 
-        public PdfController(PdfDataContext context, IPdfStorage pdfStorage, IOptions<AppSettings> settings, IBackgroundJobClient backgroundJob, IErrorPages errorPages)
+        public PdfController(
+            PdfDataContext context, 
+            IPdfStorage pdfStorage, Uris uris, IBackgroundJobClient backgroundJob, IErrorPages errorPages, IMqMessages mqMessages)
         {
             _context = context;
             _pdfStorage = pdfStorage;
+            _uris = uris;
             _backgroundJobs = backgroundJob;
             _errorPages = errorPages;
-            _settings = settings.Value;
+            _mqMessages = mqMessages;
         }
 
         [Authorize(ActiveAuthenticationSchemes = "ApiKey")]
@@ -46,7 +48,7 @@ namespace Pdf.Storage.Pdf
 
                 _backgroundJobs.Enqueue<IPdfQueue>(que => que.CreatePdf(entity.Id, request.Html, templateData));
 
-                var pdfUri = $"{_settings.BaseUrl}/v1/pdf/{groupId}/{entity.FileId}.pdf";
+                var pdfUri = _uris.PdfUri(groupId, entity.FileId);
 
                 return new NewPdfResponse(entity.FileId, entity.GroupId, pdfUri, row);
             });
@@ -75,6 +77,7 @@ namespace Pdf.Storage.Pdf
             {
                 pdfEntity.Usage.Add(new PdfOpenedEntity());
                 _context.SaveChanges();
+                _mqMessages.PdfOpened(groupId, pdfId);
             }
 
             return new FileStreamResult(new MemoryStream(pdf.Data), "application/pdf");
