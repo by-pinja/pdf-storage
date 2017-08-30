@@ -1,6 +1,4 @@
-﻿using Pdf.Storage.Pdf;
-
-namespace Pdf.Storage.Test
+﻿namespace Pdf.Storage.Pdf
 {
     public interface IPdfStorage
     {
