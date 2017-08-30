@@ -13,7 +13,7 @@ namespace Pdf.Storage.Mq
         private readonly ILogger<MqMessages> _logger;
         private readonly Uris _uris;
         private readonly MqConfig _mqConfig;
-        private const string Exhcange = "Eventale";
+        private const string Exhcange = "eventale.topic";
         private const string PdfOpenedKey = "pdf-storage.v1.opened";
         private const string PdfGeneratedKey = "pdf-storage.v1.generated";
 
