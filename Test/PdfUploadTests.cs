@@ -58,7 +58,7 @@ namespace Pdf.Storage.Test
             host.Get($"/v1/pdf/{groupId}/{newPdf.Id}.pdf")
                 .ExpectStatusCode(HttpStatusCode.NotFound)
                 .WithContentOf<string>()
-                .Passing(x => x.Should().Match("*PDF*processing*"));
+                .Passing(x => x.Should().Match("*PDF*generating*"));
         }
 
         [Fact]
