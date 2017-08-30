@@ -14,8 +14,8 @@ namespace Pdf.Storage.Mq
         private readonly Uris _uris;
         private readonly MqConfig _mqConfig;
         private const string Exhcange = "Eventale";
-        private const string PdfOpenedKey = "pdf.v1.opened";
-        private const string PdfGeneratedKey = "pdf.v1.generated";
+        private const string PdfOpenedKey = "pdf-storage.v1.opened";
+        private const string PdfGeneratedKey = "pdf-storage.v1.generated";
 
         public MqMessages(IOptions<MqConfig> mqConfig, ILogger<MqMessages> logger, Uris uris)
         {
