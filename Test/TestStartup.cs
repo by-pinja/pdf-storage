@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Pdf.Storage.Data;
+using Pdf.Storage.Mq;
 using Pdf.Storage.Pdf;
 using Pdf.Storage.Pdf.CustomPages;
 using Pdf.Storage.PdfMerge;
@@ -30,6 +31,8 @@ namespace Pdf.Storage.Test
             services.AddTransient<IPdfStorage, GoogleCloudPdfStorage>();
             services.AddTransient<IPdfQueue, PdfQueue>();
             services.AddTransient<IErrorPages, ErrorPages>();
+            services.AddTransient<Uris>();
+            services.AddTransient<IMqMessages, MqMessagesNullObject>();
 
             services.AddDbContext<PdfDataContext>(opt => opt.UseInMemoryDatabase());
 
