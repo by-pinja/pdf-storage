@@ -81,5 +81,23 @@ namespace Pdf.Storage.Pdf
 
             return new FileStreamResult(new MemoryStream(pdf.Data), "application/pdf");
         }
+
+        [HttpHead("/v1/pdf/{groupId}/{pdfId}.pdf")]
+        public IActionResult GetPdfHead(string groupId, string pdfId)
+        {
+            var pdfEntity = _context.PdfFiles.SingleOrDefault(x => x.GroupId == groupId && x.FileId == pdfId);
+
+            if (pdfEntity == null)
+            {
+                return NotFound();
+            }
+
+            if (!pdfEntity.Processed)
+            {
+                return NotFound();
+            }
+
+            return Ok();
+        }
     }
 }
