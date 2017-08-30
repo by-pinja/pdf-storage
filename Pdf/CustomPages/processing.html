@@ -1,47 +1,55 @@
 ﻿<html lang="en">
-
 <head>
-  <meta charset="utf-8">
+    <meta charset="utf-8">
 
-  <title>404: PDF processing</title>
-  <meta name="description" content="404: PDF processing">
-  <script src="https://use.fontawesome.com/87508f2f73.js"></script>
-  <style>
-    body {
-      background-color: #6599FF;
-      color: white;
-      font-family: sans-serif;
-      margin: 2%
-    }
+    <title>Pdf</title>
+    <meta name="description" content="404: Pdf is processing">
+    <script src="https://use.fontawesome.com/87508f2f73.js"></script>
+    <style>
+        body {
+            background-color: #F2F2F2;
+            color: #646464;
+            font-family: sans-serif;
+            margin: 2%
+        }
 
-    h1 {
-      font-size: 4em;
-    }
+        h1 {
+            font-size: 2em;
+        }
 
-    i.pdf {
-      font-size: 20em;
-      padding-top: 20%;
-      padding-left: 20%;
-    }
-  </style>
+        #container > div {
+            margin: 0;
+            background: #F2F2F2;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-right: -50%;
+            transform: translate(-50%, -50%)
+        }
+
+        .pdf {
+            margin-top: 20%;
+            margin-left: 40%;
+        }
+    </style>
 </head>
 
 <body>
-  <div id="container" style="width:100%;">
-    <div id="left" style="float:left; width:30%;"> 
-      <i class="fa fa-file-pdf-o fa-5x pdf" aria-hidden="true"></i>
-    </div>
-    <div id="right" style="float:right; width:70%;">
-      <h1>
-         PDF-tiedostoa luodaan. Ole hyvä ja odota hetki. Tämä voi kestää muutaman minuutin. 
-      </h1>
+<div id="container" style="width: 80%;">
+    <div>
+        <div id="left" style="float: left; width: 30%;">
+            <i class="fa fa-refresh fa-spin fa-5x fa-fw pdf"></i>
+        </div>
+        <div id="right" style="float: right; width: 70%;">
+            <h1>
+                PDF-tiedostoa luodaan. Ole hyvä ja odota hetki. Tämä voi kestää muutaman minuutin.
+            </h1>
 
-      <h1>
-          Service is generating PDF-file. Please be patient and wait a moment. This can take a few minutes.
-      </h1>
+            <h1>
+                Service is generating PDF-file. Please be patient and wait a moment. This can take a few minutes.
+            </h1>
+        </div>
     </div>
-  </div>
-
+</div>
 </body>
-
 </html>
