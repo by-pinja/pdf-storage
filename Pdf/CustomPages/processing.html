@@ -3,7 +3,7 @@
     <meta charset="utf-8">
 
     <title>Pdf</title>
-    <meta name="description" content="404: Pdf is processing">
+    <meta name="description" content="Pdf is processing">
     <script src="https://use.fontawesome.com/87508f2f73.js"></script>
     <style>
         body {
@@ -19,28 +19,36 @@
 
         #container > div {
             margin: 0;
-            background: #F2F2F2;
             position: absolute;
             top: 50%;
             left: 50%;
             margin-right: -50%;
-            transform: translate(-50%, -50%)
+            transform: translate(-50%, -50%);
         }
 
-        .pdf {
-            margin-top: 20%;
-            margin-left: 40%;
+        #left {
+            padding-top: 30px;
+            display: inline-block;
+            text-align: center;
+            float: left;
+            width: 20%;
+        }
+
+        #right {
+            display: inline-block;
+            float: left;
+            width: 60%;
         }
     </style>
 </head>
 
 <body>
-<div id="container" style="width: 80%;">
+<div id="container">
     <div>
-        <div id="left" style="float: left; width: 30%;">
+        <div id="left">
             <i class="fa fa-refresh fa-spin fa-5x fa-fw pdf"></i>
         </div>
-        <div id="right" style="float: right; width: 70%;">
+        <div id="right">
             <h1>
                 PDF-tiedostoa luodaan. Ole hyvä ja odota hetki. Tämä voi kestää muutaman minuutin.
             </h1>
@@ -51,5 +59,26 @@
         </div>
     </div>
 </div>
+<script>
+    function check(url, callback){
+        // compatible with IE7+, Firefox, Chrome, Opera, Safari
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function(){
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200){
+                callback(xmlhttp.responseText);
+            }
+        }
+        xmlhttp.open("HEAD", url, true);
+        xmlhttp.send();
+    }
+
+    setInterval(function () {
+        check(window.location.href,
+            function() {
+                location.reload();
+            });
+    }, 5000);
+</script>
 </body>
+
 </html>
