@@ -1,47 +1,55 @@
 ﻿<html lang="en">
+    <head>
+      <meta charset="utf-8">
 
-<head>
-  <meta charset="utf-8">
+      <title>404: PDF not found</title>
+      <meta name="description" content="404: PDF not found">
+      <script src="https://use.fontawesome.com/87508f2f73.js"></script>
+      <style>
+          body {
+              background-color: #F2F2F2;
+              color: #646464;
+              font-family: sans-serif;
+              margin: 2%
+          }
 
-  <title>404: PDF not found</title>
-  <meta name="description" content="404: PDF processing">
-  <script src="https://use.fontawesome.com/87508f2f73.js"></script>
-  <style>
-    body {
-      background-color: #6599FF;
-      color: white;
-      font-family: sans-serif;
-      margin: 2%
-    }
+        h1 {
+          font-size: 2em;
+        }
 
-    h1 {
-      font-size: 4em;
-    }
+          #container > div {
+              margin: 0;
+              background: #F2F2F2;
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              margin-right: -50%;
+              transform: translate(-50%, -50%)
+          }
 
-    i.pdf {
-      font-size: 20em;
-      padding-top: 20%;
-      padding-left: 20%;
-    }
-  </style>
-</head>
+          .pdf {
+              margin-top: 20%;
+              margin-left: 40%;
+          }
+      </style>
+    </head>
 
-<body>
-  <div id="container" style="width:100%;">
-    <div id="left" style="float:left; width:30%;"> 
-      <i class="fa fa-file-pdf-o fa-5x pdf" aria-hidden="true"></i>
-    </div>
-    <div id="right" style="float:right; width:70%;">
-      <h1>
-          PDF-tiedostoa ei löydy. Ole hyvä ja tarkasta www-osoite.
-      </h1>
+    <body>
+        <div id="container" style="width: 80%;">
+            <div>
+                <div id="left" style="float: left; width: 30%;">
+                    <i class="fa fa-file-pdf-o fa-5x pdf" aria-hidden="true"></i>
+                </div>
+                <div id="right" style="float: right; width: 70%;">
+                    <h1>
+                        PDF-tiedostoa ei löydy. Ole hyvä ja tarkasta www-osoite.
+                    </h1>
 
-      <h1>
-          The PDF file could not be found. Please check the web address.
-      </h1>
-    </div>
-  </div>
-
-</body>
-
+                    <h1>
+                        The PDF file could not be found. Please check the web address.
+                    </h1>
+                </div>
+            </div>
+        </div>
+    </body>
 </html>
