@@ -38,7 +38,7 @@ namespace Pdf.Storage.Test
                 .Passing(x =>
                 {
                     x.Opened.Should().HaveCount(1);
-                    x.Opened.Single().Should().BeCloseTo(DateTime.UtcNow, precision: 1000);
+                    x.Opened.Single().Should().BeCloseTo(DateTime.UtcNow, precision: 5000);
                 });
         }
 
