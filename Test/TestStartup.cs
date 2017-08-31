@@ -12,6 +12,7 @@ using Pdf.Storage.Pdf.CustomPages;
 using Pdf.Storage.PdfMerge;
 using Pdf.Storage.Test.Utils;
 using Pdf.Storage.Util;
+using Protacon.NetCore.WebApi.Util.ModelValidation;
 
 namespace Pdf.Storage.Test
 {
