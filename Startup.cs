@@ -18,6 +18,7 @@ using Pdf.Storage.PdfMerge;
 using Pdf.Storage.Test;
 using Pdf.Storage.Util;
 using Protacon.NetCore.WebApi.ApiKeyAuth;
+using Protacon.NetCore.WebApi.Util.ModelValidation;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace Pdf.Storage
