@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Hangfire;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using Pdf.Storage.Data;
@@ -27,6 +28,7 @@ namespace Pdf.Storage.PdfMerge
             _logger = logger;
         }
 
+        [Queue("merge")]
         public void MergePdf(string groupId, string fileId, string[] pdfIds)
         {
             var temp = ResolveTemporaryDirectory();
