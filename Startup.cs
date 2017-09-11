@@ -120,7 +120,13 @@ namespace Pdf.Storage
                 c.RoutePrefix = "doc";
             });
 
-            app.UseHangfireServer();
+
+            var options = new BackgroundJobServerOptions
+            {
+                Queues = new[] { "default", "merge" }
+            };
+
+            app.UseHangfireServer(options);
 
             app.UseHangfireDashboard();
 
