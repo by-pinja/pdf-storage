@@ -1,10 +1,10 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Pdf.Storage.Data;
+using Pdf.Storage.Mq;
 
 namespace Pdf.Storage.PdfMerge
 {
@@ -12,12 +12,14 @@ namespace Pdf.Storage.PdfMerge
     {
         private readonly IBackgroundJobClient _backgroundJob;
         private readonly PdfDataContext _context;
+        private readonly IMqMessages _mqMessages;
         private readonly AppSettings _settings;
 
-        public MergerController(IBackgroundJobClient backgroundJob, PdfDataContext context, IOptions<AppSettings> settings)
+        public MergerController(IBackgroundJobClient backgroundJob, PdfDataContext context, IOptions<AppSettings> settings, IMqMessages mqMessages)
         {
             _backgroundJob = backgroundJob;
             _context = context;
+            _mqMessages = mqMessages;
             _settings = settings.Value;
         }
 
@@ -34,7 +36,11 @@ namespace Pdf.Storage.PdfMerge
 
             var filePath = $"{_settings.BaseUrl}/v1/pdf/{groupId}/{entity.FileId}.pdf";
 
-            request.PdfIds.ToList().ForEach(id => _context.PdfFiles.Single(x => x.FileId == id).Usage.Add(new PdfOpenedEntity()));
+            request.PdfIds.ToList().ForEach(id =>
+            {
+                _mqMessages.PdfOpened(groupId, id);
+                _context.PdfFiles.Single(x => x.FileId == id).Usage.Add(new PdfOpenedEntity());
+            });
 
             _context.SaveChanges();
 
