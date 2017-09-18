@@ -7,6 +7,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "html-to-pdf": "git+https://github.com/protacon/html-to-pdf.git"
+    "@protacon/html-to-pdf": "1.0.0"
   }
 }
