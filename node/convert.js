@@ -1,4 +1,4 @@
-﻿var app = require('html-to-pdf');
+﻿var app = require('@protacon/html-to-pdf');
 
 module.exports = function (callback, html, data) {
     app

@@ -2,16 +2,21 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using Castle.Core.Logging;
 using Microsoft.AspNetCore.NodeServices;
+using Microsoft.Extensions.Logging;
 
 namespace Pdf.Storage.Pdf
 {
     public class PdfConvert : IPdfConvert
     {
         private readonly INodeServices _nodeServices;
-        public PdfConvert(INodeServices nodeServices)
+        private readonly ILogger<PdfConvert> _logger;
+
+        public PdfConvert(INodeServices nodeServices, ILogger<PdfConvert> logger)
         {
             _nodeServices = nodeServices;
+            _logger = logger;
         }
 
         public (byte[] data, string html) CreatePdfFromHtml(string html, object templateData)
@@ -30,6 +35,8 @@ namespace Pdf.Storage.Pdf
                 var pdfAsBytes = objects.Select(Convert.ToByte).ToArray();
                 return (pdfAsBytes, html);
             }
+
+            _logger.LogError($"Something unexpected occurred, cannot parse result from '{data}'");
 
             throw new InvalidOperationException($"Something unexpected occurred, cannot parse result from '{data}'");
         }
