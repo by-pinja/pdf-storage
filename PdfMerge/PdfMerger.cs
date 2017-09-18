@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Pdf.Storage.Data;
 using Pdf.Storage.Pdf;
 using Pdf.Storage.Test;
+using Pdf.Storage.Util;
 
 namespace Pdf.Storage.PdfMerge
 {
@@ -28,7 +30,6 @@ namespace Pdf.Storage.PdfMerge
             _logger = logger;
         }
 
-        [Queue("merge")]
         public void MergePdf(string groupId, string fileId, string[] pdfIds)
         {
             var temp = ResolveTemporaryDirectory();
@@ -39,17 +40,16 @@ namespace Pdf.Storage.PdfMerge
             {
                 var mergedFile = _context.PdfFiles.Single(x => x.GroupId == groupId && x.FileId == fileId);
 
-                var pdfs = pdfIds
-                    .Select(id => _pdfStorage.GetPdf(groupId, id))
-                    .Select(pdf => new
-                    {
-                        TempFile = Path.Combine($@"{temp}", $"{pdf.Id}.pdf"),
-                        pdf.Data
-                    }).ToList();
+                // Its possible that pdf:s are just requested before merge, hangfire retry is very slow and with multiple distributed consumers
+                // its very hard to control which is run first. For this reason this workaround is made.
+                var pdfs = Retry.Func(() => pdfIds
+                        .Select(id => _pdfStorage.GetPdf(groupId, id))
+                        .Select(pdf => (tempFile: Path.Combine($@"{temp}", $"{pdf.Id}.pdf"), data: pdf.Data)).ToList(), 
+                    retryInterval: TimeSpan.FromSeconds(10), maxAttemptCount: 4);
 
-                pdfs.ForEach(x => File.WriteAllBytes(x.TempFile, x.Data));
+                pdfs.ToList().ForEach(x => File.WriteAllBytes(x.tempFile, x.data));
 
-                var mergedPdf = MergeFiles(temp, pdfs.Select(x => x.TempFile));
+                var mergedPdf = MergeFiles(temp, pdfs.Select(x => x.tempFile));
 
                 _pdfStorage.AddOrReplacePdf(new StoredPdf(groupId, fileId, mergedPdf));
 

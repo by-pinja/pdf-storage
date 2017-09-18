@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Hangfire;
 using Microsoft.Extensions.Options;
 using Pdf.Storage.Data;
 using Pdf.Storage.Mq;
