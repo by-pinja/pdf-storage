@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using Protacon.NetCore.WebApi.TestUtil;
@@ -9,6 +10,7 @@ namespace Pdf.Storage.Test
     {
         public static CallResponse WaitForOk(this TestHost host, string path, string reason = "Timeout")
         {
+            var errors = new List<Exception>();
             for (int i = 0; i < 10; i++)
             {
                 try
@@ -16,13 +18,14 @@ namespace Pdf.Storage.Test
                     var response = host.Get(path).ExpectStatusCode(HttpStatusCode.OK);
                     return response;
                 }
-                catch (ExpectedStatusCodeException)
+                catch (ExpectedStatusCodeException ex)
                 {
+                    errors.Add(ex);
                     Thread.Sleep(1000);
                 }
             }
 
-            throw new InvalidOperationException(reason);
+            throw new AggregateException(errors);
         }
     }
 }
