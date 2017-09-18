@@ -1,4 +1,5 @@
-﻿using Hangfire;
+﻿using System;
+using Hangfire;
 using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -52,7 +53,10 @@ namespace Pdf.Storage.Test
             loggerFactory.AddDebug();
 
             app.UseMiddleware<TestAuthenticationMiddlewareForApiKey>();
-            app.UseHangfireServer();
+
+            // Workaround for hanfire instability issue during testing.
+            Retry.Action(() => app.UseHangfireServer(), retryInterval: TimeSpan.FromMilliseconds(100), maxAttemptCount: 5);
+
             app.UseMvc();
         }
     }
