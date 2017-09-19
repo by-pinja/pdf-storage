@@ -1,4 +1,4 @@
-@Library("PTCSLibrary@savpek") _
+@Library("PTCSLibrary") _
 
 podTemplate(label: 'dotnet.1.1.2-with-node', idleMinutes:30,
   containers: [
@@ -33,32 +33,13 @@ podTemplate(label: 'dotnet.1.1.2-with-node', idleMinutes:30,
       }
       stage('Package') {
           container('docker') {
-          def published = publishContainerToGcr(project, branch);
+            def published = publishContainerToGcr(project, branch);
 
-          //   docker.withRegistry("https://eu.gcr.io", "gcr:${env.PTCS_DOCKER_REGISTRY_KEY}") {
-          //     //Workaround Jenkins bug https://issues.jenkins-ci.org/browse/JENKINS-31507
-          //     sh """
-          //       echo ${env.PTCS_DOCKER_REGISTRY}
-          //       docker build -t ${env.PTCS_DOCKER_REGISTRY}/$project .
-          //     """
-
-          //     def image = docker.image("${env.PTCS_DOCKER_REGISTRY}/$project")
-
-          //     def tag = "$branch-${env.BUILD_NUMBER}"
-
-          //     image.push("latest-$branch")
-          //     image.push(tag)
-
-          //     if (env.GIT_TAG_NAME) {
-          //       image.push(env.GIT_TAG_NAME)
-          //     }
-          // }
-
-          configFileProvider([configFile(fileId: "cf3149e9-c9d2-486d-a965-61e64d458a4a", targetLocation: "/home/jenkins/.kube/config")]) {
-            sh """
-                kubectl set image deployment/pdf-storage-$branch pdf-storage-$branch=$published.image:$published.tag --namespace=eventale
-            """
-          }
+            configFileProvider([configFile(fileId: "cf3149e9-c9d2-486d-a965-61e64d458a4a", targetLocation: "/home/jenkins/.kube/config")]) {
+              sh """
+                  kubectl set image deployment/pdf-storage-$branch pdf-storage-$branch=$published.image:$published.tag --namespace=eventale
+              """
+            }
         }
       }
     }
