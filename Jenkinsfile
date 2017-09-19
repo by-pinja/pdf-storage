@@ -33,7 +33,7 @@ podTemplate(label: 'dotnet.1.1.2-with-node', idleMinutes:30,
       }
       stage('Package') {
           container('docker') {
-          def publish = publishContainerToGcr(project, branch);
+          def published = publishContainerToGcr(project, branch);
 
           //   docker.withRegistry("https://eu.gcr.io", "gcr:${env.PTCS_DOCKER_REGISTRY_KEY}") {
           //     //Workaround Jenkins bug https://issues.jenkins-ci.org/browse/JENKINS-31507
@@ -55,7 +55,7 @@ podTemplate(label: 'dotnet.1.1.2-with-node', idleMinutes:30,
           // }
           configFileProvider([configFile(fileId: "cf3149e9-c9d2-486d-a965-61e64d458a4a", targetLocation: "/home/jenkins/.kube/config")]) {
             sh """
-                kubectl set image deployment/pdf-storage-$branch pdf-storage-$branch=$publish.image:$publish.tag --namespace=eventale
+                kubectl set image deployment/pdf-storage-$branch pdf-storage-$branch=eu.gcr.io/ptcs-docker-registry/$project:$tag --namespace=eventale
             """
           }
         }
