@@ -53,13 +53,10 @@ podTemplate(label: 'dotnet.1.1.2-with-node', idleMinutes:30,
           //       image.push(env.GIT_TAG_NAME)
           //     }
           // }
-          println published
-          println published.image
-          println "$published.image:$published.tag"
 
           configFileProvider([configFile(fileId: "cf3149e9-c9d2-486d-a965-61e64d458a4a", targetLocation: "/home/jenkins/.kube/config")]) {
             sh """
-                kubectl set image deployment/pdf-storage-$branch pdf-storage-$branch=eu.gcr.io/ptcs-docker-registry/$project:$tag --namespace=eventale
+                kubectl set image deployment/pdf-storage-$branch pdf-storage-$branch=$published.image:$published.tag --namespace=eventale
             """
           }
         }
