@@ -54,8 +54,8 @@ podTemplate(label: 'dotnet.1.1.2-with-node', idleMinutes:30,
           //     }
           // }
           println published
-          println published['image']
-          println published['tag']
+          println published.image
+          println published.tag
 
           configFileProvider([configFile(fileId: "cf3149e9-c9d2-486d-a965-61e64d458a4a", targetLocation: "/home/jenkins/.kube/config")]) {
             sh """
