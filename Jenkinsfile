@@ -1,4 +1,4 @@
-@Library("PTCSLibrary") _
+@Library("PTCSLibrary@savpek") _
 
 podTemplate(label: 'dotnet.1.1.2-with-node', idleMinutes:30,
   containers: [
@@ -33,29 +33,30 @@ podTemplate(label: 'dotnet.1.1.2-with-node', idleMinutes:30,
       }
       stage('Package') {
           container('docker') {
-            docker.withRegistry("https://eu.gcr.io", "gcr:${env.PTCS_DOCKER_REGISTRY_KEY}") {
-              //Workaround Jenkins bug https://issues.jenkins-ci.org/browse/JENKINS-31507
-              sh """
-                echo ${env.PTCS_DOCKER_REGISTRY}
-                docker build -t ${env.PTCS_DOCKER_REGISTRY}/$project .
-              """
+          def publish = publishContainerToGcr(project, branch);
 
-              def image = docker.image("${env.PTCS_DOCKER_REGISTRY}/$project")
+          //   docker.withRegistry("https://eu.gcr.io", "gcr:${env.PTCS_DOCKER_REGISTRY_KEY}") {
+          //     //Workaround Jenkins bug https://issues.jenkins-ci.org/browse/JENKINS-31507
+          //     sh """
+          //       echo ${env.PTCS_DOCKER_REGISTRY}
+          //       docker build -t ${env.PTCS_DOCKER_REGISTRY}/$project .
+          //     """
 
-              def tag = "$branch-${env.BUILD_NUMBER}"
+          //     def image = docker.image("${env.PTCS_DOCKER_REGISTRY}/$project")
 
-              image.push("latest-$branch")
-              image.push(tag)
+          //     def tag = "$branch-${env.BUILD_NUMBER}"
 
-              if (env.GIT_TAG_NAME) {
-                image.push(env.GIT_TAG_NAME)
-              }
+          //     image.push("latest-$branch")
+          //     image.push(tag)
 
-              configFileProvider([configFile(fileId: "cf3149e9-c9d2-486d-a965-61e64d458a4a", targetLocation: "/home/jenkins/.kube/config")]) {
-                  sh """
-                      kubectl set image deployment/pdf-storage-$branch pdf-storage-$branch=eu.gcr.io/ptcs-docker-registry/$project:$tag --namespace=eventale
-                  """
-              }
+          //     if (env.GIT_TAG_NAME) {
+          //       image.push(env.GIT_TAG_NAME)
+          //     }
+          // }
+          configFileProvider([configFile(fileId: "cf3149e9-c9d2-486d-a965-61e64d458a4a", targetLocation: "/home/jenkins/.kube/config")]) {
+            sh """
+                kubectl set image deployment/pdf-storage-$branch pdf-storage-$branch=$publish.image:$publish.tag --namespace=eventale
+            """
           }
         }
       }
