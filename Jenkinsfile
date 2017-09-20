@@ -1,4 +1,4 @@
-@Library("PTCSLibrary") _
+@Library("PTCSLibrary@savpek") _
 
 podTemplate(label: 'dotnet.1.1.2-with-node', idleMinutes:30,
   containers: [
@@ -34,8 +34,7 @@ podTemplate(label: 'dotnet.1.1.2-with-node', idleMinutes:30,
       stage('Package') {
           container('docker') {
             def published = publishContainerToGcr(project, branch);
-
-            configFileProvider([configFile(fileId: "cf3149e9-c9d2-486d-a965-61e64d458a4a", targetLocation: "/home/jenkins/.kube/config")]) {
+            kubectlToTestEnv() {
               sh """
                   kubectl set image deployment/pdf-storage-$branch pdf-storage-$branch=$published.image:$published.tag --namespace=eventale
               """
