@@ -1,4 +1,4 @@
-@Library("PTCSLibrary@savpek") _
+@Library("PTCSLibrary") _
 
 podTemplate(label: 'dotnet.1.1.2-with-node', idleMinutes:30,
   containers: [
@@ -34,7 +34,8 @@ podTemplate(label: 'dotnet.1.1.2-with-node', idleMinutes:30,
       stage('Package') {
           container('docker') {
             def published = publishContainerToGcr(project, branch);
-            kubectlToTestEnv() {
+
+            toK8sTestEnv() {
               sh """
                   kubectl set image deployment/pdf-storage-$branch pdf-storage-$branch=$published.image:$published.tag --namespace=eventale
               """
