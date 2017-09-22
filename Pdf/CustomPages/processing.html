@@ -72,9 +72,10 @@
         xmlhttp.send();
     }
 
-    setInterval(function () {
+    var intervalId = setInterval(function () {
         check(window.location.href,
-            function() {
+            function () {
+                clearInterval(intervalId);
                 location.reload();
             });
     }, 3000);
