@@ -1,7 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Hangfire;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Pdf.Storage.Data;
 using Pdf.Storage.Mq;
@@ -13,13 +15,15 @@ namespace Pdf.Storage.PdfMerge
         private readonly IBackgroundJobClient _backgroundJob;
         private readonly PdfDataContext _context;
         private readonly IMqMessages _mqMessages;
+        private readonly ILogger<MergerController> _logger;
         private readonly AppSettings _settings;
 
-        public MergerController(IBackgroundJobClient backgroundJob, PdfDataContext context, IOptions<AppSettings> settings, IMqMessages mqMessages)
+        public MergerController(IBackgroundJobClient backgroundJob, PdfDataContext context, IOptions<AppSettings> settings, IMqMessages mqMessages, ILogger<MergerController> logger)
         {
             _backgroundJob = backgroundJob;
             _context = context;
             _mqMessages = mqMessages;
+            _logger = logger;
             _settings = settings.Value;
         }
 
@@ -27,10 +31,18 @@ namespace Pdf.Storage.PdfMerge
         public IActionResult MergePdfs(string groupId, [Required][FromBody] PdfMergeRequest request)
         {
             if (request.PdfIds.Length < 1)
-                return BadRequest();
+                return BadRequest("Attleast one pdf must be defined, current length 0");
 
-            if (!AllRequestedFilesExists(request.PdfIds, groupId))
-                return BadRequest();
+            var missingPdfFiles = MissingPdfFiles(request.PdfIds, groupId).ToList();
+
+            if (!missingPdfFiles.Any())
+            {
+                var message = $"Pdf files not found, missing files from group '{groupId}' are '{missingPdfFiles.Aggregate("", (a, b) => $"{a}, {b}").Trim(',')}'";
+
+                _logger.LogWarning($"Requested merge but it failed: {message}");
+
+                return BadRequest(message);
+            }
 
             var entity = _context.PdfFiles.Add(new PdfEntity(groupId)).Entity;
 
@@ -49,10 +61,10 @@ namespace Pdf.Storage.PdfMerge
             return Accepted(new MergeResponse(entity.FileId, filePath));
         }
 
-        private bool AllRequestedFilesExists(string[] pdfIds, string groupId)
+        private IEnumerable<string> MissingPdfFiles(string[] pdfIds, string groupId)
         {
             var pdfIdsInDatabase = _context.PdfFiles.Where(x => x.GroupId == groupId).Select(x => x.FileId);
-            return pdfIds.All(pdfId => pdfIdsInDatabase.Any(id => id == pdfId));
+            return pdfIds.Where(pdfId => pdfIdsInDatabase.Any(id => id == pdfId));
         }
     }
 }
