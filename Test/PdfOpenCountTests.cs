@@ -24,12 +24,11 @@ namespace Pdf.Storage.Test
 
             host.Get($"/v1/usage/{group}/")
                 .ExpectStatusCode(HttpStatusCode.OK)
-                .WithContentOf<IEnumerable<PdfUsageCountSimpleResponse>>()
+                .WithContentOf<PdfGroupUsageCountResponse>()
                 .Passing(x =>
                 {
-                    x.Should().HaveCount(1);
-                    x.Single().IsOpened.Should().BeTrue();
-                    x.Single().PdfId.Should().Be(pdf.Id);
+                    x.Opened.Should().Be(1);
+                    x.Total.Should().Be(1);
                 });
 
             host.Get($"/v1/usage/{group}/{pdf.Id}.pdf")
@@ -54,8 +53,12 @@ namespace Pdf.Storage.Test
 
             host.Get($"/v1/usage/{group}/")
                 .ExpectStatusCode(HttpStatusCode.OK)
-                .WithContentOf<IEnumerable<PdfUsageCountSimpleResponse>>()
-                .Passing(x => x.Should().HaveCount(0));
+                .WithContentOf<PdfGroupUsageCountResponse>()
+                .Passing(x =>
+                {
+                    x.Total.Should().Be(1);
+                    x.Opened.Should().Be(0);
+                });
 
             host.Get($"/v1/usage/{group}/{pdf.Id}.pdf")
                 .ExpectStatusCode(HttpStatusCode.OK)

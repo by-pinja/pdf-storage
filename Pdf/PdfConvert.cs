@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
-using Castle.Core.Logging;
 using Microsoft.AspNetCore.NodeServices;
 using Microsoft.Extensions.Logging;
 

@@ -8,7 +8,7 @@ using Pdf.Storage.Pdf.Dto;
 
 namespace Pdf.Storage.Pdf
 {
-    public class PdfUsageCountController: Controller
+    public partial class PdfUsageCountController: Controller
     {
         private readonly PdfDataContext _context;
 
@@ -20,14 +20,15 @@ namespace Pdf.Storage.Pdf
         [HttpGet("/v1/usage/{groupId}")]
         public IActionResult GetSimpleCount([Required] string groupId)
         {
-            var result = _context.PdfFiles
+            var group = _context.PdfFiles
                 .Include(x => x.Usage)
-                .Where(x => x.GroupId == groupId && x.Processed)
-                .Where(x => x.Usage.Any())
-                .Select(x => new PdfUsageCountSimpleResponse(x.FileId, true))
-                .ToList();
+                .Where(x => x.GroupId == groupId && x.Processed);
 
-            return Ok(result);
+            return Ok(new PdfGroupUsageCountResponse
+            {
+                Total = group.Count(),
+                Opened = group.Count(x => x.Usage.Any())
+            });
         }
 
         [HttpGet("/v1/usage/{groupId}/{pdfId}.pdf")]
