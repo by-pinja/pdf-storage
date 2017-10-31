@@ -42,18 +42,18 @@ namespace Pdf.Storage.Test
             var group = Guid.NewGuid();
             var firstPdf = AddPdf(host, group);
 
-            host.Post($"v1/merge/{group}", new PdfMergeRequest(firstPdf.Id))
+            host.Post($"v1/merge/{@group}", new PdfMergeRequest(firstPdf.Id))
                 .ExpectStatusCode(HttpStatusCode.Accepted)
-                .WithContentOf<MergeResponse>();
+                .WithContentOf<MergeResponse>()
+                .Select();
 
-            host.Get($"/v1/usage/{group}/")
+            host.Get($"/v1/usage/{group}/{firstPdf.Id}.pdf")
                 .ExpectStatusCode(HttpStatusCode.OK)
-                .WithContentOf<IEnumerable<PdfUsageCountSimpleResponse>>()
+                .WithContentOf<PdfUsageCountSimpleResponse>()
                 .Passing(x =>
                 {
-                    x.Should().HaveCount(1);
-                    x.Single().IsOpened.Should().BeTrue();
-                    x.Single().PdfId.Should().Be(firstPdf.Id);
+                    x.IsOpened.Should().Be(true);
+                    x.PdfId.Should().Be(firstPdf.Id);
                 });
         }
 

@@ -20,7 +20,5 @@ namespace Pdf.Storage.Data
         public int OpenedTimes { get; set; }
 
         public ICollection<PdfOpenedEntity> Usage { get; protected set; } = new List<PdfOpenedEntity>();
-
-
     }
 }

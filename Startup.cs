@@ -93,7 +93,10 @@ namespace Pdf.Storage
             services.Configure<ApiKeyAuthenticationOptions>(Configuration.GetSection("ApiAuthentication"));
             services.Configure<MqConfig>(Configuration.GetSection("Mq"));
 
-            services.AddHangfire(config => config.UsePostgreSqlStorage(Configuration["connectionString"]));
+            services.AddHangfire(config =>
+            {
+                config.UsePostgreSqlStorage(Configuration["connectionString"]);
+            });
         }
 
 
