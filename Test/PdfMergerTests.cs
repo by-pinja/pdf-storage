@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using FluentAssertions;
+using Microsoft.AspNetCore.TestHost;
 using Pdf.Storage.Pdf;
 using Pdf.Storage.Pdf.Dto;
 using Pdf.Storage.PdfMerge;
@@ -79,7 +80,7 @@ namespace Pdf.Storage.Test
                 .ExpectStatusCode(HttpStatusCode.BadRequest);
         }
 
-        private NewPdfResponse AddPdf(TestHost host, Guid groupId)
+        private NewPdfResponse AddPdf(TestServer host, Guid groupId)
         {
             var pdf =  host.Post($"/v1/pdf/{groupId}/",
                     new NewPdfRequest

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using FluentAssertions;
 using Hangfire.SqlServer;
+using Microsoft.AspNetCore.TestHost;
 using Newtonsoft.Json.Linq;
 using Pdf.Storage.Pdf.Dto;
 using Protacon.NetCore.WebApi.TestUtil;
@@ -12,7 +13,7 @@ namespace Pdf.Storage.Test
 {
     public class PdfUploadTests
     {
-        private NewPdfResponse AddPdf(TestHost host, Guid groupId)
+        private NewPdfResponse AddPdf(TestServer host, Guid groupId)
         {
             return host.Post($"/v1/pdf/{groupId}/",
                     new NewPdfRequest

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using FluentAssertions;
+using Microsoft.AspNetCore.TestHost;
 using Pdf.Storage.Pdf;
 using Pdf.Storage.Pdf.Dto;
 using Protacon.NetCore.WebApi.TestUtil;
@@ -66,7 +67,7 @@ namespace Pdf.Storage.Test
                 .Passing(x => x.Opened.Should().HaveCount(0));
         }
 
-        private NewPdfResponse AddPdf(TestHost host, string groupId)
+        private NewPdfResponse AddPdf(TestServer host, string groupId)
         {
             return host.Post($"/v1/pdf/{groupId}/",
                     new NewPdfRequest

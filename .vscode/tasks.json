@@ -11,6 +11,13 @@
             ],
             "isBuildCommand": true,
             "problemMatcher": "$msCompile"
+        },
+        {
+            "taskName": "test",
+            "args": [
+                "${workspaceRoot}/Pdf.Storage.csproj"
+            ],
+            "isBuildCommand": false
         }
     ]
 }
