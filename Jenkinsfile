@@ -2,7 +2,7 @@
 
 podTemplate(label: 'dotnet.2.0-with-node',
   containers: [
-    containerTemplate(name: 'dotnet-with-node', image: 'ptcos/docker-dotnet-node-sdk:2.0.0', ttyEnabled: true, command: '/bin/sh -c', args: 'cat'),
+    containerTemplate(name: 'dotnet-with-node', image: 'ptcos/docker-dotnet-node-sdk:2.0.1', ttyEnabled: true, command: '/bin/sh -c', args: 'cat'),
     containerTemplate(name: 'docker', image: 'ptcos/docker-client:1.1.32', ttyEnabled: true, command: '/bin/sh -c', args: 'cat'),
   ]
 ) {
