@@ -11,8 +11,8 @@ using Pdf.Storage.Mq;
 using Pdf.Storage.Pdf;
 using Pdf.Storage.Pdf.CustomPages;
 using Pdf.Storage.PdfMerge;
-using Pdf.Storage.Test.Utils;
 using Pdf.Storage.Util;
+using Protacon.NetCore.WebApi.ApiKeyAuth;
 using Protacon.NetCore.WebApi.Util.ModelValidation;
 
 namespace Pdf.Storage.Test
@@ -27,6 +27,9 @@ namespace Pdf.Storage.Test
         {
             services.AddMvc(options => options.Filters.Add(new ValidateModelAttribute()));
 
+            services.AddAuthentication()
+                .AddDisabledApiKeyAuth();
+
             services.AddNodeServices();
 
             services.AddTransient<IPdfConvert, PdfConvert>();
@@ -36,7 +39,8 @@ namespace Pdf.Storage.Test
             services.AddTransient<Uris>();
             services.AddTransient<IMqMessages, MqMessagesNullObject>();
 
-            services.AddDbContext<PdfDataContext>(opt => opt.UseInMemoryDatabase());
+            var dbId = Guid.NewGuid().ToString();
+            services.AddDbContext<PdfDataContext>(opt => opt.UseInMemoryDatabase(dbId));
 
             services.AddSingleton<IPdfStorage, InMemoryPdfStorage>();
 
@@ -52,7 +56,7 @@ namespace Pdf.Storage.Test
             loggerFactory.AddConsole();
             loggerFactory.AddDebug();
 
-            app.UseMiddleware<TestAuthenticationMiddlewareForApiKey>();
+            app.UseAuthentication();
 
             // Workaround for hanfire instability issue during testing.
             Retry.Action(() => app.UseHangfireServer(), retryInterval: TimeSpan.FromMilliseconds(100), maxAttemptCount: 5);

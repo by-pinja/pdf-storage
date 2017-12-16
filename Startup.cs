@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Hangfire;
 using Hangfire.MemoryStorage;
 using Hangfire.PostgreSql;
@@ -41,6 +42,20 @@ namespace Pdf.Storage
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAuthentication()
+                .AddApiKeyAuth(options =>
+                {
+                    if(!Configuration.GetChildren().Any(x => x.Key == "ApiAuthentication"))
+                        throw new InvalidOperationException($"Expected 'ApiAuthentication' section.");
+
+                    var keys = Configuration.GetSection("ApiAuthentication:Keys")
+                        .AsEnumerable()
+                        .Where(x => x.Value != null)
+                        .Select(x => x.Value);
+
+                    options.Keys = keys;
+                });
+
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy",
@@ -111,7 +126,7 @@ namespace Pdf.Storage
                 loggerFactory.AddDebug();
             }
 
-            app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
+            app.UseAuthentication();
 
             MigrateDb(app);
 
