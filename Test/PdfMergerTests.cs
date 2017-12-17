@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using FluentAssertions;
@@ -14,7 +13,7 @@ namespace Pdf.Storage.Test
 {
     public class PdfMergerTests
     {
-        [Fact]
+        [Fact(Skip="Requires fix for https://github.com/HangfireIO/Hangfire/issues/808")]
         public void WhenPdfMergeIsRequested_ThenValidMergeUriIsReturned()
         {
             var host = TestHost.Run<TestStartup>();
@@ -30,12 +29,12 @@ namespace Pdf.Storage.Test
                 .Select();
 
             host
-                .WaitForOk(response.PdfUri, reason: "Did not receive merged pdf.")
+                .WaitForOk(response.PdfUri)
                 .WithContentOf<byte[]>()
                 .Passing(x => x.Length.Should().BeGreaterThan(1));
         }
 
-        [Fact]
+        [Fact(Skip="Requires fix for https://github.com/HangfireIO/Hangfire/issues/808")]
         public void WhenPdfFilesAreMerged_ThenMarkOriginalFilesAsOpened()
         {
             var host = TestHost.Run<TestStartup>();
@@ -100,7 +99,7 @@ namespace Pdf.Storage.Test
                 .Select()
                 .Single();
 
-            host.WaitForOk($"{pdf.PdfUri}?noCount=true", reason: $"Waiting for pdf '{pdf.PdfUri}' to get ready.");
+            host.WaitForOk($"{pdf.PdfUri}?noCount=true");
 
             return pdf;
         }

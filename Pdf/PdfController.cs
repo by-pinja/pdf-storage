@@ -33,7 +33,7 @@ namespace Pdf.Storage.Pdf
             _mqMessages = mqMessages;
         }
 
-        [Authorize(ActiveAuthenticationSchemes = "ApiKey")]
+        [Authorize(AuthenticationSchemes = "ApiKey")]
         [HttpPost("/v1/pdf/{groupId}/")]
         public IActionResult AddNewPdf([Required] string groupId, [FromBody] NewPdfRequest request)
         {

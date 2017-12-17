@@ -13,7 +13,7 @@ namespace Pdf.Storage.Test
 {
     public class PdfOpenCountTests
     {
-        [Fact]
+        [Fact(Skip="Requires fix for https://github.com/HangfireIO/Hangfire/issues/808")]
         public void WhenPdfIsOpened_ThenInformationAboutOpeningIsQueruable()
         {
             var host = TestHost.Run<TestStartup>();
@@ -42,7 +42,7 @@ namespace Pdf.Storage.Test
                 });
         }
 
-        [Fact]
+        [Fact(Skip="Requires fix for https://github.com/HangfireIO/Hangfire/issues/808")]
         public void WhenPdfIsOpenedWithNoCountQuery_ThenDontCountIsAsOpened()
         {
             var host = TestHost.Run<TestStartup>();

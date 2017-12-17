@@ -44,7 +44,7 @@ namespace Pdf.Storage.PdfMerge
                 // its very hard to control which is run first. For this reason this workaround is made.
                 var pdfs = Retry.Func(() => pdfIds
                         .Select(id => _pdfStorage.GetPdf(groupId, id))
-                        .Select(pdf => (tempFile: Path.Combine($@"{temp}", $"{pdf.Id}.pdf"), data: pdf.Data)).ToList(), 
+                        .Select(pdf => (tempFile: Path.Combine($@"{temp}", $"{pdf.Id}.pdf"), data: pdf.Data)).ToList(),
                     retryInterval: TimeSpan.FromSeconds(10), maxAttemptCount: 4);
 
                 pdfs.ToList().ForEach(x => File.WriteAllBytes(x.tempFile, x.data));

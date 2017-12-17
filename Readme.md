@@ -6,6 +6,17 @@ dotnet restore
 dotnet build
 ```
 
+## Local development, mocks enabled
+Create `appsettings.localdev.json` in root directory with content, this file is ignored in git:
+```js
+{
+	"Mock": {
+		"Mq": "true",
+		"Db": "true"
+	}
+}
+```
+
 ## Run local development database
 ```bash
 docker run --name pdf-storage-postgress -e POSTGRES_PASSWORD=passwordfortesting -it -p 5432:5432 postgres
