@@ -31,6 +31,7 @@ namespace Pdf.Storage
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", true, true)
+                .AddJsonFile($"appsettings.localdev.json", true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true)
                 .AddJsonFile($"./config/appsettings.{env.EnvironmentName}.json", true)
                 .AddEnvironmentVariables();
@@ -45,7 +46,7 @@ namespace Pdf.Storage
             services.AddAuthentication()
                 .AddApiKeyAuth(options =>
                 {
-                    if(!Configuration.GetChildren().Any(x => x.Key == "ApiAuthentication"))
+                    if(Configuration.GetChildren().All(x => x.Key != "ApiAuthentication"))
                         throw new InvalidOperationException($"Expected 'ApiAuthentication' section.");
 
                     var keys = Configuration.GetSection("ApiAuthentication:Keys")
@@ -86,8 +87,32 @@ namespace Pdf.Storage
 
             services.Configure<AppSettings>(Configuration);
 
-            services.AddDbContext<PdfDataContext>(opt =>
-                opt.UseNpgsql(Configuration["connectionString"]));
+            if (bool.Parse(Configuration["Mock:Db"] ?? "false"))
+            {
+                var dbId = Guid.NewGuid().ToString();
+                services.AddDbContext<PdfDataContext>(opt => opt.UseInMemoryDatabase(dbId));
+
+                services.AddHangfire(config => config.UseMemoryStorage());
+            }
+            else
+            {
+                services.AddDbContext<PdfDataContext>(opt =>
+                    opt.UseNpgsql(Configuration["connectionString"]));
+
+                services.AddHangfire(config =>
+                {
+                    config.UsePostgreSqlStorage(Configuration["connectionString"]);
+                });
+            }
+
+            if (bool.Parse(Configuration["Mock:GoogleBucket"] ?? "false"))
+            {
+                services.AddSingleton<IPdfStorage, InMemoryPdfStorage>();
+            }
+            else
+            {
+                services.AddTransient<IPdfStorage, GoogleCloudPdfStorage>();
+            }
 
             services.AddTransient<IPdfConvert, PdfConvert>();
             services.AddTransient<IPdfStorage, GoogleCloudPdfStorage>();
@@ -96,7 +121,7 @@ namespace Pdf.Storage
             services.AddTransient<IPdfMerger, PdfMerger>();
             services.AddTransient<Uris>();
 
-            if (bool.Parse(Configuration["Development:DisableMq"] ?? "false"))
+            if (bool.Parse(Configuration["Mock:Mq"] ?? "false"))
             {
                 services.AddTransient<IMqMessages, MqMessagesNullObject>();
             }
@@ -107,11 +132,6 @@ namespace Pdf.Storage
 
             services.Configure<ApiKeyAuthenticationOptions>(Configuration.GetSection("ApiAuthentication"));
             services.Configure<MqConfig>(Configuration.GetSection("Mq"));
-
-            services.AddHangfire(config =>
-            {
-                config.UsePostgreSqlStorage(Configuration["connectionString"]);
-            });
         }
 
 
@@ -128,8 +148,6 @@ namespace Pdf.Storage
 
             app.UseAuthentication();
 
-            MigrateDb(app);
-
             app.UseSwagger();
 
             app.UseSwaggerUI(c =>
@@ -143,12 +161,6 @@ namespace Pdf.Storage
             app.UseHangfireDashboard();
 
             app.UseMvc();
-        }
-
-        private static void MigrateDb(IApplicationBuilder app)
-        {
-            var context = app.ApplicationServices.GetService<PdfDataContext>();
-            context.Database.Migrate();
         }
     }
 }

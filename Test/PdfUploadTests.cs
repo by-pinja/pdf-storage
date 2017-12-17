@@ -89,7 +89,7 @@ namespace Pdf.Storage.Test
             newPdf.GroupId.Should().Be(groupId.ToString());
         }
 
-        [Fact]
+        [Fact(Skip="Requires fix for https://github.com/HangfireIO/Hangfire/issues/808")]
         public void WhenPdfIsUploaded_ThenItCanBeDownloaded()
         {
             var host = TestHost.Run<TestStartup>();

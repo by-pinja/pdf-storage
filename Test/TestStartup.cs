@@ -19,10 +19,10 @@ namespace Pdf.Storage.Test
 {
     public class TestStartup
     {
-        public TestStartup(IHostingEnvironment env)
+        public TestStartup()
         {
         }
-
+            
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc(options => options.Filters.Add(new ValidateModelAttribute()));

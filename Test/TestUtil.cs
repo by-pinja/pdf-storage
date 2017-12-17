@@ -9,7 +9,7 @@ namespace Pdf.Storage.Test
 {
     public static class TestUtil
     {
-        public static CallResponse WaitForOk(this TestServer host, string path, string reason = "Timeout")
+        public static CallResponse WaitForOk(this TestServer host, string path)
         {
             var errors = new List<Exception>();
             for (int i = 0; i < 10; i++)
