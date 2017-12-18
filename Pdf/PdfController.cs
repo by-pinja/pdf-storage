@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using Hangfire;
@@ -98,6 +99,16 @@ namespace Pdf.Storage.Pdf
             }
 
             return Ok();
+        }
+
+        [HttpDelete("/v1/pdf/{groupId}/{pdfId}.pdf")]
+        public IActionResult RemoveSinglePdf(string groupId, string pdfId) {
+            return Ok();
+        }
+
+        [HttpDelete("/v1/pdfs/")]
+        public IActionResult RemoveMultiplePdfs(string groupId, [FromBody][Required] IEnumerable<PdfDeleteRequest> request) {
+            return Ok(request);
         }
     }
 }
