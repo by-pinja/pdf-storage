@@ -102,12 +102,14 @@ namespace Pdf.Storage.Pdf
         }
 
         [HttpDelete("/v1/pdf/{groupId}/{pdfId}.pdf")]
-        public IActionResult RemoveSinglePdf(string groupId, string pdfId) {
+        public IActionResult RemoveSinglePdf(string groupId, string pdfId)
+        {
             return Ok();
         }
 
         [HttpDelete("/v1/pdfs/")]
-        public IActionResult RemoveMultiplePdfs(string groupId, [FromBody][Required] IEnumerable<PdfDeleteRequest> request) {
+        public IActionResult RemoveMultiplePdfs([FromBody][Required] IEnumerable<PdfDeleteRequest> request)
+        {
             return Ok(request);
         }
     }
