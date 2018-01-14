@@ -27,7 +27,8 @@ namespace Pdf.Storage.Test
                                 TEXT = "something"
                             }}
                     }
-                ).ExpectStatusCode(HttpStatusCode.Accepted)
+                )
+                .ExpectStatusCode(HttpStatusCode.Accepted)
                 .WithContentOf<NewPdfResponse[]>()
                 .Select()
                 .Single();
@@ -100,6 +101,24 @@ namespace Pdf.Storage.Test
             host.WaitForOk(newPdf.PdfUri)
                 .WithContentOf<byte[]>()
                 .Passing(x => x.Length.Should().BeGreaterThan(1));
+        }
+
+        [Fact]
+        public void WhenPdfIsRemoved_ThenItShouldBeNoMoreAvailableAndPageGivesMeaningfullErrorMessage()
+        {
+            var host = TestHost.Run<TestStartup>();
+            var groupId = Guid.NewGuid();
+
+            var pdfForRemoval = AddPdf(host, groupId);
+            host.WaitForOk(pdfForRemoval.PdfUri);
+
+            host.Delete(pdfForRemoval.PdfUri).ExpectStatusCode(HttpStatusCode.OK);
+            host.WaitForStatusCode(pdfForRemoval.PdfUri, HttpStatusCode.NotFound);
+
+            host.Get(pdfForRemoval.PdfUri)
+                .ExpectStatusCode(HttpStatusCode.NotFound)
+                .WithContentOf<string>()
+                .Passing(body => body.Should().Match("*pdf*removed*"));
         }
     }
 }

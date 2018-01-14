@@ -11,18 +11,23 @@ namespace Pdf.Storage.Test
     {
         public static CallResponse WaitForOk(this TestServer host, string path)
         {
+            return WaitForStatusCode(host, path, HttpStatusCode.OK);
+        }
+
+        public static CallResponse WaitForStatusCode(this TestServer host, string path, HttpStatusCode code)
+        {
             var errors = new List<Exception>();
             for (int i = 0; i < 10; i++)
             {
                 try
                 {
-                    var response = host.Get(path).ExpectStatusCode(HttpStatusCode.OK);
+                    var response = host.Get(path).ExpectStatusCode(code);
                     return response;
                 }
                 catch (ExpectedStatusCodeException ex)
                 {
                     errors.Add(ex);
-                    Thread.Sleep(1000);
+                    Thread.Sleep(5000);
                 }
             }
 

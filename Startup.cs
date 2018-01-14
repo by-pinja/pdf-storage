@@ -26,16 +26,8 @@ namespace Pdf.Storage
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
+        public Startup(IConfigurationBuilder builder)
         {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", true, true)
-                .AddJsonFile($"appsettings.localdev.json", true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true)
-                .AddJsonFile($"./config/appsettings.{env.EnvironmentName}.json", true)
-                .AddEnvironmentVariables();
-
             Configuration = builder.Build();
         }
 

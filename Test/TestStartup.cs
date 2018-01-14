@@ -22,7 +22,7 @@ namespace Pdf.Storage.Test
         public TestStartup()
         {
         }
-            
+
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc(options => options.Filters.Add(new ValidateModelAttribute()));
@@ -59,7 +59,7 @@ namespace Pdf.Storage.Test
             app.UseAuthentication();
 
             // Workaround for hanfire instability issue during testing.
-            Retry.Action(() => app.UseHangfireServer(), retryInterval: TimeSpan.FromMilliseconds(100), maxAttemptCount: 5);
+            app.UseHangfireServer();
 
             app.UseMvc();
         }
