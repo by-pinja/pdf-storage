@@ -6,19 +6,25 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Pdf.Storage.Data;
+using Pdf.Storage.Hangfire;
 using Pdf.Storage.Mq;
 
 namespace Pdf.Storage.PdfMerge
 {
     public class MergerController: Controller
     {
-        private readonly IBackgroundJobClient _backgroundJob;
+        private readonly IHangfireQueue _backgroundJob;
         private readonly PdfDataContext _context;
         private readonly IMqMessages _mqMessages;
         private readonly ILogger<MergerController> _logger;
         private readonly AppSettings _settings;
 
-        public MergerController(IBackgroundJobClient backgroundJob, PdfDataContext context, IOptions<AppSettings> settings, IMqMessages mqMessages, ILogger<MergerController> logger)
+        public MergerController(
+            IHangfireQueue backgroundJob,
+            PdfDataContext context,
+            IOptions<AppSettings> settings,
+            IMqMessages mqMessages,
+            ILogger<MergerController> logger)
         {
             _backgroundJob = backgroundJob;
             _context = context;

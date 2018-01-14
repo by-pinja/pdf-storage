@@ -6,6 +6,7 @@ using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Pdf.Storage.Data;
+using Pdf.Storage.Hangfire;
 using Pdf.Storage.Mq;
 using Pdf.Storage.Pdf.CustomPages;
 using Pdf.Storage.Pdf.Dto;
@@ -18,7 +19,7 @@ namespace Pdf.Storage.Pdf
         private readonly PdfDataContext _context;
         private readonly IPdfStorage _pdfStorage;
         private readonly Uris _uris;
-        private readonly IBackgroundJobClient _backgroundJobs;
+        private readonly IHangfireQueue _backgroundJobs;
         private readonly IErrorPages _errorPages;
         private readonly IMqMessages _mqMessages;
 
@@ -26,7 +27,7 @@ namespace Pdf.Storage.Pdf
             PdfDataContext context,
             IPdfStorage pdfStorage,
             Uris uris,
-            IBackgroundJobClient backgroundJob,
+            IHangfireQueue backgroundJob,
             IErrorPages errorPages,
             IMqMessages mqMessages)
         {
