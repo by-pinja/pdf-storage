@@ -77,6 +77,20 @@ namespace Pdf.Storage.Hangfire
                 .ExpectStatusCode(HttpStatusCode.BadRequest);
         }
 
+        [Fact]
+        public void WhenDefinedPdfForMergingIsDeleted_ThenReturnBadRequest()
+        {
+            var host = TestHost.Run<TestStartup>();
+            var group = Guid.NewGuid();
+            var firstPdf = AddPdf(host, group);
+
+            host.Delete(firstPdf.PdfUri)
+                .ExpectStatusCode(HttpStatusCode.OK);
+
+            host.Post($"v1/merge/{group}", new PdfMergeRequest(firstPdf.GroupId, firstPdf.Id))
+                .ExpectStatusCode(HttpStatusCode.BadRequest);
+        }
+
         private NewPdfResponse AddPdf(TestServer host, Guid groupId)
         {
             var pdf =  host.Post($"/v1/pdf/{groupId}/",

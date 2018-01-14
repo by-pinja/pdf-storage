@@ -109,7 +109,7 @@ namespace Pdf.Storage.Hangfire
                 .Passing(x => x.Length.Should().BeGreaterThan(1));
         }
 
-        [Fact(Skip="TODO next")]
+        [Fact]
         public void WhenPdfIsRemoved_ThenItShouldBeNoMoreAvailableAndPageGivesMeaningfullErrorMessage()
         {
             var host = TestHost.Run<TestStartup>();
@@ -117,12 +117,13 @@ namespace Pdf.Storage.Hangfire
 
             var pdfForRemoval = AddPdf(host, groupId);
 
-            host.Delete(pdfForRemoval.PdfUri).ExpectStatusCode(HttpStatusCode.OK);
+            host.Delete(pdfForRemoval.PdfUri)
+                .ExpectStatusCode(HttpStatusCode.OK);
 
             host.Get(pdfForRemoval.PdfUri)
                 .ExpectStatusCode(HttpStatusCode.NotFound)
                 .WithContentOf<string>()
-                .Passing(body => body.Should().Match("*pdf*removed*"));
+                .Passing(body => body.Should().Match("*PDF*removed*"));
         }
     }
 }

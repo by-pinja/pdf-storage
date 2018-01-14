@@ -19,7 +19,6 @@ namespace Pdf.Storage.Data
         public bool Processed { get; set; }
         public bool Removed { get; set; }
         public int OpenedTimes { get; set; }
-
         public ICollection<PdfOpenedEntity> Usage { get; protected set; } = new List<PdfOpenedEntity>();
     }
 }
