@@ -71,6 +71,11 @@ namespace Pdf.Storage.Pdf
                 return _errorPages.PdfNotFoundResponse();
             }
 
+            if (pdfEntity.Removed)
+            {
+                return _errorPages.PdfRemovedResponse();
+            }
+
             if (!pdfEntity.Processed)
             {
                 return _errorPages.PdfIsStillProcessingResponse();

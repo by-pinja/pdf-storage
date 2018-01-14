@@ -69,7 +69,7 @@ namespace Pdf.Storage.PdfMerge
 
         private IEnumerable<string> MissingPdfFiles(string[] pdfIds, string groupId)
         {
-            var pdfIdsInDatabase = _context.PdfFiles.Where(x => x.GroupId == groupId).Select(x => x.FileId);
+            var pdfIdsInDatabase = _context.PdfFiles.Where(x => x.GroupId == groupId && !x.Removed).Select(x => x.FileId);
             return pdfIds.Where(pdfId => pdfIdsInDatabase.Any(id => id == pdfId));
         }
     }
