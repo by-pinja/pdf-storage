@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Pdf.Storage.Pdf;
 
-namespace Pdf.Storage.Test
+namespace Pdf.Storage.Hangfire
 {
     public class InMemoryPdfStorage : IPdfStorage
     {
