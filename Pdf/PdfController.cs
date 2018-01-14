@@ -23,8 +23,12 @@ namespace Pdf.Storage.Pdf
         private readonly IMqMessages _mqMessages;
 
         public PdfController(
-            PdfDataContext context, 
-            IPdfStorage pdfStorage, Uris uris, IBackgroundJobClient backgroundJob, IErrorPages errorPages, IMqMessages mqMessages)
+            PdfDataContext context,
+            IPdfStorage pdfStorage,
+            Uris uris,
+            IBackgroundJobClient backgroundJob,
+            IErrorPages errorPages,
+            IMqMessages mqMessages)
         {
             _context = context;
             _pdfStorage = pdfStorage;
@@ -104,6 +108,14 @@ namespace Pdf.Storage.Pdf
         [HttpDelete("/v1/pdf/{groupId}/{pdfId}.pdf")]
         public IActionResult RemoveSinglePdf(string groupId, string pdfId)
         {
+            var pdfEntity = _context.PdfFiles.SingleOrDefault(x => x.GroupId == groupId && x.FileId == pdfId);
+
+            if(pdfEntity == null)
+                return NotFound();
+
+            pdfEntity.Removed = true;
+            _context.SaveChanges();
+
             return Ok();
         }
 
