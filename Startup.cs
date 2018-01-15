@@ -26,12 +26,12 @@ namespace Pdf.Storage
 {
     public class Startup
     {
-        public Startup(IConfigurationBuilder builder)
+        public Startup(IConfiguration config)
         {
-            Configuration = builder.Build();
+            Configuration = config;
         }
 
-        public IConfigurationRoot Configuration { get; }
+        public IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -107,11 +107,11 @@ namespace Pdf.Storage
             }
 
             services.AddTransient<IPdfConvert, PdfConvert>();
-            services.AddTransient<IPdfStorage, GoogleCloudPdfStorage>();
             services.AddTransient<IPdfQueue, PdfQueue>();
             services.AddTransient<IErrorPages, ErrorPages>();
             services.AddTransient<IPdfMerger, PdfMerger>();
             services.AddTransient<Uris>();
+            services.AddTransient<IHangfireQueue, HangfireQueue>();
 
             if (bool.Parse(Configuration["Mock:Mq"] ?? "false"))
             {
@@ -120,6 +120,15 @@ namespace Pdf.Storage
             else
             {
                 services.AddTransient<IMqMessages, MqMessages>();
+            }
+
+            if (bool.Parse(Configuration["Mock:GoogleBucket"] ?? "false"))
+            {
+                services.AddSingleton<IPdfStorage, InMemoryPdfStorage>();
+            }
+            else
+            {
+                services.AddTransient<IPdfStorage, GoogleCloudPdfStorage>();
             }
 
             services.Configure<ApiKeyAuthenticationOptions>(Configuration.GetSection("ApiAuthentication"));
