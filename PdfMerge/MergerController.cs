@@ -41,7 +41,7 @@ namespace Pdf.Storage.PdfMerge
 
             var missingPdfFiles = MissingPdfFiles(request.PdfIds, groupId).ToList();
 
-            if (!missingPdfFiles.Any())
+            if (missingPdfFiles.Any())
             {
                 var message = $"Pdf files not found, missing files from group '{groupId}' are '{missingPdfFiles.Aggregate("", (a, b) => $"{a}, {b}").Trim(',')}'";
 
@@ -70,7 +70,7 @@ namespace Pdf.Storage.PdfMerge
         private IEnumerable<string> MissingPdfFiles(string[] pdfIds, string groupId)
         {
             var pdfIdsInDatabase = _context.PdfFiles.Where(x => x.GroupId == groupId && !x.Removed).Select(x => x.FileId);
-            return pdfIds.Where(pdfId => pdfIdsInDatabase.Any(id => id == pdfId));
+            return pdfIds.Where(pdfId => pdfIdsInDatabase.All(id => id != pdfId));
         }
     }
 }

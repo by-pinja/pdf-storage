@@ -46,5 +46,10 @@ namespace Pdf.Storage.Pdf
             _storageClient.DownloadObject(_settings.GoogleBucketName, GetObjectName(groupId, pdfId), pdfBytes, null, null);
             return new StoredPdf(groupId, pdfId, pdfBytes.ToArray());
         }
+
+        public void RemovePdf(string groupId, string pdfId)
+        {
+            _storageClient.DeleteObject(_settings.GoogleBucketName, GetObjectName(groupId, pdfId));
+        }
     }
 }

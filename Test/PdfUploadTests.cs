@@ -58,7 +58,7 @@ namespace Pdf.Storage.Hangfire
 
             host.Setup<HangfireMock>(mock =>
             {
-                mock.Executing = false;
+                mock.ExecuteActions = false;
             });
 
             var newPdf = AddPdf(host, groupId);
@@ -113,7 +113,7 @@ namespace Pdf.Storage.Hangfire
         public void WhenPdfIsRemoved_ThenItShouldBeNoMoreAvailableAndPageGivesMeaningfullErrorMessage()
         {
             var host = TestHost.Run<TestStartup>();
-                var groupId = Guid.NewGuid();
+            var groupId = Guid.NewGuid();
 
             var pdfForRemoval = AddPdf(host, groupId);
 
@@ -124,6 +124,20 @@ namespace Pdf.Storage.Hangfire
                 .ExpectStatusCode(HttpStatusCode.NotFound)
                 .WithContentOf<string>()
                 .Passing(body => body.Should().Match("*PDF*removed*"));
+        }
+
+        [Fact]
+        public void WhenPdfIsRemovedMultipleTimes_ThenItShouldReturnSameResultEachTime()
+        {
+            var host = TestHost.Run<TestStartup>();
+            var groupId = Guid.NewGuid();
+
+            var pdfForRemoval = AddPdf(host, groupId);
+
+            host.Delete(pdfForRemoval.PdfUri)
+                .ExpectStatusCode(HttpStatusCode.OK);
+            host.Delete(pdfForRemoval.PdfUri)
+                .ExpectStatusCode(HttpStatusCode.OK);
         }
     }
 }

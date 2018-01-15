@@ -3,6 +3,7 @@
     public interface IPdfStorage
     {
         void AddOrReplacePdf(StoredPdf pdf);
-        StoredPdf GetPdf(string groupId, string fileId);
+        void RemovePdf(string groupId, string pdfId);
+        StoredPdf GetPdf(string groupId, string pdfId);
     }
 }

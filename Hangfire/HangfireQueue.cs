@@ -17,5 +17,10 @@ namespace Pdf.Storage.Hangfire
         {
             _backgroundJobClient.Enqueue<T>(methodCall);
         }
+
+        public void Schedule<T>(Expression<Action<T>> methodCall, TimeSpan delay)
+        {
+            _backgroundJobClient.Schedule(methodCall, delay);
+        }
     }
 }
