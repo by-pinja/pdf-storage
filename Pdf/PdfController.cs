@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
@@ -6,6 +7,7 @@ using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Pdf.Storage.Data;
+using Pdf.Storage.Hangfire;
 using Pdf.Storage.Mq;
 using Pdf.Storage.Pdf.CustomPages;
 using Pdf.Storage.Pdf.Dto;
@@ -18,13 +20,17 @@ namespace Pdf.Storage.Pdf
         private readonly PdfDataContext _context;
         private readonly IPdfStorage _pdfStorage;
         private readonly Uris _uris;
-        private readonly IBackgroundJobClient _backgroundJobs;
+        private readonly IHangfireQueue _backgroundJobs;
         private readonly IErrorPages _errorPages;
         private readonly IMqMessages _mqMessages;
 
         public PdfController(
-            PdfDataContext context, 
-            IPdfStorage pdfStorage, Uris uris, IBackgroundJobClient backgroundJob, IErrorPages errorPages, IMqMessages mqMessages)
+            PdfDataContext context,
+            IPdfStorage pdfStorage,
+            Uris uris,
+            IHangfireQueue backgroundJob,
+            IErrorPages errorPages,
+            IMqMessages mqMessages)
         {
             _context = context;
             _pdfStorage = pdfStorage;
@@ -66,6 +72,11 @@ namespace Pdf.Storage.Pdf
                 return _errorPages.PdfNotFoundResponse();
             }
 
+            if (pdfEntity.Removed)
+            {
+                return _errorPages.PdfRemovedResponse();
+            }
+
             if (!pdfEntity.Processed)
             {
                 return _errorPages.PdfIsStillProcessingResponse();
@@ -104,13 +115,48 @@ namespace Pdf.Storage.Pdf
         [HttpDelete("/v1/pdf/{groupId}/{pdfId}.pdf")]
         public IActionResult RemoveSinglePdf(string groupId, string pdfId)
         {
+            if(!RemovePdf(groupId, pdfId))
+                return NotFound();
+
             return Ok();
+        }
+
+        private bool RemovePdf(string groupId, string pdfId)
+        {
+            var pdfEntity = _context.PdfFiles.SingleOrDefault(x => x.GroupId == groupId && x.FileId == pdfId);
+
+            if (pdfEntity == null)
+                return false;
+
+            if (pdfEntity.Removed)
+                return true;
+
+            // This delay solves folloing problem, if pdfs are added, merged and then removed instantly, merge requires these
+            // binaries on its background jobs and deleting them during those routines creates complicated scenarios.
+            // To avoid that scenario this delay is added, this makes pretty sure that all pdfs are generated before delete.
+            _backgroundJobs.Schedule<IPdfStorage>(storage => storage.RemovePdf(groupId, pdfId), TimeSpan.FromDays(1));
+
+            pdfEntity.Removed = true;
+            _context.SaveChanges();
+
+            return true;
         }
 
         [HttpDelete("/v1/pdfs/")]
         public IActionResult RemoveMultiplePdfs([FromBody][Required] IEnumerable<PdfDeleteRequest> request)
         {
-            return Ok(request);
+            var removedItems =
+                    request
+                        .Select(x =>
+                        {
+                            var removed = RemovePdf(x.GroupId, x.PdfId);
+                            return new { Request = x, Removed = removed };
+                        })
+                        .ToList()
+                        .Where(x => x.Removed)
+                        .Select(x => x.Request);
+
+            return Ok(removedItems);
         }
     }
 }

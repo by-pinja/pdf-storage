@@ -9,32 +9,31 @@ using Pdf.Storage.PdfMerge;
 using Protacon.NetCore.WebApi.TestUtil;
 using Xunit;
 
-namespace Pdf.Storage.Test
+namespace Pdf.Storage.Hangfire
 {
     public class PdfMergerTests
     {
-        [Fact(Skip="Requires fix for https://github.com/HangfireIO/Hangfire/issues/808")]
+        [Fact]
         public void WhenPdfMergeIsRequested_ThenValidMergeUriIsReturned()
         {
             var host = TestHost.Run<TestStartup>();
 
             var group = Guid.NewGuid();
             var firstPdf = AddPdf(host, group);
-            var secondPdf = AddPdf(host, group);
 
-            var response = host.Post($"v1/merge/{group}", new PdfMergeRequest(firstPdf.Id, secondPdf.Id))
+            var response = host.Post($"v1/merge/{group}", new PdfMergeRequest(firstPdf.Id))
                 .ExpectStatusCode(HttpStatusCode.Accepted)
                 .WithContentOf<MergeResponse>()
                 .Passing(x => x.PdfUri.Should().StartWith("http"))
                 .Select();
 
             host
-                .WaitForOk(response.PdfUri)
+                .Get(response.PdfUri)
                 .WithContentOf<byte[]>()
                 .Passing(x => x.Length.Should().BeGreaterThan(1));
         }
 
-        [Fact(Skip="Requires fix for https://github.com/HangfireIO/Hangfire/issues/808")]
+        [Fact]
         public void WhenPdfFilesAreMerged_ThenMarkOriginalFilesAsOpened()
         {
             var host = TestHost.Run<TestStartup>();
@@ -42,18 +41,17 @@ namespace Pdf.Storage.Test
             var group = Guid.NewGuid();
             var firstPdf = AddPdf(host, group);
 
-            host.Post($"v1/merge/{@group}", new PdfMergeRequest(firstPdf.Id))
+            host.Post($"v1/merge/{group}", new PdfMergeRequest(firstPdf.Id))
                 .ExpectStatusCode(HttpStatusCode.Accepted)
                 .WithContentOf<MergeResponse>()
                 .Select();
 
             host.Get($"/v1/usage/{group}/{firstPdf.Id}.pdf")
                 .ExpectStatusCode(HttpStatusCode.OK)
-                .WithContentOf<PdfUsageCountSimpleResponse>()
+                .WithContentOf<PdfUsageCountResponse>()
                 .Passing(x =>
                 {
-                    x.IsOpened.Should().Be(true);
-                    x.PdfId.Should().Be(firstPdf.Id);
+                    x.Opened.Should().HaveCount(1);
                 });
         }
 
@@ -79,6 +77,20 @@ namespace Pdf.Storage.Test
                 .ExpectStatusCode(HttpStatusCode.BadRequest);
         }
 
+        [Fact]
+        public void WhenDefinedPdfForMergingIsDeleted_ThenReturnBadRequest()
+        {
+            var host = TestHost.Run<TestStartup>();
+            var group = Guid.NewGuid();
+            var firstPdf = AddPdf(host, group);
+
+            host.Delete(firstPdf.PdfUri)
+                .ExpectStatusCode(HttpStatusCode.OK);
+
+            host.Post($"v1/merge/{group}", new PdfMergeRequest(firstPdf.GroupId, firstPdf.Id))
+                .ExpectStatusCode(HttpStatusCode.BadRequest);
+        }
+
         private NewPdfResponse AddPdf(TestServer host, Guid groupId)
         {
             var pdf =  host.Post($"/v1/pdf/{groupId}/",
@@ -98,8 +110,6 @@ namespace Pdf.Storage.Test
                 .WithContentOf<NewPdfResponse[]>()
                 .Select()
                 .Single();
-
-            host.WaitForOk($"{pdf.PdfUri}?noCount=true");
 
             return pdf;
         }

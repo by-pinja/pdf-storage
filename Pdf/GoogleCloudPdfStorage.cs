@@ -4,7 +4,7 @@ using Google.Apis.Auth.OAuth2;
 using Google.Apis.Storage.v1;
 using Google.Cloud.Storage.V1;
 using Microsoft.Extensions.Options;
-using Pdf.Storage.Test;
+using Pdf.Storage.Hangfire;
 
 namespace Pdf.Storage.Pdf
 {
@@ -45,6 +45,11 @@ namespace Pdf.Storage.Pdf
             var pdfBytes = new MemoryStream();
             _storageClient.DownloadObject(_settings.GoogleBucketName, GetObjectName(groupId, pdfId), pdfBytes, null, null);
             return new StoredPdf(groupId, pdfId, pdfBytes.ToArray());
+        }
+
+        public void RemovePdf(string groupId, string pdfId)
+        {
+            _storageClient.DeleteObject(_settings.GoogleBucketName, GetObjectName(groupId, pdfId));
         }
     }
 }

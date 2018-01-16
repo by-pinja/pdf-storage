@@ -4,9 +4,10 @@
 
 ```bash
 npm install
-dotnet restore
-dotnet build
+dotnet run
 ```
+
+Navigate [http://localhost:5000/doc/](http://localhost:5000/doc/)
 
 ## Local development, mocks enabled
 Create `appsettings.localdev.json` in root directory with content, this file is ignored in git:
@@ -14,7 +15,8 @@ Create `appsettings.localdev.json` in root directory with content, this file is 
 {
 	"Mock": {
 		"Mq": "true",
-		"Db": "true"
+		"Db": "true",
+		"GoogleBucket": "false"
 	}
 }
 ```

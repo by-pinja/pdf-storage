@@ -6,5 +6,6 @@ namespace Pdf.Storage.Pdf.CustomPages
     {
         ContentResult PdfIsStillProcessingResponse();
         ContentResult PdfNotFoundResponse();
+        ContentResult PdfRemovedResponse();
     }
 }

@@ -64,10 +64,7 @@
     <None Update="PdfMerge\PdfTkForWin\pdftk.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Pdf\CustomPages\404.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Pdf\CustomPages\processing.html">
+    <None Update="Pdf\CustomPages\*.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

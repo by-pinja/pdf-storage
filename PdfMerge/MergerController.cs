@@ -6,19 +6,25 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Pdf.Storage.Data;
+using Pdf.Storage.Hangfire;
 using Pdf.Storage.Mq;
 
 namespace Pdf.Storage.PdfMerge
 {
     public class MergerController: Controller
     {
-        private readonly IBackgroundJobClient _backgroundJob;
+        private readonly IHangfireQueue _backgroundJob;
         private readonly PdfDataContext _context;
         private readonly IMqMessages _mqMessages;
         private readonly ILogger<MergerController> _logger;
         private readonly AppSettings _settings;
 
-        public MergerController(IBackgroundJobClient backgroundJob, PdfDataContext context, IOptions<AppSettings> settings, IMqMessages mqMessages, ILogger<MergerController> logger)
+        public MergerController(
+            IHangfireQueue backgroundJob,
+            PdfDataContext context,
+            IOptions<AppSettings> settings,
+            IMqMessages mqMessages,
+            ILogger<MergerController> logger)
         {
             _backgroundJob = backgroundJob;
             _context = context;
@@ -35,7 +41,7 @@ namespace Pdf.Storage.PdfMerge
 
             var missingPdfFiles = MissingPdfFiles(request.PdfIds, groupId).ToList();
 
-            if (!missingPdfFiles.Any())
+            if (missingPdfFiles.Any())
             {
                 var message = $"Pdf files not found, missing files from group '{groupId}' are '{missingPdfFiles.Aggregate("", (a, b) => $"{a}, {b}").Trim(',')}'";
 
@@ -63,8 +69,8 @@ namespace Pdf.Storage.PdfMerge
 
         private IEnumerable<string> MissingPdfFiles(string[] pdfIds, string groupId)
         {
-            var pdfIdsInDatabase = _context.PdfFiles.Where(x => x.GroupId == groupId).Select(x => x.FileId);
-            return pdfIds.Where(pdfId => pdfIdsInDatabase.Any(id => id == pdfId));
+            var pdfIdsInDatabase = _context.PdfFiles.Where(x => x.GroupId == groupId && !x.Removed).Select(x => x.FileId);
+            return pdfIds.Where(pdfId => pdfIdsInDatabase.All(id => id != pdfId));
         }
     }
 }
