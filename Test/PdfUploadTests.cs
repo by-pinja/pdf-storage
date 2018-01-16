@@ -5,11 +5,12 @@ using FluentAssertions;
 using Hangfire.SqlServer;
 using Microsoft.AspNetCore.TestHost;
 using Newtonsoft.Json.Linq;
+using NSubstitute;
 using Pdf.Storage.Pdf.Dto;
 using Protacon.NetCore.WebApi.TestUtil;
 using Xunit;
 
-namespace Pdf.Storage.Test
+namespace Pdf.Storage.Hangfire
 {
     public class PdfUploadTests
     {
@@ -27,7 +28,8 @@ namespace Pdf.Storage.Test
                                 TEXT = "something"
                             }}
                     }
-                ).ExpectStatusCode(HttpStatusCode.Accepted)
+                )
+                .ExpectStatusCode(HttpStatusCode.Accepted)
                 .WithContentOf<NewPdfResponse[]>()
                 .Select()
                 .Single();
@@ -53,6 +55,11 @@ namespace Pdf.Storage.Test
         {
             var host = TestHost.Run<TestStartup>();
             var groupId = Guid.NewGuid();
+
+            host.Setup<HangfireMock>(mock =>
+            {
+                mock.ExecuteActions = false;
+            });
 
             var newPdf = AddPdf(host, groupId);
 
@@ -89,7 +96,7 @@ namespace Pdf.Storage.Test
             newPdf.GroupId.Should().Be(groupId.ToString());
         }
 
-        [Fact(Skip="Requires fix for https://github.com/HangfireIO/Hangfire/issues/808")]
+        [Fact]
         public void WhenPdfIsUploaded_ThenItCanBeDownloaded()
         {
             var host = TestHost.Run<TestStartup>();
@@ -97,9 +104,40 @@ namespace Pdf.Storage.Test
 
             var newPdf = AddPdf(host, groupId);
 
-            host.WaitForOk(newPdf.PdfUri)
+            host.Get(newPdf.PdfUri)
                 .WithContentOf<byte[]>()
                 .Passing(x => x.Length.Should().BeGreaterThan(1));
+        }
+
+        [Fact]
+        public void WhenPdfIsRemoved_ThenItShouldBeNoMoreAvailableAndPageGivesMeaningfullErrorMessage()
+        {
+            var host = TestHost.Run<TestStartup>();
+            var groupId = Guid.NewGuid();
+
+            var pdfForRemoval = AddPdf(host, groupId);
+
+            host.Delete(pdfForRemoval.PdfUri)
+                .ExpectStatusCode(HttpStatusCode.OK);
+
+            host.Get(pdfForRemoval.PdfUri)
+                .ExpectStatusCode(HttpStatusCode.NotFound)
+                .WithContentOf<string>()
+                .Passing(body => body.Should().Match("*PDF*removed*"));
+        }
+
+        [Fact]
+        public void WhenPdfIsRemovedMultipleTimes_ThenItShouldReturnSameResultEachTime()
+        {
+            var host = TestHost.Run<TestStartup>();
+            var groupId = Guid.NewGuid();
+
+            var pdfForRemoval = AddPdf(host, groupId);
+
+            host.Delete(pdfForRemoval.PdfUri)
+                .ExpectStatusCode(HttpStatusCode.OK);
+            host.Delete(pdfForRemoval.PdfUri)
+                .ExpectStatusCode(HttpStatusCode.OK);
         }
     }
 }

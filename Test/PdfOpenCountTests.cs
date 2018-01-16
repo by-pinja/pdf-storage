@@ -9,11 +9,11 @@ using Pdf.Storage.Pdf.Dto;
 using Protacon.NetCore.WebApi.TestUtil;
 using Xunit;
 
-namespace Pdf.Storage.Test
+namespace Pdf.Storage.Hangfire
 {
     public class PdfOpenCountTests
     {
-        [Fact(Skip="Requires fix for https://github.com/HangfireIO/Hangfire/issues/808")]
+        [Fact]
         public void WhenPdfIsOpened_ThenInformationAboutOpeningIsQueruable()
         {
             var host = TestHost.Run<TestStartup>();
@@ -21,7 +21,7 @@ namespace Pdf.Storage.Test
 
             var pdf = AddPdf(host, group);
 
-            host.WaitForOk($"{pdf.PdfUri}");
+            host.Get($"{pdf.PdfUri}");
 
             host.Get($"/v1/usage/{group}/")
                 .ExpectStatusCode(HttpStatusCode.OK)
@@ -42,7 +42,7 @@ namespace Pdf.Storage.Test
                 });
         }
 
-        [Fact(Skip="Requires fix for https://github.com/HangfireIO/Hangfire/issues/808")]
+        [Fact]
         public void WhenPdfIsOpenedWithNoCountQuery_ThenDontCountIsAsOpened()
         {
             var host = TestHost.Run<TestStartup>();
@@ -50,7 +50,7 @@ namespace Pdf.Storage.Test
 
             var pdf = AddPdf(host, group);
 
-            host.WaitForOk($"{pdf.PdfUri}?noCount=true");
+            host.Get($"{pdf.PdfUri}?noCount=true");
 
             host.Get($"/v1/usage/{group}/")
                 .ExpectStatusCode(HttpStatusCode.OK)

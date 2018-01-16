@@ -1,24 +1,34 @@
 ﻿using System.Collections.Generic;
 using Pdf.Storage.Pdf;
 
-namespace Pdf.Storage.Test
+namespace Pdf.Storage.Hangfire
 {
     public class InMemoryPdfStorage : IPdfStorage
     {
-        // Currently theres issues with jobmanagement di, forces for static workaround: https://github.com/HangfireIO/Hangfire/issues/808
-        private static readonly Dictionary<string, StoredPdf> LocalStore = new Dictionary<string, StoredPdf>();
+        private readonly Dictionary<string, StoredPdf> _localStore = new Dictionary<string, StoredPdf>();
 
         public void AddOrReplacePdf(StoredPdf pdf)
         {
-            if (LocalStore.ContainsKey($"{pdf.Group}_{pdf.Id}"))
-                LocalStore.Remove("{pdf.Group}_{pdf.Id}");
+            if (_localStore.ContainsKey(GetKey(pdf.Group, pdf.Id)))
+                _localStore.Remove(GetKey(pdf.Group, pdf.Id));
 
-            LocalStore.Add($"{pdf.Group}_{pdf.Id}", pdf);
+            _localStore.Add(GetKey(pdf.Group, pdf.Id), pdf);
         }
 
         public StoredPdf GetPdf(string groupId, string pdfId)
         {
-            return LocalStore[$"{groupId}_{pdfId}"];
+            return _localStore[GetKey(groupId, pdfId)];
+        }
+
+        public void RemovePdf(string groupId, string pdfId)
+        {
+            if (_localStore.ContainsKey(GetKey(groupId, pdfId)))
+                _localStore.Remove(GetKey(groupId, pdfId));
+        }
+
+        private static string GetKey(string groupId, string pdfId)
+        {
+            return $"{groupId}_{pdfId}";
         }
     }
 }

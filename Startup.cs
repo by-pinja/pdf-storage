@@ -16,7 +16,7 @@ using Pdf.Storage.Mq;
 using Pdf.Storage.Pdf;
 using Pdf.Storage.Pdf.CustomPages;
 using Pdf.Storage.PdfMerge;
-using Pdf.Storage.Test;
+using Pdf.Storage.Hangfire;
 using Pdf.Storage.Util;
 using Protacon.NetCore.WebApi.ApiKeyAuth;
 using Protacon.NetCore.WebApi.Util.ModelValidation;
@@ -26,20 +26,12 @@ namespace Pdf.Storage
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
+        public Startup(IConfiguration config)
         {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", true, true)
-                .AddJsonFile($"appsettings.localdev.json", true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true)
-                .AddJsonFile($"./config/appsettings.{env.EnvironmentName}.json", true)
-                .AddEnvironmentVariables();
-
-            Configuration = builder.Build();
+            Configuration = config;
         }
 
-        public IConfigurationRoot Configuration { get; }
+        public IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -115,11 +107,11 @@ namespace Pdf.Storage
             }
 
             services.AddTransient<IPdfConvert, PdfConvert>();
-            services.AddTransient<IPdfStorage, GoogleCloudPdfStorage>();
             services.AddTransient<IPdfQueue, PdfQueue>();
             services.AddTransient<IErrorPages, ErrorPages>();
             services.AddTransient<IPdfMerger, PdfMerger>();
             services.AddTransient<Uris>();
+            services.AddTransient<IHangfireQueue, HangfireQueue>();
 
             if (bool.Parse(Configuration["Mock:Mq"] ?? "false"))
             {
@@ -128,6 +120,15 @@ namespace Pdf.Storage
             else
             {
                 services.AddTransient<IMqMessages, MqMessages>();
+            }
+
+            if (bool.Parse(Configuration["Mock:GoogleBucket"] ?? "false"))
+            {
+                services.AddSingleton<IPdfStorage, InMemoryPdfStorage>();
+            }
+            else
+            {
+                services.AddTransient<IPdfStorage, GoogleCloudPdfStorage>();
             }
 
             services.Configure<ApiKeyAuthenticationOptions>(Configuration.GetSection("ApiAuthentication"));

@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using Pdf.Storage.Data;
 using Pdf.Storage.Pdf;
-using Pdf.Storage.Test;
+using Pdf.Storage.Hangfire;
 using Pdf.Storage.Util;
 
 namespace Pdf.Storage.PdfMerge
@@ -45,7 +45,7 @@ namespace Pdf.Storage.PdfMerge
                 var pdfs = Retry.Func(() => pdfIds
                         .Select(id => _pdfStorage.GetPdf(groupId, id))
                         .Select(pdf => (tempFile: Path.Combine($@"{temp}", $"{pdf.Id}.pdf"), data: pdf.Data)).ToList(),
-                    retryInterval: TimeSpan.FromSeconds(10), maxAttemptCount: 4);
+                    retryInterval: TimeSpan.FromSeconds(10), maxAttemptCount: 6);
 
                 pdfs.ToList().ForEach(x => File.WriteAllBytes(x.tempFile, x.data));
 
