@@ -1,4 +1,4 @@
-FROM microsoft/aspnetcore:2.0.3
+FROM microsoft/aspnetcore:2.0
 
 RUN apt-get update \
     && apt-get -y install gnupg \
