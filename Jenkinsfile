@@ -33,13 +33,11 @@ podTemplate(label: 'dotnet.2.0-with-node',
       }
       stage('Package') {
           container('docker') {
-            if (branch == 'master') {
-              def published = publishContainerToGcr(project, branch);
-              toK8sTestEnv() {
-                sh """
-                    kubectl set image deployment/pdf-storage-$branch pdf-storage-$branch=$published.image:$published.tag --namespace=eventale
-                """
-              }
+            def published = publishContainerToGcr(project, branch);
+            toK8sTestEnv() {
+              sh """
+                  kubectl set image deployment/pdf-storage-$branch pdf-storage-$branch=$published.image:$published.tag --namespace=eventale
+              """
             }
         }
       }
