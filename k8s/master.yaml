@@ -48,27 +48,27 @@ spec:
 
 ---
 
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: pdf-storage-ingress
-  namespace: pdf-storage-master
-  annotations:
-    kubernetes.io/ingress.class: traefik
-spec:
-  rules:
-    - host: pdf-storage-master.protacon.cloud
-      http:
-        paths:
-          - backend:
-              serviceName: pdf-storage-master
-              servicePort: 80
-  tls:
-    - hosts:
-      - pdf-storage-master.protacon.cloud
-      secretName: eventale-crt
+# apiVersion: extensions/v1beta1
+# kind: Ingress
+# metadata:
+#   name: pdf-storage-ingress
+#   namespace: pdf-storage-master
+#   annotations:
+#     kubernetes.io/ingress.class: traefik
+# spec:
+#   rules:
+#     - host: pdf-storage-master.protacon.cloud
+#       http:
+#         paths:
+#           - backend:
+#               serviceName: pdf-storage-master
+#               servicePort: 80
+#   tls:
+#     - hosts:
+#       - pdf-storage-master.protacon.cloud
+#       secretName: eventale-crt
 
----
+# ---
 
 apiVersion: v1
 kind: ReplicationController
