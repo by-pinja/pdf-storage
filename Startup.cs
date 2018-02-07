@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using Hangfire;
 using Hangfire.MemoryStorage;
-using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -83,18 +82,22 @@ namespace Pdf.Storage
             {
                 var dbId = Guid.NewGuid().ToString();
                 services.AddDbContext<PdfDataContext>(opt => opt.UseInMemoryDatabase(dbId));
-
-                services.AddHangfire(config => config.UseMemoryStorage());
             }
             else
             {
                 services.AddDbContext<PdfDataContext>(opt =>
                     opt.UseNpgsql(Configuration["connectionString"]));
 
+            }
+
+            if (bool.Parse(Configuration["Mock:Redis"] ?? "false"))
+            {
+                services.AddHangfire(config => config.UseMemoryStorage());
+            }
+            else
+            {
                 services.AddHangfire(config =>
-                {
-                    config.UsePostgreSqlStorage(Configuration["connectionString"]);
-                });
+                    config.UseRedisStorage(Configuration["RedisConnectionString"] ?? throw new InvalidOperationException("Missing: RedisConnectionString")));
             }
 
             if (bool.Parse(Configuration["Mock:GoogleBucket"] ?? "false"))
