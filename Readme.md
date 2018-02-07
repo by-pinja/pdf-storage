@@ -16,10 +16,12 @@ Create `appsettings.localdev.json` in root directory with content, this file is 
 	"Mock": {
 		"Mq": "true",
 		"Db": "true",
-		"GoogleBucket": "false"
+		"GoogleBucket": "true"
 	}
 }
 ```
+
+Or overwrite them with environment variables `Mock__Mq = true` etc.
 
 ## Run local development database
 ```bash
