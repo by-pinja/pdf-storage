@@ -1,4 +1,4 @@
-@Library("PTCSLibrary@1.0.3") _
+@Library("PTCSLibrary@1.1.1") _
 
 podTemplate(label: 'dotnet.2.0-with-node',
   containers: [
@@ -32,13 +32,12 @@ podTemplate(label: 'dotnet.2.0-with-node',
         }
       }
       stage('Package') {
-          container('docker') {
-            def published = publishContainerToGcr(project, branch);
-            toK8sTestEnv() {
-              sh """
-                  kubectl set image deployment/pdf-storage-$branch pdf-storage-$branch=$published.image:$published.tag --namespace=eventale
-              """
-            }
+        container('docker') {
+          def publishedImage = publishContainerToGcr(project, branch);
+          if(branch == "master") {
+              applyK8sFilesTestEnv(k8s: "./k8s/master.yaml", namespace: "pdf-storage-master")
+              updateImageToK8sTestEnv(publishedImage)
+          }
         }
       }
     }
