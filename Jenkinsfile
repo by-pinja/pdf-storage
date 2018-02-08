@@ -34,10 +34,10 @@ podTemplate(label: 'dotnet.2.0-with-node',
       stage('Package') {
         container('docker') {
           def publishedImage = publishContainerToGcr(project, branch);
-          //if(branch == "master") {
-              applyK8sFilesTestEnv(k8s: "./k8s/master.yaml", namespace: "pdf-storage-master")
+          if(branch == "master") {
+              applyK8sFilesTestEnv(k8s: "./k8s/master.yaml", namespace: "eventale")
               updateImageToK8sTestEnv(publishedImage)
-          //}
+          }
         }
       }
     }
