@@ -1,4 +1,4 @@
-@Library("PTCSLibrary@github-support") _
+@Library("PTCSLibrary@1.1.1") _
 
 podTemplate(label: 'dotnet.2.0-with-node',
   containers: [
