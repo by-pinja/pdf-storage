@@ -5,9 +5,9 @@ metadata:
     app: pdf-storage-master
     version: master
   name: pdf-storage-master
-  namespace: pdf-storage-master
+  namespace: eventale
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: pdf-storage-master
@@ -24,6 +24,8 @@ spec:
         imagePullPolicy: Always
         name: pdf-storage-master
         env:
+          - name: RedisConnectionString
+            value: pdf-storage-redis-master:6379
           - name: ASPNETCORE_ENVIRONMENT
             value: master
 ---
@@ -35,7 +37,7 @@ metadata:
     app: pdf-storage-master
     version: master
   name: pdf-storage-master
-  namespace: pdf-storage-master
+  namespace: eventale
 spec:
   type: ClusterIP
   ports:
@@ -48,32 +50,28 @@ spec:
 
 ---
 
-# apiVersion: extensions/v1beta1
-# kind: Ingress
-# metadata:
-#   name: pdf-storage-ingress
-#   namespace: pdf-storage-master
-#   annotations:
-#     kubernetes.io/ingress.class: traefik
-# spec:
-#   rules:
-#     - host: pdf-storage-master.protacon.cloud
-#       http:
-#         paths:
-#           - backend:
-#               serviceName: pdf-storage-master
-#               servicePort: 80
-#   tls:
-#     - hosts:
-#       - pdf-storage-master.protacon.cloud
-#       secretName: eventale-crt
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: pdf-storage-ingress
+  namespace: eventale
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+    - host: pdf-storage-master.protacon.cloud
+      http:
+        paths:
+          - backend:
+              serviceName: pdf-storage-master
+              servicePort: 80
 
-# ---
+---
 
 apiVersion: v1
 kind: ReplicationController
 metadata:
-  namespace: pdf-storage-master
+  namespace: eventale
   labels:
     app: pdf-storage-db-master
     role: db
@@ -110,7 +108,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: pdf-storage-db-master-storage-2
-  namespace: pdf-storage-master
+  namespace: eventale
   annotations:
     volume.beta.kubernetes.io/storage-class: fast
 spec:
@@ -126,7 +124,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: pdf-storage-db
-  namespace: pdf-storage-master
+  namespace: eventale
   labels:
     app: pdf-storage-db-master-service
     role: db
@@ -140,3 +138,72 @@ spec:
       port: 5432
       targetPort: 5432
       name: db
+
+---
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: pdf-storage-db-master-redis-0
+  namespace: eventale
+  annotations:
+    volume.beta.kubernetes.io/storage-class: fast
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: eventale
+  labels:
+    app: pdf-storage-redis-master
+    role: db
+  name: pdf-storage-redis-master
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: pdf-storage-redis-master
+        version: master
+      name: pdf-storage-redis-master
+    spec:
+      containers:
+      - image: redis:4.0.8
+        imagePullPolicy: Always
+        name: pdf-storage-redis-master
+        volumeMounts:
+        - mountPath: /data/
+          name: pdf-storage-redis-master
+      volumes:
+      - name: pdf-storage-redis-master
+        persistentVolumeClaim:
+          claimName: pdf-storage-db-master-redis-0
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pdf-storage-redis-master
+  namespace: eventale
+  labels:
+    app: pdf-storage-redis-master-service
+    role: db
+spec:
+  type: ClusterIP
+  clusterIP: "None"
+  selector:
+    app: pdf-storage-redis-master
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+      name: db
+
+---
