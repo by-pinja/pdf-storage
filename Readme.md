@@ -10,18 +10,21 @@ dotnet run
 Navigate [http://localhost:5000/doc/](http://localhost:5000/doc/)
 
 ## Local development, mocks enabled
-Create `appsettings.localdev.json` in root directory with content, this file is ignored in git:
+At default setup, all mocks are enabled in `appsettings.Development.json`. This way service should start and fuction correctly without any external depencies.
+
+Set `$Env:ASPNETCORE_ENVIRONMENT = "Development"` if run from command line. Visual studio defaults to development environment.
 ```js
 {
 	"Mock": {
 		"Mq": "true",
 		"Db": "true",
-		"GoogleBucket": "true"
+        "GoogleBucket": "true",
+        "Redis": "true"
 	}
 }
 ```
 
-Or overwrite them with environment variables `Mock__Mq = true` etc.
+Or overwrite them with environment variables `Mock__Mq = "true"` etc.
 
 ## Run local development database
 ```bash
