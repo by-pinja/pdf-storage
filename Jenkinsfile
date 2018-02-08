@@ -34,7 +34,10 @@ podTemplate(label: 'dotnet.2.0-with-node',
       stage('Package') {
         container('docker') {
           def published = publishContainerToGcr(project, branch);
-          applyToK8sTestEnv(published);
+
+          if(branch == "master") {
+            applyToK8sTestEnv(published);
+          }
         }
       }
     }
