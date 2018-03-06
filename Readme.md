@@ -50,3 +50,5 @@ kubectl -n pdf-storage port-forward pdf-storage-master-4075827073-5h77r 5000
 ```
 
 Navigate [http://localhost:5000/hangfire](http://localhost:5000/hangfire)
+
+## App roles
