@@ -160,11 +160,26 @@ namespace Pdf.Storage
                 c.RoutePrefix = "doc";
             });
 
-            app.UseHangfireServer();
+            switch(GetAppRole())
+            {
+                case "api":
+                    app.UseMvc();
+                    break;
+                case "worker":
+                    app.UseHangfireServer();
+                    break;
+                default:
+                    app.UseMvc();
+                    app.UseHangfireServer();
+                    break;
+            }
 
             app.UseHangfireDashboard();
+        }
 
-            app.UseMvc();
+        private string GetAppRole()
+        {
+            return Configuration["AppRole"] ?? "standalone";
         }
     }
 }
