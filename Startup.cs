@@ -20,6 +20,7 @@ using Pdf.Storage.Util;
 using Protacon.NetCore.WebApi.ApiKeyAuth;
 using Protacon.NetCore.WebApi.Util.ModelValidation;
 using Swashbuckle.AspNetCore.Swagger;
+using Hangfire.PostgreSql;
 
 namespace Pdf.Storage
 {
@@ -81,23 +82,19 @@ namespace Pdf.Storage
             if (bool.Parse(Configuration["Mock:Db"] ?? "false"))
             {
                 var dbId = Guid.NewGuid().ToString();
+
                 services.AddDbContext<PdfDataContext>(opt => opt.UseInMemoryDatabase(dbId));
+
+                services.AddHangfire(config => config.UseMemoryStorage());
             }
             else
             {
                 services.AddDbContext<PdfDataContext>(opt =>
                     opt.UseNpgsql(Configuration["connectionString"]));
 
-            }
-
-            if (bool.Parse(Configuration["Mock:Redis"] ?? "false"))
-            {
-                services.AddHangfire(config => config.UseMemoryStorage());
-            }
-            else
-            {
                 services.AddHangfire(config =>
-                    config.UseRedisStorage(Configuration["RedisConnectionString"] ?? throw new InvalidOperationException("Missing: RedisConnectionString")));
+                    config.UsePostgreSqlStorage(Configuration["connectionString"] ?? throw new InvalidOperationException("Missing: ConnectionString")));
+
             }
 
             if (bool.Parse(Configuration["Mock:GoogleBucket"] ?? "false"))
