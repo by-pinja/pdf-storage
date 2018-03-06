@@ -165,7 +165,7 @@ namespace Pdf.Storage
                 case "api":
                     app.UseMvc();
                     break;
-                case "hangfireService":
+                case "worker":
                     app.UseHangfireServer();
                     break;
                 default:
