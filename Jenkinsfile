@@ -17,6 +17,7 @@ podTemplate(label: 'dotnet.2.0-with-node',
       stage('Build') {
         container('dotnet-with-node') {
           sh """
+            apt-get update
             apt-get -y install pdftk
             npm install
             dotnet restore
