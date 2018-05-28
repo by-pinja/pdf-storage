@@ -2,6 +2,6 @@
 {
     public interface IPdfConvert
     {
-        (byte[] data, string html) CreatePdfFromHtml(string html, object templateData);
+        (byte[] data, string html) CreatePdfFromHtml(string html, object templateData, object options);
     }
 }

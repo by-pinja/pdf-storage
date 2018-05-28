@@ -52,7 +52,7 @@ namespace Pdf.Storage.Pdf
 
                 var templateData = TemplateDataUtils.GetTemplateData(request.BaseData, row);
 
-                _backgroundJobs.Enqueue<IPdfQueue>(que => que.CreatePdf(entity.Id, request.Html, templateData));
+                _backgroundJobs.Enqueue<IPdfQueue>(que => que.CreatePdf(entity.Id, request.Html, templateData, request.Options));
 
                 var pdfUri = _uris.PdfUri(groupId, entity.FileId);
 
