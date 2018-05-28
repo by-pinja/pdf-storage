@@ -18,9 +18,9 @@ namespace Pdf.Storage.Pdf
             _logger = logger;
         }
 
-        public (byte[] data, string html) CreatePdfFromHtml(string html, object templateData)
+        public (byte[] data, string html) CreatePdfFromHtml(string html, object templateData, object options)
         {
-            var pdf = _nodeServices.InvokeAsync<ExpandoObject>(@"./node/convert.js", html, templateData).Result;
+            var pdf = _nodeServices.InvokeAsync<ExpandoObject>(@"./node/convert.js", html, templateData, options ?? new object()).Result;
 
             var data = pdf.SingleOrDefault(x => x.Key == "data").Value;
 

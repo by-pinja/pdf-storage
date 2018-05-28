@@ -25,6 +25,12 @@ Set `$Env:ASPNETCORE_ENVIRONMENT = "Development"` if run from command line. Visu
 
 Or overwrite them with environment variables `Mock__Mq = "true"` etc.
 
+On linux set development and install pdftk.
+```bash
+sudo apt-get -y install pdftk
+EXPORT ASPNETCORE_ENVIRONMENT=Development
+```
+
 ## Run local development database
 ```bash
 docker run --name pdf-storage-postgress -e POSTGRES_PASSWORD=passwordfortesting -it -p 5432:5432 postgres

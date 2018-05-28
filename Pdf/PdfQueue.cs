@@ -23,11 +23,11 @@ namespace Pdf.Storage.Pdf
             _mqMessages = mqMessages;
         }
 
-        public void CreatePdf(Guid pdfEntityId, string html, object templateData)
+        public void CreatePdf(Guid pdfEntityId, string html, object templateData, object options)
         {
             var entity = _context.PdfFiles.Single(x => x.Id == pdfEntityId);
 
-            var pdf = _pdfConverter.CreatePdfFromHtml(html, templateData);
+            var pdf = _pdfConverter.CreatePdfFromHtml(html, templateData, options);
 
             _pdfStorage.AddOrReplacePdf(new StoredPdf(entity.GroupId, entity.FileId, pdf.data));
 
