@@ -7,6 +7,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@protacon/html-to-pdf": "file:~/npm/lib/node_modules/@protacon/html-to-pdf"
+    "@protacon/html-to-pdf": "1.1.3"
   }
 }
