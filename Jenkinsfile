@@ -6,7 +6,6 @@ podTemplate(label: pod.label,
   ]
 ) {
     def project = 'pdf-storage'
-    def branch = (env.BRANCH_NAME)
 
     node(pod.label) {
       stage('Checkout') {
