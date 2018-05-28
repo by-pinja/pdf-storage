@@ -1,4 +1,4 @@
-library 'jenkins-ptcs-library@0.2.0'
+library 'jenkins-ptcs-library@feature/npm-publish'
 
 podTemplate(label: pod.label,
   containers: pod.templates + [
@@ -36,6 +36,7 @@ podTemplate(label: pod.label,
           if(env.BRANCH_NAME == "master") {
               updateImageToK8sTestEnv(publishedImage)
           }
+          publishTagToNpm()
         }
       }
     }
