@@ -21,6 +21,7 @@ using Protacon.NetCore.WebApi.ApiKeyAuth;
 using Protacon.NetCore.WebApi.Util.ModelValidation;
 using Swashbuckle.AspNetCore.Swagger;
 using Hangfire.PostgreSql;
+using Amazon.S3;
 
 namespace Pdf.Storage
 {
@@ -113,6 +114,7 @@ namespace Pdf.Storage
             services.AddTransient<Uris>();
             services.AddTransient<IHangfireQueue, HangfireQueue>();
 
+
             if (bool.Parse(Configuration["Mock:Mq"] ?? "false"))
             {
                 services.AddTransient<IMqMessages, MqMessagesNullObject>();
@@ -122,13 +124,20 @@ namespace Pdf.Storage
                 services.AddTransient<IMqMessages, MqMessages>();
             }
 
-            if (bool.Parse(Configuration["Mock:GoogleBucket"] ?? "false"))
+            switch(Configuration["PdfStoreType"] ?? "google")
             {
-                services.AddSingleton<IPdfStorage, InMemoryPdfStorage>();
-            }
-            else
-            {
-                services.AddTransient<IPdfStorage, GoogleCloudPdfStorage>();
+                case "aws":
+                    services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
+                    services.AddAWSService<IAmazonS3>();
+                    break;
+                case "google":
+                    services.AddTransient<IPdfStorage, GoogleCloudPdfStorage>();
+                    break;
+                case "inMemory":
+                    services.AddSingleton<IPdfStorage, InMemoryPdfStorage>();
+                    break;
+                default:
+                    throw new InvalidOperationException("Invalid configuration: PdfStoreType");
             }
 
             services.Configure<ApiKeyAuthenticationOptions>(Configuration.GetSection("ApiAuthentication"));
