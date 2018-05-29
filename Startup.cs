@@ -98,15 +98,6 @@ namespace Pdf.Storage
 
             }
 
-            if (bool.Parse(Configuration["Mock:GoogleBucket"] ?? "false"))
-            {
-                services.AddSingleton<IPdfStorage, InMemoryPdfStorage>();
-            }
-            else
-            {
-                services.AddTransient<IPdfStorage, GoogleCloudPdfStorage>();
-            }
-
             services.AddTransient<IPdfConvert, PdfConvert>();
             services.AddTransient<IPdfQueue, PdfQueue>();
             services.AddTransient<IErrorPages, ErrorPages>();
@@ -124,12 +115,12 @@ namespace Pdf.Storage
                 services.AddTransient<IMqMessages, MqMessages>();
             }
 
-            switch(Configuration["PdfStoreType"] ?? "google")
+            switch(Configuration["PdfStoreType"] ?? "googleBucket")
             {
                 case "aws":
                     services.AddSingleton<IPdfStorage, AwsS3PdfStore>();
                     break;
-                case "google":
+                case "googleBucket":
                     services.AddTransient<IPdfStorage, GoogleCloudPdfStorage>();
                     break;
                 case "inMemory":

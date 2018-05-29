@@ -63,6 +63,7 @@ Pdf storage supports google bucket for saving pdf binaries.
 Mount valid service account file and configure it's path and configure google configurations in appconfig or environment variables.
 ```json
 {
+  "PdfStoreType": "googleBucket",
   "googleBucketName": "pdf-storage-master",
   "googleAuthFile": "/path/to/key/google.key.json",
 }
