@@ -127,8 +127,7 @@ namespace Pdf.Storage
             switch(Configuration["PdfStoreType"] ?? "google")
             {
                 case "aws":
-                    services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
-                    services.AddAWSService<IAmazonS3>();
+                    services.AddSingleton<IPdfStorage, AwsS3PdfStore>();
                     break;
                 case "google":
                     services.AddTransient<IPdfStorage, GoogleCloudPdfStorage>();
