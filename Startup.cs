@@ -117,7 +117,7 @@ namespace Pdf.Storage
 
             switch(Configuration["PdfStoreType"] ?? "googleBucket")
             {
-                case "aws":
+                case "awsS3":
                     services.AddSingleton<IPdfStorage, AwsS3PdfStore>();
                     break;
                 case "googleBucket":

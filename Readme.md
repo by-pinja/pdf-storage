@@ -86,5 +86,11 @@ Example (not valid) service account file, see google service accounts for futher
 ```
 
 ## AWS S3
-AWS_ACCESS_KEY_ID and AWS_SECRET_KEY 
+```json
+{
+  "PdfStoreType": "awsS3",
+  "AwsS3BucketName": "pdf-storage",
+}
+```
+AWS_ACCESS_KEY_ID and AWS_SECRET_KEY
 TODO
