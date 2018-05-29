@@ -12,7 +12,7 @@ namespace Pdf.Storage.Pdf
         private const string bucketName = "aws-s3-pdf-store";
         private static readonly RegionEndpoint bucketRegion = RegionEndpoint.EUWest1;
 
-        public AwsS3PdfStore(IAmazonS3 s3Client)
+        public AwsS3PdfStore()
         {
             this.s3Client = new AmazonS3Client(bucketRegion);
             this.s3Client.EnsureBucketExistsAsync(bucketName);

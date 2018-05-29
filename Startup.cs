@@ -115,7 +115,7 @@ namespace Pdf.Storage
                 services.AddTransient<IMqMessages, MqMessages>();
             }
 
-            switch(Configuration["PdfStoreType"] ?? "googleBucket")
+            switch(Configuration["PdfStorageType"] ?? throw new InvalidOperationException("PdfStorageType missing."))
             {
                 case "awsS3":
                     services.AddSingleton<IPdfStorage, AwsS3PdfStore>();
@@ -127,7 +127,7 @@ namespace Pdf.Storage
                     services.AddSingleton<IPdfStorage, InMemoryPdfStorage>();
                     break;
                 default:
-                    throw new InvalidOperationException("Invalid configuration: PdfStoreType");
+                    throw new InvalidOperationException($"Invalid configuration: PdfStorageType ({Configuration["PdfStorageType"]})");
             }
 
             services.Configure<ApiKeyAuthenticationOptions>(Configuration.GetSection("ApiAuthentication"));

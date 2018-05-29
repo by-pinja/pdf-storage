@@ -63,7 +63,7 @@ Pdf storage supports google bucket for saving pdf binaries.
 Mount valid service account file and configure it's path and configure google configurations in appconfig or environment variables.
 ```json
 {
-  "PdfStoreType": "googleBucket",
+  "PdfStorageType": "googleBucket",
   "googleBucketName": "pdf-storage-master",
   "googleAuthFile": "/path/to/key/google.key.json",
 }
@@ -86,11 +86,20 @@ Example (not valid) service account file, see google service accounts for futher
 ```
 
 ## AWS S3
+Configure application to use pdf store
 ```json
 {
-  "PdfStoreType": "awsS3",
-  "AwsS3BucketName": "pdf-storage",
+  "PdfStorageType": "awsS3"
 }
 ```
-AWS_ACCESS_KEY_ID and AWS_SECRET_KEY
-TODO
+
+or
+```bash
+export PdfStorageType=awsS3
+```
+
+Then define correct access keys to use buckets
+```bash
+export AWS_ACCESS_KEY_ID=asdasdasd
+export AWS_SECRET_KEY=asdasdasd
+```
