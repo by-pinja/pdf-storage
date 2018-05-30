@@ -21,6 +21,7 @@ using Protacon.NetCore.WebApi.ApiKeyAuth;
 using Protacon.NetCore.WebApi.Util.ModelValidation;
 using Swashbuckle.AspNetCore.Swagger;
 using Hangfire.PostgreSql;
+using Amazon.S3;
 
 namespace Pdf.Storage
 {
@@ -97,21 +98,13 @@ namespace Pdf.Storage
 
             }
 
-            if (bool.Parse(Configuration["Mock:GoogleBucket"] ?? "false"))
-            {
-                services.AddSingleton<IPdfStorage, InMemoryPdfStorage>();
-            }
-            else
-            {
-                services.AddTransient<IPdfStorage, GoogleCloudPdfStorage>();
-            }
-
             services.AddTransient<IPdfConvert, PdfConvert>();
             services.AddTransient<IPdfQueue, PdfQueue>();
             services.AddTransient<IErrorPages, ErrorPages>();
             services.AddTransient<IPdfMerger, PdfMerger>();
             services.AddTransient<Uris>();
             services.AddTransient<IHangfireQueue, HangfireQueue>();
+
 
             if (bool.Parse(Configuration["Mock:Mq"] ?? "false"))
             {
@@ -122,13 +115,19 @@ namespace Pdf.Storage
                 services.AddTransient<IMqMessages, MqMessages>();
             }
 
-            if (bool.Parse(Configuration["Mock:GoogleBucket"] ?? "false"))
+            switch(Configuration["PdfStorageType"] ?? throw new InvalidOperationException("PdfStorageType missing."))
             {
-                services.AddSingleton<IPdfStorage, InMemoryPdfStorage>();
-            }
-            else
-            {
-                services.AddTransient<IPdfStorage, GoogleCloudPdfStorage>();
+                case "awsS3":
+                    services.AddSingleton<IPdfStorage, AwsS3PdfStore>();
+                    break;
+                case "googleBucket":
+                    services.AddTransient<IPdfStorage, GoogleCloudPdfStorage>();
+                    break;
+                case "inMemory":
+                    services.AddSingleton<IPdfStorage, InMemoryPdfStorage>();
+                    break;
+                default:
+                    throw new InvalidOperationException($"Invalid configuration: PdfStorageType ({Configuration["PdfStorageType"]})");
             }
 
             services.Configure<ApiKeyAuthenticationOptions>(Configuration.GetSection("ApiAuthentication"));
