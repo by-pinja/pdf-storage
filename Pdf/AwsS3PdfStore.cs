@@ -1,7 +1,9 @@
+using System;
 using System.IO;
 using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
+using Microsoft.Extensions.Options;
 
 namespace Pdf.Storage.Pdf
 {
@@ -9,13 +11,14 @@ namespace Pdf.Storage.Pdf
     {
         private readonly IAmazonS3 s3Client;
 
-        private const string bucketName = "aws-s3-pdf-store";
+        private string bucketName;
         private static readonly RegionEndpoint bucketRegion = RegionEndpoint.EUWest1;
 
-        public AwsS3PdfStore()
+        public AwsS3PdfStore(IOptions<AppSettings> options)
         {
             this.s3Client = new AmazonS3Client(bucketRegion);
             this.s3Client.EnsureBucketExistsAsync(bucketName);
+            this.bucketName = options.Value.AwsS3BucketName ?? throw new InvalidOperationException($"Missing configuration {nameof(options.Value.AwsS3BucketName)}");
         }
 
         public void AddOrReplacePdf(StoredPdf pdf)
