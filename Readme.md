@@ -55,3 +55,51 @@ kubectl -n pdf-storage port-forward pdf-storage-master-4075827073-5h77r 5000
 ```
 
 Navigate [http://localhost:5000/hangfire](http://localhost:5000/hangfire)
+
+# PDF stores
+## Google bucket
+Pdf storage supports google bucket for saving pdf binaries.
+
+Mount valid service account file and configure it's path and configure google configurations in appconfig or environment variables.
+```json
+{
+  "PdfStorageType": "googleBucket",
+  "googleBucketName": "pdf-storage-master",
+  "googleAuthFile": "/path/to/key/google.key.json",
+}
+```
+
+Example (not valid) service account file, see google service accounts for futher information.
+```json
+{
+  "type": "service_account",
+  "project_id": "ptcs-internal",
+  "private_key_id": "8349f90611b76043d8bf01ae4cb09835434cb9bb",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nKEY_SHOULD_BE_HERE-----END PRIVATE KEY-----\n",
+  "client_email": "pdf-storage-master@ptcs-internal.iam.gserviceaccount.com",
+  "client_id": "101865608634637923419",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://accounts.google.com/o/oauth2/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/pdf-storage-master%40ptcs-internal.iam.gserviceaccount.com"
+}
+```
+
+## AWS S3
+Configure application to use pdf store
+```json
+{
+  "PdfStorageType": "awsS3"
+}
+```
+
+or
+```bash
+export PdfStorageType=awsS3
+```
+
+Then define correct access keys to use buckets
+```bash
+export AWS_ACCESS_KEY_ID=asdasdasd
+export AWS_SECRET_KEY=asdasdasd
+```
