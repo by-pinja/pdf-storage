@@ -41,5 +41,15 @@ namespace Pdf.Storage.Hangfire
         {
             return false;
         }
+
+        public string EnqueueWithHighPriority<T>(Expression<Action<T>> methodCall)
+        {
+            if(!ExecuteActions)
+                return Guid.NewGuid().ToString();
+
+            var service = (T)_serviceProvider.GetService(typeof(T));
+            methodCall.Compile().Invoke(service);
+            return Guid.NewGuid().ToString();
+        }
     }
 }

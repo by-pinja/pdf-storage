@@ -66,9 +66,12 @@ namespace Pdf.Storage.Pdf
             return StatusCode(202, responses.ToList());
         }
 
-        private void EnquePdfJob(PdfEntity entity)
+        private void EnquePdfJob(PdfEntity entity, bool priorityHigh = false)
         {
-            var jobId = _backgroundJobs.Enqueue<IPdfQueue>(que => que.CreatePdf(entity.Id));
+            var jobId =
+                priorityHigh ?
+                    _backgroundJobs.EnqueueWithHighPriority<IPdfQueue>(que => que.CreatePdf(entity.Id)):
+                    _backgroundJobs.Enqueue<IPdfQueue>(que => que.CreatePdf(entity.Id));
             entity.HangfireJobId = jobId;
             _context.SaveChanges();
         }
@@ -92,7 +95,7 @@ namespace Pdf.Storage.Pdf
             {
                 if (pdfEntity.HangfireJobId != null && _backgroundJobs.RemoveJob(pdfEntity.HangfireJobId))
                 {
-                    EnquePdfJob(pdfEntity);
+                    EnquePdfJob(pdfEntity, priorityHigh: true);
                 }
 
                 return _errorPages.PdfIsStillProcessingResponse();

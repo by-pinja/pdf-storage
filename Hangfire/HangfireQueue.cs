@@ -20,6 +20,11 @@ namespace Pdf.Storage.Hangfire
             return _backgroundJobClient.Enqueue<T>(methodCall);
         }
 
+        public string EnqueueWithHighPriority<T>(Expression<Action<T>> methodCall)
+        {
+            var state = new EnqueuedState(HangfireConstants.HighPriorityQueue);
+            return _backgroundJobClient.Create(methodCall, state);
+        }
         public string Schedule<T>(Expression<Action<T>> methodCall, TimeSpan delay)
         {
             return _backgroundJobClient.Schedule(methodCall, delay);
