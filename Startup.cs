@@ -157,7 +157,7 @@ namespace Pdf.Storage
 
             var options = new BackgroundJobServerOptions
             {
-                Queues = new[] { "critical", "default" }
+                Queues = HangfireConstants.Enumerate().ToArray()
             };
 
             switch(GetAppRole())
