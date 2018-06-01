@@ -86,20 +86,22 @@ Example (not valid) service account file, see google service accounts for futher
 ```
 
 ## AWS S3
-Configure application to use pdf store
+Configure application to use pdf store:
 ```json
 {
   "PdfStorageType": "awsS3"
 }
 ```
 
-or
-```bash
-export PdfStorageType=awsS3
-```
-
-Then define correct access keys to use buckets
-```bash
-export AWS_ACCESS_KEY_ID=asdasdasd
-export AWS_SECRET_KEY=asdasdasd
+Then configure AWS configuration:
+```json
+{
+  "AwsS3": {
+    "AwsS3BucketName": "pdf-storage-master",
+    "AccessKey": "thisisaccesskey",
+    "SecretKey": "ThisIsSecretKey",
+    "AwsServiceURL": "http://localhost:9000",
+    "AwsRegion": "EUCentral1"
+  }
+}
 ```

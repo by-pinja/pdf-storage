@@ -22,6 +22,7 @@ using Protacon.NetCore.WebApi.Util.ModelValidation;
 using Swashbuckle.AspNetCore.Swagger;
 using Hangfire.PostgreSql;
 using Amazon.S3;
+using Pdf.Storage.Config;
 
 namespace Pdf.Storage
 {
@@ -118,6 +119,7 @@ namespace Pdf.Storage
             switch(Configuration["PdfStorageType"] ?? throw new InvalidOperationException("PdfStorageType missing."))
             {
                 case "awsS3":
+                    services.Configure<AwsS3Config>(Configuration.GetSection("AwsS3"));
                     services.AddSingleton<IPdfStorage, AwsS3PdfStore>();
                     break;
                 case "googleBucket":
