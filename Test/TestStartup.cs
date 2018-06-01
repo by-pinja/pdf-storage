@@ -36,7 +36,6 @@ namespace Pdf.Storage.Hangfire
             services.AddNodeServices();
 
             services.AddTransient<IPdfConvert, PdfConvert>();
-            services.AddTransient<IPdfStorage, GoogleCloudPdfStorage>();
             services.AddTransient<IPdfQueue, PdfQueue>();
             services.AddTransient<IErrorPages, ErrorPages>();
             services.AddTransient<Uris>();

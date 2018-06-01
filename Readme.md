@@ -18,8 +18,8 @@ Set `$Env:ASPNETCORE_ENVIRONMENT = "Development"` if run from command line. Visu
 	"Mock": {
 		"Mq": "true",
 		"Db": "true",
-        	"GoogleBucket": "true"
-	}
+	},
+	"PdfStorageType": "inMemory"
 }
 ```
 
