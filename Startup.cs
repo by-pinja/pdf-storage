@@ -134,7 +134,6 @@ namespace Pdf.Storage
             services.Configure<MqConfig>(Configuration.GetSection("Mq"));
         }
 
-
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             app.UseCors("CorsPolicy");
@@ -156,6 +155,11 @@ namespace Pdf.Storage
                 c.RoutePrefix = "doc";
             });
 
+            var options = new BackgroundJobServerOptions
+            {
+                Queues = new[] { "critical", "default" }
+            };
+
             switch(GetAppRole())
             {
                 case "api":
@@ -163,14 +167,14 @@ namespace Pdf.Storage
                     break;
                 case "worker":
                     app.UseHangfireServer();
+                    app.UseHangfireDashboard();
                     break;
                 default:
                     app.UseMvc();
                     app.UseHangfireServer();
+                    app.UseHangfireDashboard();
                     break;
             }
-
-            app.UseHangfireDashboard();
         }
 
         private string GetAppRole()
