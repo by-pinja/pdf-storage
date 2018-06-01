@@ -1,24 +1,41 @@
 using System;
 using System.IO;
+using System.Linq;
 using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.Extensions.Options;
+using Pdf.Storage.Config;
 
 namespace Pdf.Storage.Pdf
 {
     public class AwsS3PdfStore : IPdfStorage
     {
         private readonly IAmazonS3 s3Client;
-
         private string bucketName;
         private static readonly RegionEndpoint bucketRegion = RegionEndpoint.EUCentral1;
 
-        public AwsS3PdfStore(IOptions<AppSettings> options)
+        public AwsS3PdfStore(IOptions<AwsS3Config> options)
         {
-            this.s3Client = new AmazonS3Client(bucketRegion);
-            this.s3Client.EnsureBucketExistsAsync(bucketName);
+            var region = RegionEndpoint.EnumerableAllRegions
+                .ToList()
+                .SingleOrDefault(x => x.SystemName == options.Value.AwsRegion)
+                ?? throw new InvalidOperationException($"Cannot resolve {nameof(options.Value.AwsRegion)}");
+
+            var config = new AmazonS3Config
+            {
+                RegionEndpoint = region,
+                ServiceURL = options.Value.AwsServiceURL ?? throw new InvalidOperationException($"Missing configuration {nameof(options.Value.AwsServiceURL)}"),
+                ForcePathStyle = true
+            };
+
+            this.s3Client = new AmazonS3Client(
+                options.Value.AccessKey ?? throw new InvalidOperationException($"Missing configuration {nameof(options.Value.AccessKey)}"),
+                options.Value.SecretKey ?? throw new InvalidOperationException($"Missing configuration {nameof(options.Value.AccessKey)}"),
+                config);
+
             this.bucketName = options.Value.AwsS3BucketName ?? throw new InvalidOperationException($"Missing configuration {nameof(options.Value.AwsS3BucketName)}");
+            this.s3Client.EnsureBucketExistsAsync(bucketName);
         }
 
         public void AddOrReplacePdf(StoredPdf pdf)
