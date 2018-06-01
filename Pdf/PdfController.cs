@@ -48,11 +48,15 @@ namespace Pdf.Storage.Pdf
             {
                 var entity = _context.PdfFiles.Add(new PdfEntity(groupId)).Entity;
 
+                var rawData = _context.RawData.Add(
+                    new PdfRawData(entity.Id,
+                        request.Html,
+                        TemplateDataUtils.GetTemplateData(request.BaseData, row),
+                        request.Options)).Entity;
+
                 _context.SaveChanges();
 
-                var templateData = TemplateDataUtils.GetTemplateData(request.BaseData, row);
-
-                _backgroundJobs.Enqueue<IPdfQueue>(que => que.CreatePdf(entity.Id, request.Html, templateData, request.Options));
+                _backgroundJobs.Enqueue<IPdfQueue>(que => que.CreatePdf(entity.Id));
 
                 var pdfUri = _uris.PdfUri(groupId, entity.FileId);
 

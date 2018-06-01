@@ -25,10 +25,8 @@ namespace Pdf.Storage.Hangfire
             _backgroundJobClient.Schedule(methodCall, delay);
         }
 
-        public string PrioritizeJob(string id)
+        public void PrioritizeJob(string id)
         {
-            _backgroundJobClient.Delete(id);
-            return _backgroundJobClient.Enqueue(methodCall);
         }
 
         public static IEnumerable<string> GetValidQueues => new string[] { "critical", "default"};
