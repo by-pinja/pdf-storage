@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using Pdf.Storage.Data;
 using Pdf.Storage.Hangfire;
 using Pdf.Storage.Mq;
+using Pdf.Storage.Pdf;
 
 namespace Pdf.Storage.PdfMerge
 {
@@ -59,6 +60,12 @@ namespace Pdf.Storage.PdfMerge
                 _mqMessages.PdfOpened(groupId, id);
                 _context.PdfFiles.Single(x => x.FileId == id).Usage.Add(new PdfOpenedEntity());
             });
+
+            _context.PdfFiles
+                .Where(x => !x.Processed)
+                .Where(x => request.PdfIds.Any(id => id == x.FileId))
+                .ToList()
+                .ForEach(x => x.HangfireJobId = _backgroundJob.EnqueueWithHighPriority<IPdfQueue>(que => que.CreatePdf(entity.Id)));
 
             _context.SaveChanges();
 
