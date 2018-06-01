@@ -20,7 +20,7 @@ namespace Pdf.Storage.Pdf
             var region = RegionEndpoint.EnumerableAllRegions
                 .ToList()
                 .SingleOrDefault(x => x.SystemName == options.Value.AwsRegion)
-                ?? throw new InvalidOperationException($"Cannot resolve {nameof(options.Value.AwsRegion)}");
+                ?? throw new InvalidOperationException($"Cannot resolve {nameof(options.Value.AwsRegion)} from valid options {String.Join(", ", RegionEndpoint.EnumerableAllRegions.Select(x => x.SystemName))}");
 
             var config = new AmazonS3Config
             {
