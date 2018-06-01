@@ -27,7 +27,6 @@ namespace Pdf.Storage.Pdf
 
         public void CreatePdf(Guid pdfEntityId)
         {
-            Thread.Sleep(10000);
             var entity = _context.PdfFiles.Single(x => x.Id == pdfEntityId);
             var rawData = _context.RawData.Single(x => x.ParentId == pdfEntityId);
 
