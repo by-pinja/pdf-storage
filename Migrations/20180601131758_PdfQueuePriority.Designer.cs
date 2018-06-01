@@ -11,9 +11,10 @@ using System;
 namespace Pdf.Storage.Migrations
 {
     [DbContext(typeof(PdfDataContext))]
-    partial class PdfDataContextModelSnapshot : ModelSnapshot
+    [Migration("20180601131758_PdfQueuePriority")]
+    partial class PdfQueuePriority
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

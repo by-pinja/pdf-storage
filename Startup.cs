@@ -92,11 +92,10 @@ namespace Pdf.Storage
             else
             {
                 services.AddDbContext<PdfDataContext>(opt =>
-                    opt.UseNpgsql(Configuration["connectionString"]));
+                    opt.UseNpgsql(Configuration["ConnectionString"]));
 
                 services.AddHangfire(config =>
-                    config.UsePostgreSqlStorage(Configuration["connectionString"] ?? throw new InvalidOperationException("Missing: ConnectionString")));
-
+                    config.UsePostgreSqlStorage(Configuration["ConnectionString"] ?? throw new InvalidOperationException("Missing: ConnectionString")));
             }
 
             services.AddTransient<IPdfConvert, PdfConvert>();
@@ -105,7 +104,6 @@ namespace Pdf.Storage
             services.AddTransient<IPdfMerger, PdfMerger>();
             services.AddTransient<Uris>();
             services.AddTransient<IHangfireQueue, HangfireQueue>();
-
 
             if (bool.Parse(Configuration["Mock:Mq"] ?? "false"))
             {
