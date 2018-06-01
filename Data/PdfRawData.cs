@@ -4,10 +4,10 @@ using Newtonsoft.Json;
 
 namespace Pdf.Storage.Data
 {
-    public class PdfRawData
+    public class PdfRawDataEntity
     {
-        protected PdfRawData() { }
-        public PdfRawData(Guid parentId, string html, object templateData, object options)
+        protected PdfRawDataEntity() { }
+        public PdfRawDataEntity(Guid parentId, string html, object templateData, object options)
         {
             ParentId = parentId;
             Html = html;

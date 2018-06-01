@@ -49,14 +49,14 @@ namespace Pdf.Storage.Pdf
                 var entity = _context.PdfFiles.Add(new PdfEntity(groupId)).Entity;
 
                 var rawData = _context.RawData.Add(
-                    new PdfRawData(entity.Id,
+                    new PdfRawDataEntity(entity.Id,
                         request.Html,
                         TemplateDataUtils.GetTemplateData(request.BaseData, row),
                         request.Options)).Entity;
 
                 _context.SaveChanges();
 
-                _backgroundJobs.Enqueue<IPdfQueue>(que => que.CreatePdf(entity.Id));
+                EnquePdfJob(entity);
 
                 var pdfUri = _uris.PdfUri(groupId, entity.FileId);
 
@@ -64,6 +64,13 @@ namespace Pdf.Storage.Pdf
             });
 
             return StatusCode(202, responses.ToList());
+        }
+
+        private void EnquePdfJob(PdfEntity entity)
+        {
+            var jobId = _backgroundJobs.Enqueue<IPdfQueue>(que => que.CreatePdf(entity.Id));
+            entity.HangfireJobId = jobId;
+            _context.SaveChanges();
         }
 
         [HttpGet("/v1/pdf/{groupId}/{pdfId}.pdf")]
@@ -83,6 +90,11 @@ namespace Pdf.Storage.Pdf
 
             if (!pdfEntity.Processed)
             {
+                if (pdfEntity.HangfireJobId != null && _backgroundJobs.RemoveJob(pdfEntity.HangfireJobId))
+                {
+                    EnquePdfJob(pdfEntity);
+                }
+
                 return _errorPages.PdfIsStillProcessingResponse();
             }
 
@@ -119,7 +131,7 @@ namespace Pdf.Storage.Pdf
         [HttpDelete("/v1/pdf/{groupId}/{pdfId}.pdf")]
         public IActionResult RemoveSinglePdf(string groupId, string pdfId)
         {
-            if(!RemovePdf(groupId, pdfId))
+            if (!RemovePdf(groupId, pdfId))
                 return NotFound();
 
             return Ok();

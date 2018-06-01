@@ -17,22 +17,29 @@ namespace Pdf.Storage.Hangfire
             _serviceProvider = serviceProvider;
         }
 
-        public virtual void Enqueue<T>(Expression<Action<T>> methodCall)
+        public virtual string Enqueue<T>(Expression<Action<T>> methodCall)
         {
             if(!ExecuteActions)
-                return;
+                return Guid.NewGuid().ToString();
 
             var service = (T)_serviceProvider.GetService(typeof(T));
             methodCall.Compile().Invoke(service);
+            return Guid.NewGuid().ToString();
         }
 
-        public void Schedule<T>(Expression<Action<T>> methodCall, TimeSpan delay)
+        public string Schedule<T>(Expression<Action<T>> methodCall, TimeSpan delay)
         {
             if(!ExecuteActions)
-                return;
+                return Guid.NewGuid().ToString();;
 
             var service = (T)_serviceProvider.GetService(typeof(T));
             methodCall.Compile().Invoke(service);
+            return Guid.NewGuid().ToString();
+        }
+
+        public bool RemoveJob(string id)
+        {
+            return false;
         }
     }
 }

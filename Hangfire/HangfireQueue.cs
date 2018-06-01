@@ -15,20 +15,19 @@ namespace Pdf.Storage.Hangfire
             _backgroundJobClient = backgroundJobClient;
         }
 
-        public void Enqueue<T>(Expression<Action<T>> methodCall)
+        public string Enqueue<T>(Expression<Action<T>> methodCall)
         {
-            _backgroundJobClient.Enqueue<T>(methodCall);
+            return _backgroundJobClient.Enqueue<T>(methodCall);
         }
 
-        public void Schedule<T>(Expression<Action<T>> methodCall, TimeSpan delay)
+        public string Schedule<T>(Expression<Action<T>> methodCall, TimeSpan delay)
         {
-            _backgroundJobClient.Schedule(methodCall, delay);
+            return _backgroundJobClient.Schedule(methodCall, delay);
         }
 
-        public void PrioritizeJob(string id)
+        public bool RemoveJob(string id)
         {
+            return _backgroundJobClient.Delete(id);
         }
-
-        public static IEnumerable<string> GetValidQueues => new string[] { "critical", "default"};
     }
 }
