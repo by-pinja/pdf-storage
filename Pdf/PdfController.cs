@@ -66,16 +66,6 @@ namespace Pdf.Storage.Pdf
             return StatusCode(202, responses.ToList());
         }
 
-        private void EnquePdfJob(PdfEntity entity, bool priorityHigh = false)
-        {
-            var jobId =
-                priorityHigh ?
-                    _backgroundJobs.EnqueueWithHighPriority<IPdfQueue>(que => que.CreatePdf(entity.Id)):
-                    _backgroundJobs.Enqueue<IPdfQueue>(que => que.CreatePdf(entity.Id));
-            entity.HangfireJobId = jobId;
-            _context.SaveChanges();
-        }
-
         [HttpGet("/v1/pdf/{groupId}/{pdfId}.pdf")]
         public IActionResult GetPdf(string groupId, string pdfId, [FromQuery] bool noCount)
         {
@@ -140,6 +130,33 @@ namespace Pdf.Storage.Pdf
             return Ok();
         }
 
+        [HttpDelete("/v1/pdfs/")]
+        public IActionResult RemoveMultiplePdfs([FromBody][Required] IEnumerable<PdfDeleteRequest> request)
+        {
+            var removedItems =
+                    request
+                        .Select(x =>
+                        {
+                            var removed = RemovePdf(x.GroupId, x.PdfId);
+                            return new { Request = x, Removed = removed };
+                        })
+                        .ToList()
+                        .Where(x => x.Removed)
+                        .Select(x => x.Request);
+
+            return Ok(removedItems);
+        }
+
+        private void EnquePdfJob(PdfEntity entity, bool priorityHigh = false)
+        {
+            var jobId =
+                priorityHigh ?
+                    _backgroundJobs.EnqueueWithHighPriority<IPdfQueue>(que => que.CreatePdf(entity.Id)):
+                    _backgroundJobs.Enqueue<IPdfQueue>(que => que.CreatePdf(entity.Id));
+            entity.HangfireJobId = jobId;
+            _context.SaveChanges();
+        }
+
         private bool RemovePdf(string groupId, string pdfId)
         {
             var pdfEntity = _context.PdfFiles.SingleOrDefault(x => x.GroupId == groupId && x.FileId == pdfId);
@@ -161,21 +178,5 @@ namespace Pdf.Storage.Pdf
             return true;
         }
 
-        [HttpDelete("/v1/pdfs/")]
-        public IActionResult RemoveMultiplePdfs([FromBody][Required] IEnumerable<PdfDeleteRequest> request)
-        {
-            var removedItems =
-                    request
-                        .Select(x =>
-                        {
-                            var removed = RemovePdf(x.GroupId, x.PdfId);
-                            return new { Request = x, Removed = removed };
-                        })
-                        .ToList()
-                        .Where(x => x.Removed)
-                        .Select(x => x.Request);
-
-            return Ok(removedItems);
-        }
     }
 }
