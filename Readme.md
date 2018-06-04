@@ -18,8 +18,8 @@ Set `$Env:ASPNETCORE_ENVIRONMENT = "Development"` if run from command line. Visu
 	"Mock": {
 		"Mq": "true",
 		"Db": "true",
-        	"GoogleBucket": "true"
-	}
+	},
+	"PdfStorageType": "inMemory"
 }
 ```
 
@@ -28,7 +28,7 @@ Or overwrite them with environment variables `Mock__Mq = "true"` etc.
 On linux set development and install pdftk.
 ```bash
 sudo apt-get -y install pdftk
-EXPORT ASPNETCORE_ENVIRONMENT=Development
+export ASPNETCORE_ENVIRONMENT=Development
 ```
 
 ## Run local development database
