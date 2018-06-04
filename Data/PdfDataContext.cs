@@ -16,5 +16,6 @@ namespace Pdf.Storage.Data
         }
 
         public DbSet<PdfEntity> PdfFiles { get; set; }
+        public DbSet<PdfRawDataEntity> RawData { get; set; }
     }
 }

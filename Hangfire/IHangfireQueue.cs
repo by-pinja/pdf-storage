@@ -5,7 +5,9 @@ namespace Pdf.Storage.Hangfire
 {
     public interface IHangfireQueue
     {
-        void Enqueue<T>(Expression<Action<T>> methodCall);
-        void Schedule<T>(Expression<Action<T>> methodCall, TimeSpan delay);
+        string Enqueue<T>(Expression<Action<T>> methodCall);
+        string EnqueueWithHighPriority<T>(Expression<Action<T>> methodCall);
+        string Schedule<T>(Expression<Action<T>> methodCall, TimeSpan delay);
+        bool RemoveJob(string id);
     }
 }
