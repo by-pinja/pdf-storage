@@ -166,12 +166,12 @@ namespace Pdf.Storage
                     app.UseMvc();
                     break;
                 case "worker":
-                    app.UseHangfireServer();
+                    app.UseHangfireServer(options);
                     app.UseHangfireDashboard();
                     break;
                 default:
                     app.UseMvc();
-                    app.UseHangfireServer();
+                    app.UseHangfireServer(options);
                     app.UseHangfireDashboard();
                     break;
             }
