@@ -9,5 +9,6 @@ namespace Pdf.Storage.Hangfire
         string EnqueueWithHighPriority<T>(Expression<Action<T>> methodCall);
         string Schedule<T>(Expression<Action<T>> methodCall, TimeSpan delay);
         bool RemoveJob(string id);
+        void ScheduleRecurring<T>(string recurringJobId, Expression<Action<T>> methodCall, string cronExpression);
     }
 }
