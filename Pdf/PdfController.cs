@@ -154,6 +154,8 @@ namespace Pdf.Storage.Pdf
                     _backgroundJobs.EnqueueWithHighPriority<IPdfQueue>(que => que.CreatePdf(entity.Id)):
                     _backgroundJobs.Enqueue<IPdfQueue>(que => que.CreatePdf(entity.Id));
 
+            entity.HangfireJobId = newJobId;
+
             _context.SaveChanges();
         }
 
