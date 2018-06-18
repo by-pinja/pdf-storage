@@ -83,7 +83,7 @@ namespace Pdf.Storage.Pdf
 
             if (!pdfEntity.Processed)
             {
-                if (pdfEntity.HangfireJobId != null && _backgroundJobs.RemoveJob(pdfEntity.HangfireJobId))
+                if (pdfEntity.HangfireJobId != null)
                 {
                     EnquePdfJob(pdfEntity, priorityHigh: true);
                 }
@@ -153,9 +153,6 @@ namespace Pdf.Storage.Pdf
                 priorityHigh ?
                     _backgroundJobs.EnqueueWithHighPriority<IPdfQueue>(que => que.CreatePdf(entity.Id)):
                     _backgroundJobs.Enqueue<IPdfQueue>(que => que.CreatePdf(entity.Id));
-
-            if(entity.HangfireJobId != null)
-                _backgroundJobs.RemoveJob(entity.HangfireJobId);
 
             _context.SaveChanges();
         }
