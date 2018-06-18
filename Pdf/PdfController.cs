@@ -83,7 +83,7 @@ namespace Pdf.Storage.Pdf
 
             if (!pdfEntity.Processed)
             {
-                if (pdfEntity.HangfireJobId != null)
+                if (pdfEntity.HangfireJobId != null && _backgroundJobs.RemoveJob(pdfEntity.HangfireJobId))
                 {
                     EnquePdfJob(pdfEntity, priorityHigh: true);
                 }
