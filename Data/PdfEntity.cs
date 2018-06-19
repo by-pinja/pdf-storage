@@ -25,7 +25,7 @@ namespace Pdf.Storage.Data
         public int OpenedTimes { get; set; }
         public string HangfireJobId { get; set; }
         public ICollection<PdfOpenedEntity> Usage { get; protected set; } = new List<PdfOpenedEntity>();
-        public bool IsValidForHighPriority() => !Processed && Type != PdfType.Merge && Type != PdfType.HighPriorityPdf && HangfireJobId != null;
+        public bool IsValidForHighPriority() => !Processed && Type == PdfType.Pdf && HangfireJobId != null;
         public void MarkAsHighPriority(string newHangfireJobId)
         {
             Type = PdfType.HighPriorityPdf;
