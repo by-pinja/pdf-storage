@@ -21,10 +21,15 @@ namespace Pdf.Storage.Data
         public DateTime Created { get; protected set; }
         public bool Processed { get; set; }
         public bool Removed { get; set; }
-        public PdfType Type  { get; set; }
+        public PdfType Type  { get; protected set; }
         public int OpenedTimes { get; set; }
         public string HangfireJobId { get; set; }
         public ICollection<PdfOpenedEntity> Usage { get; protected set; } = new List<PdfOpenedEntity>();
         public bool IsValidForHighPriority() => !Processed && Type != PdfType.Merge && Type != PdfType.HighPriorityPdf && HangfireJobId != null;
+        public void MarkAsHighPriority(string newHangfireJobId)
+        {
+            Type = PdfType.HighPriorityPdf;
+            HangfireJobId = newHangfireJobId;
+        }
     }
 }

@@ -85,11 +85,9 @@ namespace Pdf.Storage.Pdf
             {
                 if (pdfEntity.IsValidForHighPriority())
                 {
-                    _backgroundJobs.EnqueueWithHighPriority<IPdfQueue>(que => que.CreatePdf(pdfEntity.Id));
-
-                    pdfEntity.Type = PdfType.HighPriorityPdf;
+                    pdfEntity.MarkAsHighPriority(
+                        _backgroundJobs.EnqueueWithHighPriority<IPdfQueue>(que => que.CreatePdf(pdfEntity.Id)));
                     _backgroundJobs.RemoveJob(pdfEntity.HangfireJobId);
-
                     _context.SaveChanges();
                 }
 

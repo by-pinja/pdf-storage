@@ -61,12 +61,20 @@ namespace Pdf.Storage.PdfMerge
                 _context.PdfFiles.Single(x => x.FileId == id).Usage.Add(new PdfOpenedEntity());
             });
 
-            _context.PdfFiles
-                .Where(x => !x.Processed)
-                .Where(x => request.PdfIds.Any(id => id == x.FileId))
-                .ToList()
-                .Where(x => x.IsValidForHighPriority()).ToList()
-                .ForEach(x => x.HangfireJobId = _backgroundJob.EnqueueWithHighPriority<IPdfQueue>(que => que.CreatePdf(entity.Id)));
+            var entitiesToPriritize =
+                _context.PdfFiles
+                    .Where(x => !x.Processed)
+                    .Where(x => request.PdfIds.Any(id => id == x.FileId))
+                    .ToList()
+                    .Where(x => x.IsValidForHighPriority())
+                    .ToList();
+
+            entitiesToPriritize.ForEach(pdfEntity =>
+            {
+                pdfEntity.MarkAsHighPriority(
+                    _backgroundJob.EnqueueWithHighPriority<IPdfQueue>(que => que.CreatePdf(pdfEntity.Id)));
+                _backgroundJob.RemoveJob(pdfEntity.HangfireJobId);
+            });
 
             _context.SaveChanges();
 
