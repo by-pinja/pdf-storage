@@ -56,7 +56,9 @@ namespace Pdf.Storage.Pdf
 
                 _context.SaveChanges();
 
-                EnquePdfJob(entity);
+                entity.HangfireJobId =
+                    _backgroundJobs.Enqueue<IPdfQueue>(que => que.CreatePdf(entity.Id));
+                _context.SaveChanges();
 
                 var pdfUri = _uris.PdfUri(groupId, entity.FileId);
 
@@ -148,21 +150,6 @@ namespace Pdf.Storage.Pdf
                         .Select(x => x.Request);
 
             return Ok(removedItems);
-        }
-
-        private void EnquePdfJob(PdfEntity entity, bool priorityHigh = false)
-        {
-            var newJobId =
-                priorityHigh ?
-                    _backgroundJobs.EnqueueWithHighPriority<IPdfQueue>(que => que.CreatePdf(entity.Id)):
-                    _backgroundJobs.Enqueue<IPdfQueue>(que => que.CreatePdf(entity.Id));
-
-            entity.HangfireJobId = newJobId;
-
-            if(priorityHigh)
-                entity.Type = PdfType.HighPriorityPdf;
-
-            _context.SaveChanges();
         }
 
         private bool RemovePdf(string groupId, string pdfId)
