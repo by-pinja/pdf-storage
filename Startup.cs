@@ -162,7 +162,7 @@ namespace Pdf.Storage
                 WorkerCount = 4
             };
 
-            hangfireQueue.ScheduleRecurring<CleanUpCronJob>("clearObsoletePdfSourceDataRows", job => job.Execute(), Cron.Daily());
+            hangfireQueue.ScheduleRecurring<CleanUpCronJob>("clearObsoletePdfSourceDataRows", job => job.Execute(), Cron.Hourly());
 
             switch(GetAppRole())
             {
