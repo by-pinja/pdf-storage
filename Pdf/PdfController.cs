@@ -46,7 +46,7 @@ namespace Pdf.Storage.Pdf
         {
             var responses = request.RowData.ToList().Select(row =>
             {
-                var entity = _context.PdfFiles.Add(new PdfEntity(groupId)).Entity;
+                var entity = _context.PdfFiles.Add(new PdfEntity(groupId, PdfType.Pdf)).Entity;
 
                 var rawData = _context.RawData.Add(
                     new PdfRawDataEntity(entity.Id,
@@ -83,9 +83,14 @@ namespace Pdf.Storage.Pdf
 
             if (!pdfEntity.Processed)
             {
-                if (pdfEntity.HangfireJobId != null && _backgroundJobs.RemoveJob(pdfEntity.HangfireJobId))
+                if (pdfEntity.IsValidForHighPriority())
                 {
-                    EnquePdfJob(pdfEntity, priorityHigh: true);
+                    _backgroundJobs.EnqueueWithHighPriority<IPdfQueue>(que => que.CreatePdf(pdfEntity.Id));
+
+                    pdfEntity.Type = PdfType.HighPriorityPdf;
+                    _backgroundJobs.RemoveJob(pdfEntity.HangfireJobId);
+
+                    _context.SaveChanges();
                 }
 
                 return _errorPages.PdfIsStillProcessingResponse();
@@ -155,6 +160,9 @@ namespace Pdf.Storage.Pdf
                     _backgroundJobs.Enqueue<IPdfQueue>(que => que.CreatePdf(entity.Id));
 
             entity.HangfireJobId = newJobId;
+
+            if(priorityHigh)
+                entity.Type = PdfType.HighPriorityPdf;
 
             _context.SaveChanges();
         }

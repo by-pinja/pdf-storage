@@ -51,7 +51,7 @@ namespace Pdf.Storage.PdfMerge
                 return BadRequest(message);
             }
 
-            var entity = _context.PdfFiles.Add(new PdfEntity(groupId)).Entity;
+            var entity = _context.PdfFiles.Add(new PdfEntity(groupId, PdfType.Merge)).Entity;
 
             var filePath = $"{_settings.BaseUrl}/v1/pdf/{groupId}/{entity.FileId}.pdf";
 
@@ -65,6 +65,7 @@ namespace Pdf.Storage.PdfMerge
                 .Where(x => !x.Processed)
                 .Where(x => request.PdfIds.Any(id => id == x.FileId))
                 .ToList()
+                .Where(x => x.IsValidForHighPriority()).ToList()
                 .ForEach(x => x.HangfireJobId = _backgroundJob.EnqueueWithHighPriority<IPdfQueue>(que => que.CreatePdf(entity.Id)));
 
             _context.SaveChanges();
