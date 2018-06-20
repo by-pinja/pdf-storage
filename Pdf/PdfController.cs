@@ -172,6 +172,5 @@ namespace Pdf.Storage.Pdf
 
             return true;
         }
-
     }
 }
