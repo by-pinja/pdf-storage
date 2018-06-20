@@ -40,14 +40,19 @@ namespace Pdf.Storage.PdfMerge
             {
                 var mergedFile = _context.PdfFiles.Single(x => x.GroupId == groupId && x.FileId == fileId);
 
-                var underlayingFiles = _context.PdfFiles
-                    .Where(x => x.GroupId == groupId)
-                    .Where(x => pdfIds.Any(id => x.FileId == id))
-                    .ToList();
+                var underlayingFiles = Retry.Func(() =>
+                {
+                    var pdfEntities = _context.PdfFiles
+                        .Where(x => x.GroupId == groupId)
+                        .Where(x => pdfIds.Any(id => x.FileId == id))
+                        .ToList();
 
-                if(underlayingFiles.Any(x => !x.Processed))
-                    throw new InvalidOperationException(
-                        $"Tried to merge files that are not ready, non ready pdf list is '{underlayingFiles.Where(x => !x.Processed).Select(x => x.FileId).Aggregate("", (a, b) => $"{a}, {b}").Trim(',')}'");
+                    if(pdfEntities.Any(x => !x.Processed))
+                        throw new InvalidOperationException(
+                            $"Tried to merge files that are not ready, non ready pdf list is '{pdfEntities.Where(x => !x.Processed).Select(x => x.FileId).Aggregate("", (a, b) => $"{a}, {b}").Trim(',')}'");
+
+                    return pdfEntities;
+                }, TimeSpan.FromSeconds(10), maxAttemptCount: 6);
 
                 var pdfs = pdfIds
                     .Select(id => _pdfStorage.GetPdf(groupId, id))
