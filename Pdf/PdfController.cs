@@ -149,11 +149,13 @@ namespace Pdf.Storage.Pdf
 
         private void EnquePdfJob(PdfEntity entity, bool priorityHigh = false)
         {
-            var jobId =
+            var newJobId =
                 priorityHigh ?
                     _backgroundJobs.EnqueueWithHighPriority<IPdfQueue>(que => que.CreatePdf(entity.Id)):
                     _backgroundJobs.Enqueue<IPdfQueue>(que => que.CreatePdf(entity.Id));
-            entity.HangfireJobId = jobId;
+
+            entity.HangfireJobId = newJobId;
+
             _context.SaveChanges();
         }
 

@@ -51,5 +51,9 @@ namespace Pdf.Storage.Hangfire
             methodCall.Compile().Invoke(service);
             return Guid.NewGuid().ToString();
         }
+
+        public void ScheduleRecurring<T>(string recurringJobId, Expression<Action<T>> methodCall, string cronExpression)
+        {
+        }
     }
 }
