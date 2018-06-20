@@ -37,12 +37,7 @@ namespace Pdf.Storage.Hangfire
             return Guid.NewGuid().ToString();
         }
 
-        public bool RemoveJob(string id)
-        {
-            return false;
-        }
-
-        public string EnqueueWithHighPriority<T>(Expression<Action<T>> methodCall)
+        public string EnqueueWithHighPriority<T>(Expression<Action<T>> methodCall, string originalJobId = null)
         {
             if(!ExecuteActions)
                 return Guid.NewGuid().ToString();

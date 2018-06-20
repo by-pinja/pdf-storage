@@ -72,8 +72,7 @@ namespace Pdf.Storage.PdfMerge
             entitiesToPriritize.ForEach(pdfEntity =>
             {
                 pdfEntity.MarkAsHighPriority(
-                    _backgroundJob.EnqueueWithHighPriority<IPdfQueue>(que => que.CreatePdf(pdfEntity.Id)));
-                _backgroundJob.RemoveJob(pdfEntity.HangfireJobId);
+                    _backgroundJob.EnqueueWithHighPriority<IPdfQueue>(que => que.CreatePdf(pdfEntity.Id), originalJobId: pdfEntity.HangfireJobId));
             });
 
             _context.SaveChanges();
