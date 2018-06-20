@@ -63,11 +63,7 @@ namespace Pdf.Storage.Hangfire
         {
             loggerFactory.AddConsole();
             loggerFactory.AddDebug();
-
             app.UseAuthentication();
-
-            // Workaround for hanfire instability issue during testing.
-
             app.UseMvc();
         }
     }

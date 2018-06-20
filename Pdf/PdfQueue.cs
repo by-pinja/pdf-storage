@@ -34,7 +34,6 @@ namespace Pdf.Storage.Pdf
             _pdfStorage.AddOrReplacePdf(new StoredPdf(entity.GroupId, entity.FileId, pdf.data));
 
             entity.Processed = true;
-            _context.RawData.Remove(rawData);
 
             _mqMessages.PdfGenerated(entity.GroupId, entity.FileId);
 

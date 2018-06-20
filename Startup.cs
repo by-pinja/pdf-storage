@@ -132,9 +132,10 @@ namespace Pdf.Storage
 
             services.Configure<ApiKeyAuthenticationOptions>(Configuration.GetSection("ApiAuthentication"));
             services.Configure<MqConfig>(Configuration.GetSection("Mq"));
+            services.AddTransient<CleanUpCronJob>();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IHangfireQueue hangfireQueue)
         {
             app.UseCors("CorsPolicy");
 
@@ -157,13 +158,17 @@ namespace Pdf.Storage
 
             var options = new BackgroundJobServerOptions
             {
-                Queues = HangfireConstants.Enumerate().ToArray()
+                Queues = HangfireConstants.Enumerate().ToArray(),
+                WorkerCount = 4
             };
+
+            hangfireQueue.ScheduleRecurring<CleanUpCronJob>("clearObsoletePdfSourceDataRows", job => job.Execute(), Cron.Daily());
 
             switch(GetAppRole())
             {
                 case "api":
                     app.UseMvc();
+                    app.UseHangfireDashboard();
                     break;
                 case "worker":
                     app.UseHangfireServer(options);

@@ -41,11 +41,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="2.0.0" />
-    <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Update="appsettings.master.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
