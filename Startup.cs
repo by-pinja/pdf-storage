@@ -95,7 +95,9 @@ namespace Pdf.Storage
                     opt.UseNpgsql(Configuration["ConnectionString"]));
 
                 services.AddHangfire(config =>
-                    config.UsePostgreSqlStorage(Configuration["ConnectionString"] ?? throw new InvalidOperationException("Missing: ConnectionString")));
+                    config
+                        .UseFilter(new PreserveOriginalQueueAttribute())
+                        .UsePostgreSqlStorage(Configuration["ConnectionString"] ?? throw new InvalidOperationException("Missing: ConnectionString")));
             }
 
             services.AddTransient<IPdfConvert, PdfConvert>();
@@ -159,10 +161,10 @@ namespace Pdf.Storage
             var options = new BackgroundJobServerOptions
             {
                 Queues = HangfireConstants.Enumerate().ToArray(),
-                WorkerCount = 4
+                WorkerCount = 4,
             };
 
-            hangfireQueue.ScheduleRecurring<CleanUpCronJob>("clearObsoletePdfSourceDataRows", job => job.Execute(), Cron.Daily());
+            hangfireQueue.ScheduleRecurring<CleanUpCronJob>("clearObsoletePdfSourceDataRows", job => job.Execute(), Cron.Hourly());
 
             switch(GetAppRole())
             {

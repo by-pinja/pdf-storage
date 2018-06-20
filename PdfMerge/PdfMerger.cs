@@ -40,14 +40,25 @@ namespace Pdf.Storage.PdfMerge
             {
                 var mergedFile = _context.PdfFiles.Single(x => x.GroupId == groupId && x.FileId == fileId);
 
-                // Its possible that pdf:s are just requested before merge, hangfire retry is very slow and with multiple distributed consumers
-                // its very hard to control which is run first. For this reason this workaround is made.
-                var pdfs = Retry.Func(() => pdfIds
-                        .Select(id => _pdfStorage.GetPdf(groupId, id))
-                        .Select(pdf => (tempFile: Path.Combine($@"{temp}", $"{pdf.Id}.pdf"), data: pdf.Data)).ToList(),
-                    retryInterval: TimeSpan.FromSeconds(10), maxAttemptCount: 6);
+                var underlayingFiles = Retry.Func(() =>
+                {
+                    var pdfEntities = _context.PdfFiles
+                        .Where(x => x.GroupId == groupId)
+                        .Where(x => pdfIds.Any(id => x.FileId == id))
+                        .ToList();
 
-                pdfs.ToList().ForEach(x => File.WriteAllBytes(x.tempFile, x.data));
+                    if(pdfEntities.Any(x => !x.Processed))
+                        throw new InvalidOperationException(
+                            $"Tried to merge files that are not ready, non ready pdf list is '{pdfEntities.Where(x => !x.Processed).Select(x => x.FileId).Aggregate("", (a, b) => $"{a}, {b}").Trim(',')}'");
+
+                    return pdfEntities;
+                }, TimeSpan.FromSeconds(10), maxAttemptCount: 6);
+
+                var pdfs = pdfIds
+                    .Select(id => _pdfStorage.GetPdf(groupId, id))
+                    .Select(pdf => (tempFile: Path.Combine($@"{temp}", $"{pdf.Id}.pdf"), data: pdf.Data)).ToList();
+
+                pdfs.ForEach(x => File.WriteAllBytes(x.tempFile, x.data));
 
                 var mergedPdf = MergeFiles(temp, pdfs.Select(x => x.tempFile));
 
