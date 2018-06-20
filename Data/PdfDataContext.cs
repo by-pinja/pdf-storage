@@ -13,6 +13,12 @@ namespace Pdf.Storage.Data
             modelBuilder.Entity<PdfOpenedEntity>()
                 .HasOne(x => x.Parent)
                 .WithMany(x => x.Usage);
+
+            modelBuilder.Entity<PdfEntity>()
+                .HasIndex(b => b.FileId);
+
+            modelBuilder.Entity<PdfEntity>()
+                .HasIndex(b => b.GroupId);
         }
 
         public DbSet<PdfEntity> PdfFiles { get; set; }
