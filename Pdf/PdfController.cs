@@ -46,7 +46,7 @@ namespace Pdf.Storage.Pdf
         {
             var responses = request.RowData.ToList().Select(row =>
             {
-                var entity = _context.PdfFiles.Add(new PdfEntity(groupId)).Entity;
+                var entity = _context.PdfFiles.Add(new PdfEntity(groupId, PdfType.Pdf)).Entity;
 
                 var rawData = _context.RawData.Add(
                     new PdfRawDataEntity(entity.Id,
@@ -56,7 +56,9 @@ namespace Pdf.Storage.Pdf
 
                 _context.SaveChanges();
 
-                EnquePdfJob(entity);
+                entity.HangfireJobId =
+                    _backgroundJobs.Enqueue<IPdfQueue>(que => que.CreatePdf(entity.Id));
+                _context.SaveChanges();
 
                 var pdfUri = _uris.PdfUri(groupId, entity.FileId);
 
@@ -83,9 +85,12 @@ namespace Pdf.Storage.Pdf
 
             if (!pdfEntity.Processed)
             {
-                if (pdfEntity.HangfireJobId != null && _backgroundJobs.RemoveJob(pdfEntity.HangfireJobId))
+                if (pdfEntity.IsValidForHighPriority())
                 {
-                    EnquePdfJob(pdfEntity, priorityHigh: true);
+                    pdfEntity.MarkAsHighPriority(
+                        _backgroundJobs.EnqueueWithHighPriority<IPdfQueue>(que => que.CreatePdf(pdfEntity.Id), originalJobId: pdfEntity.HangfireJobId));
+
+                    _context.SaveChanges();
                 }
 
                 return _errorPages.PdfIsStillProcessingResponse();
@@ -147,18 +152,6 @@ namespace Pdf.Storage.Pdf
             return Ok(removedItems);
         }
 
-        private void EnquePdfJob(PdfEntity entity, bool priorityHigh = false)
-        {
-            var newJobId =
-                priorityHigh ?
-                    _backgroundJobs.EnqueueWithHighPriority<IPdfQueue>(que => que.CreatePdf(entity.Id)):
-                    _backgroundJobs.Enqueue<IPdfQueue>(que => que.CreatePdf(entity.Id));
-
-            entity.HangfireJobId = newJobId;
-
-            _context.SaveChanges();
-        }
-
         private bool RemovePdf(string groupId, string pdfId)
         {
             var pdfEntity = _context.PdfFiles.SingleOrDefault(x => x.GroupId == groupId && x.FileId == pdfId);
@@ -179,6 +172,5 @@ namespace Pdf.Storage.Pdf
 
             return true;
         }
-
     }
 }

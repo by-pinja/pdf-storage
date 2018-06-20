@@ -22,7 +22,9 @@ namespace Pdf.Storage
 
                 try
                 {
-                    services.GetRequiredService<PdfDataContext>().Database.Migrate();
+                    var context = services.GetRequiredService<PdfDataContext>();
+                    context.Database.EnsureCreated();
+                    context.Database.Migrate();
                 }
                 catch (Exception ex)
                 {

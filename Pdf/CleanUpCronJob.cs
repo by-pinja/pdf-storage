@@ -20,6 +20,7 @@ namespace Pdf.Storage.Pdf
             var entitiesToDelete = _context.RawData
                 .Join(_context.PdfFiles, x => x.ParentId, x => x.Id, (raw, file) => new { raw, processed = file.Processed })
                 .Where(x => x.processed)
+                .Take(500)
                 .Select(x => x.raw);
 
             _context.RawData.RemoveRange(entitiesToDelete);

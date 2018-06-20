@@ -23,10 +23,15 @@ namespace Pdf.Storage.Hangfire
             return _backgroundJobClient.Enqueue<T>(methodCall);
         }
 
-        public string EnqueueWithHighPriority<T>(Expression<Action<T>> methodCall)
+        public string EnqueueWithHighPriority<T>(Expression<Action<T>> methodCall, string originalJobId = null)
         {
             var state = new EnqueuedState(HangfireConstants.HighPriorityQueue);
-            return _backgroundJobClient.Create(methodCall, state);
+            var newJobId = _backgroundJobClient.Create(methodCall, state);
+
+            if(originalJobId != null)
+                _backgroundJobClient.Delete(originalJobId);
+
+            return newJobId;
         }
         public string Schedule<T>(Expression<Action<T>> methodCall, TimeSpan delay)
         {
@@ -36,11 +41,6 @@ namespace Pdf.Storage.Hangfire
         public void ScheduleRecurring<T>(string recurringJobId, Expression<Action<T>> methodCall, string cronExpression)
         {
             _recurringJobManager.AddOrUpdate(recurringJobId, Job.FromExpression<T>(methodCall), cronExpression);
-        }
-
-        public bool RemoveJob(string id)
-        {
-            return _backgroundJobClient.Delete(id);
         }
     }
 }
