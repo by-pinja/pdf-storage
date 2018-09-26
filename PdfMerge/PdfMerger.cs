@@ -31,7 +31,7 @@ namespace Pdf.Storage.PdfMerge
         }
 
         [Queue(HangfireConstants.HighPriorityQueue)]
-        [AutomaticRetry(DelaysInSeconds = new [] { 10, 10, 15, 15, 15, 15, 30, 30, 30, 30, 30, 30, 30, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 120, 120, 600, 600})]
+        [AutomaticRetry(DelaysInSeconds = new [] { 10, 10, 15, 15, 15, 15, 30, 30, 30, 30, 30, 30, 30, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 120, 120, 600, 600 })]
         public void MergePdf(string groupId, string fileId, string[] pdfIds)
         {
             var temp = ResolveTemporaryDirectory();
