@@ -160,7 +160,7 @@ namespace Pdf.Storage
 
             var options = new BackgroundJobServerOptions
             {
-                Queues = HangfireConstants.Enumerate().ToArray(),
+                Queues = HangfireConstants.GetQueues().ToArray(),
                 WorkerCount = 4,
             };
 
