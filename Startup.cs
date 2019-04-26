@@ -23,6 +23,7 @@ using Swashbuckle.AspNetCore.Swagger;
 using Hangfire.PostgreSql;
 using Amazon.S3;
 using Pdf.Storage.Config;
+using Microsoft.OpenApi.Models;
 
 namespace Pdf.Storage
 {
@@ -48,7 +49,7 @@ namespace Pdf.Storage
                         .Where(x => x.Value != null)
                         .Select(x => x.Value);
 
-                    options.Keys = keys;
+                    options.ValidApiKeys = keys;
                 });
 
             services.AddCors(options =>
@@ -66,17 +67,18 @@ namespace Pdf.Storage
 
             services.AddSwaggerGen(c =>
             {
-                var basePath = PlatformServices.Default.Application.ApplicationBasePath;
+                var basePath = System.AppContext.BaseDirectory;
 
                 c.SwaggerDoc("v1",
-                    new Info
+                    new OpenApiInfo
                     {
                         Title = "Pdf.Storage",
                         Version = "v1",
                         Description = File.ReadAllText(Path.Combine(basePath, "ApiDescription.md"))
                     });
 
-                c.OperationFilter<ApplyApiKeySecurityToDocument>();
+                c.AddSecurityDefinition("ApiKey", ApiKey.OpenApiSecurityScheme);
+                c.AddSecurityRequirement(ApiKey.OpenApiSecurityRequirement("ApiKey"));
             });
 
             services.Configure<AppSettings>(Configuration);
@@ -137,16 +139,9 @@ namespace Pdf.Storage
             services.AddTransient<CleanUpCronJob>();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IHangfireQueue hangfireQueue)
+        public void Configure(IApplicationBuilder app, IHangfireQueue hangfireQueue)
         {
             app.UseCors("CorsPolicy");
-
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-
-            if (env.IsDevelopment())
-            {
-                loggerFactory.AddDebug();
-            }
 
             app.UseAuthentication();
 
