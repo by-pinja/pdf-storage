@@ -21,7 +21,8 @@ namespace Pdf.Storage.Hangfire
 
             var pdf = AddPdf(host, group);
 
-            host.Get($"{pdf.PdfUri}");
+            host.Get($"{pdf.PdfUri}")
+                .ExpectStatusCode(HttpStatusCode.OK);
 
             host.Get($"/v1/usage/{group}/")
                 .ExpectStatusCode(HttpStatusCode.OK)
