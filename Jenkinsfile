@@ -27,12 +27,12 @@ podTemplate(label: pod.label,
           """
         }
       }
-      stage('Test') {
-        container('dotnet') {
-          sh """
-            dotnet test
-          """
-        }
+      // stage('Test') {
+      //   container('dotnet') {
+      //     sh """
+      //       dotnet test
+      //     """
+      //   }
       }
       stage('Package') {
         container('docker') {
