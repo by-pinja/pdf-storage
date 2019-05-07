@@ -21,15 +21,11 @@ namespace Pdf.Storage.Pdf
 
         public (byte[] data, string html) CreatePdfFromHtml(string html, object templateData, object options)
         {
-            _logger.LogInformation("Generating pdf");
-
             var tempDir = ResolveTemporaryDirectory();
 
             File.WriteAllText(Path.Combine(tempDir, "source.html"), html);
 
             var data = GeneratePdf(tempDir);
-
-            _logger.LogInformation("Pdf generated");
 
             return (data, html);
         }
@@ -39,28 +35,30 @@ namespace Pdf.Storage.Pdf
             var p = GetCorrectProcessForSystem(tempPath);
 
             p.Start();
-            p.WaitForExit(5*1000);
+            p.WaitForExit(30 * 1000);
 
-            // _logger.LogInformation("StdOut: " + p.StandardOutput.ReadToEnd());
-            // _logger.LogInformation("StdError: " + p.StandardError.ReadToEnd());
+            _logger.LogInformation("StdOut: " + p.StandardOutput.ReadToEnd());
+            _logger.LogInformation("StdError: " + p.StandardError.ReadToEnd());
 
             return File.ReadAllBytes(Path.Combine(tempPath, "output.pdf")).ToArray();
         }
 
         private Process GetCorrectProcessForSystem(string tempPath)
         {
+            var args = $"--headless --disable-gpu --use-mock-keychain --no-sandbox --hide-scrollbars --print-to-pdf={Path.Combine(tempPath, "output.pdf")} {Path.Combine(tempPath, "source.html")}";
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return CreateProcess(
                     workingDir: tempPath,
                     fileName: "chrome",
-                    arguments: $"--headless --hide-scrollbars --print-to-pdf='{Path.Combine(tempPath, "output.pdf")}' '{Path.Combine(tempPath, "source.html")}'");
+                    arguments: args);
             }
 
             return CreateProcess(
                 workingDir: tempPath,
                 fileName: "chromium",
-                arguments: "");
+                arguments: args);
         }
 
         private Process CreateProcess(string workingDir, string fileName, string arguments)
@@ -74,9 +72,9 @@ namespace Pdf.Storage.Pdf
                         WorkingDirectory = workingDir,
                         FileName = fileName,
                         Arguments = arguments,
-                        UseShellExecute = true,
-                        // RedirectStandardOutput = true,
-                        // RedirectStandardError = true
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true
                     }
             };
         }
