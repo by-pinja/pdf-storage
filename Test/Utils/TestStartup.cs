@@ -33,8 +33,6 @@ namespace Pdf.Storage.Hangfire
             services.AddAuthentication()
                 .AddDisabledApiKeyAuth();
 
-            services.AddNodeServices();
-
             services.AddTransient<IPdfConvert, PdfConvert>();
             services.AddTransient<IPdfQueue, PdfQueue>();
             services.AddTransient<IErrorPages, ErrorPages>();

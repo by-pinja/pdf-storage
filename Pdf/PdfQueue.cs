@@ -29,9 +29,9 @@ namespace Pdf.Storage.Pdf
             var entity = _context.PdfFiles.Single(x => x.Id == pdfEntityId);
             var rawData = _context.RawData.Single(x => x.ParentId == pdfEntityId);
 
-            var pdf = _pdfConverter.CreatePdfFromHtml(rawData.Html, JObject.Parse(rawData.TemplateData), JObject.Parse(rawData.Options));
+            var (data, html) = _pdfConverter.CreatePdfFromHtml(rawData.Html, JObject.Parse(rawData.TemplateData), JObject.Parse(rawData.Options));
 
-            _pdfStorage.AddOrReplacePdf(new StoredPdf(entity.GroupId, entity.FileId, pdf.data));
+            _pdfStorage.AddOrReplacePdf(new StoredPdf(entity.GroupId, entity.FileId, data));
 
             entity.Processed = true;
 

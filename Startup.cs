@@ -63,8 +63,6 @@ namespace Pdf.Storage
 
             services.AddMvc(options => options.Filters.Add(new ValidateModelAttribute()));
 
-            services.AddNodeServices();
-
             services.AddSwaggerGen(c =>
             {
                 var basePath = System.AppContext.BaseDirectory;
