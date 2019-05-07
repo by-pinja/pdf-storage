@@ -1,4 +1,4 @@
-library 'jenkins-ptcs-library@0.4.0'
+library 'jenkins-ptcs-library@0.5.0'
 
 podTemplate(label: pod.label,
   containers: pod.templates + [
@@ -27,12 +27,12 @@ podTemplate(label: pod.label,
           """
         }
       }
-      // stage('Test') {
-      //   container('dotnet') {
-      //     sh """
-      //       dotnet test
-      //     """
-      //   }
+      stage('Test') {
+        container('dotnet') {
+          sh """
+            dotnet test
+          """
+        }
       }
       stage('Package') {
         container('docker') {
