@@ -15,7 +15,11 @@ podTemplate(label: pod.label,
         container('dotnet') {
           sh """
             apt-get update
-            apt-get -y install pdftk nodejs
+
+            apt-get install curl software-properties-common pdftk
+            curl -sL https://deb.nodesource.com/setup_10.x -o nodesource_setup.sh
+
+            apt-get -y install  nodejs
             npm install
 
             dotnet restore
