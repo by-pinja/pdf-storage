@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Dynamic;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.NodeServices;
 using Microsoft.Extensions.Logging;
 
@@ -9,35 +12,80 @@ namespace Pdf.Storage.Pdf
 {
     public class PdfConvert : IPdfConvert
     {
-        private readonly INodeServices _nodeServices;
         private readonly ILogger<PdfConvert> _logger;
 
-        public PdfConvert(INodeServices nodeServices, ILogger<PdfConvert> logger)
+        public PdfConvert(ILogger<PdfConvert> logger)
         {
-            _nodeServices = nodeServices;
             _logger = logger;
         }
 
         public (byte[] data, string html) CreatePdfFromHtml(string html, object templateData, object options)
         {
-            var pdf = _nodeServices.InvokeAsync<ExpandoObject>(@"./node/convert.js", html, templateData, options ?? new object()).Result;
+            _logger.LogInformation("Generating pdf");
 
-            var data = pdf.SingleOrDefault(x => x.Key == "data").Value;
+            var tempDir = ResolveTemporaryDirectory();
 
-            if (data == null)
+            File.WriteAllText(Path.Combine(tempDir, "source.html"), html);
+
+            var data = GeneratePdf(tempDir);
+
+            _logger.LogInformation("Pdf generated");
+
+            return (data, html);
+        }
+
+        private byte[] GeneratePdf(string tempPath)
+        {
+            var p = GetCorrectProcessForSystem(tempPath);
+
+            p.Start();
+            p.WaitForExit(5*1000);
+
+            // _logger.LogInformation("StdOut: " + p.StandardOutput.ReadToEnd());
+            // _logger.LogInformation("StdError: " + p.StandardError.ReadToEnd());
+
+            return File.ReadAllBytes(Path.Combine(tempPath, "output.pdf")).ToArray();
+        }
+
+        private Process GetCorrectProcessForSystem(string tempPath)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                throw new InvalidOperationException("Didn't get data from node service.");
+                return CreateProcess(
+                    workingDir: tempPath,
+                    fileName: "chrome",
+                    arguments: $"--headless --hide-scrollbars --print-to-pdf='{Path.Combine(tempPath, "output.pdf")}' '{Path.Combine(tempPath, "source.html")}'");
             }
 
-            if (data is List<object> objects)
+            return CreateProcess(
+                workingDir: tempPath,
+                fileName: "chromium",
+                arguments: "");
+        }
+
+        private Process CreateProcess(string workingDir, string fileName, string arguments)
+        {
+            _logger.LogInformation($"Running '{fileName} {arguments}'");
+
+            return new Process
             {
-                var pdfAsBytes = objects.Select(Convert.ToByte).ToArray();
-                return (pdfAsBytes, html);
-            }
+                StartInfo =
+                    {
+                        WorkingDirectory = workingDir,
+                        FileName = fileName,
+                        Arguments = arguments,
+                        UseShellExecute = true,
+                        // RedirectStandardOutput = true,
+                        // RedirectStandardError = true
+                    }
+            };
+        }
 
-            _logger.LogError($"Something unexpected occurred, cannot parse result from '{data}'");
-
-            throw new InvalidOperationException($"Something unexpected occurred, cannot parse result from '{data}'");
+        private string ResolveTemporaryDirectory()
+        {
+            var tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            Directory.CreateDirectory(tempFolder);
+            return tempFolder;
         }
     }
 }
