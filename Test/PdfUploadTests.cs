@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Hangfire.SqlServer;
 using Microsoft.AspNetCore.TestHost;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
 using Pdf.Storage.Pdf.Dto;
+using Pdf.Storage.Utils.Test;
 using Protacon.NetCore.WebApi.TestUtil;
 using Xunit;
 
@@ -14,34 +17,13 @@ namespace Pdf.Storage.Hangfire
 {
     public class PdfUploadTests
     {
-        private NewPdfResponse AddPdf(TestServer host, Guid groupId)
-        {
-            return host.Post($"/v1/pdf/{groupId}/",
-                    new NewPdfRequest
-                    {
-                        Html = "<body> {{ TEXT }} </body>",
-                        BaseData = new { BaseKey = "baseKeyValue"},
-                        RowData = new object[] {
-                            new
-                            {
-                                Key = "keyHere",
-                                TEXT = "something"
-                            }}
-                    }
-                )
-                .ExpectStatusCode(HttpStatusCode.Accepted)
-                .WithContentOf<NewPdfResponse[]>()
-                .Select()
-                .Single();
-        }
-
         [Fact]
-        public void WhenFileDoesntExistAtAll_ThenReturn404WithNotAvailableErrorMessage()
+        public async Task WhenFileDoesntExistAtAll_ThenReturn404WithNotAvailableErrorMessage()
         {
             var host = TestHost.Run<TestStartup>();
             var groupId = Guid.NewGuid();
 
-            host.Get($"/v1/pdf/{groupId}/{Guid.NewGuid()}.pdf")
+            await host.Get($"/v1/pdf/{groupId}/{Guid.NewGuid()}.pdf")
                 .ExpectStatusCode(HttpStatusCode.NotFound)
                 .WithContentOf<string>()
                 .Passing(x =>
@@ -51,7 +33,7 @@ namespace Pdf.Storage.Hangfire
         }
 
         [Fact]
-        public void WhenFileExistsButIsStillProcessing_ThenReturnProcessingErrorMessage()
+        public async Task WhenFileExistsButIsStillProcessing_ThenReturnProcessingErrorMessage()
         {
             var host = TestHost.Run<TestStartup>();
             var groupId = Guid.NewGuid();
@@ -61,21 +43,21 @@ namespace Pdf.Storage.Hangfire
                 mock.ExecuteActions = false;
             });
 
-            var newPdf = AddPdf(host, groupId);
+            var newPdf = (await host.AddPdf(groupId)).Single();
 
-            host.Get($"/v1/pdf/{groupId}/{newPdf.Id}.pdf")
+            await host.Get($"/v1/pdf/{groupId}/{newPdf.Id}.pdf")
                 .ExpectStatusCode(HttpStatusCode.NotFound)
                 .WithContentOf<string>()
                 .Passing(x => x.Should().Match("*PDF*generating*"));
         }
 
         [Fact]
-        public void WhenFileIsUploaded_ThenResponseTellsUsefullInformationAboutProcessing()
+        public async Task WhenFileIsUploaded_ThenResponseTellsUsefullInformationAboutProcessing()
         {
             var host = TestHost.Run<TestStartup>();
             var groupId = Guid.NewGuid();
 
-            var newPdf = AddPdf(host, groupId);
+            var newPdf = (await host.AddPdf(groupId)).Single();
 
             newPdf.PdfUri.Should().Be($"http://localhost:5000/v1/pdf/{groupId}/{newPdf.Id}.pdf");
             newPdf.Id.Should().Be(newPdf.Id);
@@ -84,12 +66,12 @@ namespace Pdf.Storage.Hangfire
         }
 
         [Fact]
-        public void WhenMultiplePdfsAreCreated_ThenTheyShouldBeAvailable()
+        public async Task WhenMultiplePdfsAreCreated_ThenTheyShouldBeAvailable()
         {
             var host = TestHost.Run<TestStartup>();
             var groupId = Guid.NewGuid();
 
-            var newPdf = AddPdf(host, groupId);
+            var newPdf = (await host.AddPdf(groupId)).Single();
 
             newPdf.PdfUri.Should().Be($"http://localhost:5000/v1/pdf/{groupId}/{newPdf.Id}.pdf");
             newPdf.Id.Should().Be(newPdf.Id);
@@ -97,46 +79,47 @@ namespace Pdf.Storage.Hangfire
         }
 
         [Fact]
-        public void WhenPdfIsUploaded_ThenItCanBeDownloaded()
+        public async Task WhenPdfIsUploaded_ThenItCanBeDownloaded()
         {
             var host = TestHost.Run<TestStartup>();
             var groupId = Guid.NewGuid();
 
-            var newPdf = AddPdf(host, groupId);
+            var newPdf = await host.AddPdf(groupId);
 
-            host.Get(newPdf.PdfUri)
+            await host.Get(newPdf.Single().PdfUri)
                 .WithContentOf<byte[]>()
                 .Passing(x => x.Length.Should().BeGreaterThan(1));
         }
 
         [Fact]
-        public void WhenPdfIsRemoved_ThenItShouldBeNoMoreAvailableAndPageGivesMeaningfullErrorMessage()
+        public async Task WhenPdfIsRemoved_ThenItShouldBeNoMoreAvailableAndPageGivesMeaningfullErrorMessage()
         {
             var host = TestHost.Run<TestStartup>();
             var groupId = Guid.NewGuid();
 
-            var pdfForRemoval = AddPdf(host, groupId);
+            var pdfForRemoval = (await host.AddPdf(groupId)).Single();
 
-            host.Delete(pdfForRemoval.PdfUri)
+            await host.Delete(pdfForRemoval.PdfUri)
                 .ExpectStatusCode(HttpStatusCode.OK);
 
-            host.Get(pdfForRemoval.PdfUri)
+            await host.Get(pdfForRemoval.PdfUri)
                 .ExpectStatusCode(HttpStatusCode.NotFound)
                 .WithContentOf<string>()
                 .Passing(body => body.Should().Match("*PDF*removed*"));
         }
 
         [Fact]
-        public void WhenPdfIsRemovedMultipleTimes_ThenItShouldReturnSameResultEachTime()
+        public async Task WhenPdfIsRemovedMultipleTimes_ThenItShouldReturnSameResultEachTime()
         {
             var host = TestHost.Run<TestStartup>();
             var groupId = Guid.NewGuid();
 
-            var pdfForRemoval = AddPdf(host, groupId);
+            var pdfForRemoval = (await host.AddPdf(groupId)).Single();
 
-            host.Delete(pdfForRemoval.PdfUri)
+            await host.Delete(pdfForRemoval.PdfUri)
                 .ExpectStatusCode(HttpStatusCode.OK);
-            host.Delete(pdfForRemoval.PdfUri)
+
+            await host.Delete(pdfForRemoval.PdfUri)
                 .ExpectStatusCode(HttpStatusCode.OK);
         }
     }
