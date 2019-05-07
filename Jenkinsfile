@@ -11,7 +11,8 @@ podTemplate(label: pod.label,
       stage('Checkout') {
          checkout scm
       }
-      stage('Build') {
+      stage('SettingUpDepencies')
+      {
         container('dotnet') {
           sh """
             apt-get update
@@ -21,7 +22,12 @@ podTemplate(label: pod.label,
 
             apt-get -y install  nodejs
             npm install
-
+          """
+        }
+      }
+      stage('Build') {
+        container('dotnet') {
+          sh """
             dotnet restore
             dotnet publish -c Release -o out
           """
