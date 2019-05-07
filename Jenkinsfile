@@ -17,7 +17,7 @@ podTemplate(label: pod.label,
           sh """
             apt-get update
 
-            apt-get install curl software-properties-common pdftk
+            apt-get install -y curl software-properties-common pdftk
             curl -sL https://deb.nodesource.com/setup_10.x -o nodesource_setup.sh
 
             apt-get -y install  nodejs
