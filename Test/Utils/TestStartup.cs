@@ -59,10 +59,8 @@ namespace Pdf.Storage.Hangfire
             services.Configure<AppSettings>(a => a.BaseUrl = "http://localhost:5000");
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app)
         {
-            loggerFactory.AddConsole();
-            loggerFactory.AddDebug();
             app.UseAuthentication();
             app.UseMvc();
         }
