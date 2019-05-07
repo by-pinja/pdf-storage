@@ -17,7 +17,9 @@ namespace Pdf.Storage.Utils.Test
                         Html = "<body> {{ TEXT }} </body>",
                         BaseData = new {},
                         RowData = new object[] {
-                            new {}}
+                            new {
+                                Key = "keyHere"
+                            }}
                     }
                 ).ExpectStatusCode(HttpStatusCode.Accepted)
                 .WithContentOf<NewPdfResponse[]>()
