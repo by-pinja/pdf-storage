@@ -56,7 +56,7 @@ namespace Pdf.Storage.Pdf
 
             return CreateProcess(
                 workingDir: tempPath,
-                fileName: "chromium",
+                fileName: "/usr/bin/chromium-browser",
                 arguments: args);
         }
 
