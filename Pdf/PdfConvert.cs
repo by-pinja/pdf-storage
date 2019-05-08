@@ -22,11 +22,19 @@ namespace Pdf.Storage.Pdf
         {
             var tempDir = ResolveTemporaryDirectory();
 
-            File.WriteAllText(Path.Combine(tempDir, "source.html"), html);
+            try
+            {
+                File.WriteAllText(Path.Combine(tempDir, "source.html"), html);
 
-            var data = GeneratePdf(tempDir);
+                var data = GeneratePdf(tempDir);
 
-            return (data, html);
+                return (data, html);
+            }
+            finally
+            {
+                _logger.LogInformation($"Removing temporary folder: {tempDir}");
+                Directory.Delete(tempDir, true);
+            }
         }
 
         private byte[] GeneratePdf(string tempPath)

@@ -97,8 +97,8 @@ namespace Pdf.Storage.PdfMerge
 
             return CreateProcess(
                 workingDir: tempPath,
-                fileName: "/bin/bash",
-                arguments: "-c \"/usr/bin/pdftk" + tempFiles.Aggregate("", (a, b) => a + " " + b) + $" cat output {tempPath}/concat.pdf\"");
+                fileName: "pdftk",
+                arguments: tempFiles.Aggregate("", (a, b) => a + " " + b) + $" cat output {tempPath}/concat.pdf");
         }
 
         private Process CreateProcess(string workingDir, string fileName, string arguments)
