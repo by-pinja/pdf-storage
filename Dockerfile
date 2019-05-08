@@ -5,8 +5,6 @@ RUN apk add --no-cache chromium pdftk
 WORKDIR /app
 COPY out .
 
-ENV ASPNETCORE_ENVIRONMENT=Development
-
 EXPOSE 5000
 
 ENTRYPOINT ["dotnet", "Pdf.Storage.dll"]
