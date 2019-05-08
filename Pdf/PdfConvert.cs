@@ -58,13 +58,13 @@ namespace Pdf.Storage.Pdf
             {
                 return CreateProcess(
                     workingDir: tempPath,
-                    fileName: "chrome",
+                    fileName: @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
                     arguments: args);
             }
 
             return CreateProcess(
                 workingDir: tempPath,
-                fileName: "/usr/bin/chromium-browser",
+                fileName: "chromium-browser",
                 arguments: args);
         }
 
