@@ -8,13 +8,11 @@ namespace Pdf.Storage.Hangfire
     {
         public void OnStateApplied(ApplyStateContext context, IWriteOnlyTransaction transaction)
         {
-            var enqueuedState = context.NewState as EnqueuedState;
-
             // Activating only when enqueueing a background job
-            if (enqueuedState != null)
+            if (context.NewState is EnqueuedState enqueuedState)
             {
                 // Checking if an original queue is already set
-                var originalQueue = JobHelper.FromJson<string>(context.Connection.GetJobParameter(
+                var originalQueue = SerializationHelper.Deserialize<string>(context.Connection.GetJobParameter(
                     context.BackgroundJob.Id,
                     "OriginalQueue"));
 
@@ -29,7 +27,7 @@ namespace Pdf.Storage.Hangfire
                     context.Connection.SetJobParameter(
                         context.BackgroundJob.Id,
                         "OriginalQueue",
-                        JobHelper.ToJson(enqueuedState.Queue));
+                        SerializationHelper.Serialize(enqueuedState.Queue));
                 }
             }
         }

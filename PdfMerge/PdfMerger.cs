@@ -77,7 +77,7 @@ namespace Pdf.Storage.PdfMerge
             var p = GetCorrectProcessForSystem(tempPath, tempFiles);
 
             p.Start();
-            p.WaitForExit();
+            p.WaitForExit(60 * 1000);
 
             _logger.LogInformation("StdOut: " + p.StandardOutput.ReadToEnd());
             _logger.LogInformation("StdError: " + p.StandardError.ReadToEnd());
@@ -90,15 +90,15 @@ namespace Pdf.Storage.PdfMerge
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return CreateProcess(
-                    workingDir: tempPath, 
-                    fileName: $@"{_env.ContentRootPath}\PdfMerge\PdfTkForWin\pdftk.exe", 
+                    workingDir: tempPath,
+                    fileName: $@"{_env.ContentRootPath}\PdfMerge\PdfTkForWin\pdftk.exe",
                     arguments: tempFiles.Aggregate("", (a, b) => a + " " + b) + " cat output concat.pdf");
             }
 
             return CreateProcess(
                 workingDir: tempPath,
-                fileName: "/bin/bash",
-                arguments: "-c \"/usr/bin/pdftk" + tempFiles.Aggregate("", (a, b) => a + " " + b) + $" cat output {tempPath}/concat.pdf\"");
+                fileName: "pdftk",
+                arguments: tempFiles.Aggregate("", (a, b) => a + " " + b) + $" cat output {tempPath}/concat.pdf");
         }
 
         private Process CreateProcess(string workingDir, string fileName, string arguments)
