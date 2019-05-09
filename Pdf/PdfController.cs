@@ -134,7 +134,7 @@ namespace Pdf.Storage.Pdf
             return Ok();
         }
 
-        [HttpDelete("/v1/pdf/{groupId}/{pdfId}.pdf")]
+        [HttpDelete("/v1/pdf/{groupId}/{pdfId}.{_}")]
         public IActionResult RemoveSinglePdf(string groupId, string pdfId)
         {
             if (!RemovePdf(groupId, pdfId))
@@ -174,6 +174,7 @@ namespace Pdf.Storage.Pdf
             // binaries on its background jobs and deleting them during those routines creates complicated scenarios.
             // To avoid that scenario this delay is added, this makes pretty sure that all pdfs are generated before delete.
             _backgroundJobs.Schedule<IStorage>(storage => storage.Remove(new StorageFileId(pdfEntity, "pdf")), TimeSpan.FromDays(1));
+            _backgroundJobs.Schedule<IStorage>(storage => storage.Remove(new StorageFileId(pdfEntity, "html")), TimeSpan.FromDays(1));
 
             pdfEntity.Removed = true;
             _context.SaveChanges();

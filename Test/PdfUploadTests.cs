@@ -128,6 +128,28 @@ namespace Pdf.Storage.Hangfire
         }
 
         [Fact]
+        public async Task WhenPdfIsRemovedViaHtmlUri_ThenItShouldBeNoMoreAvailableAndPageGivesMeaningfullErrorMessage()
+        {
+            var host = TestHost.Run<TestStartup>();
+            var groupId = Guid.NewGuid();
+
+            var pdfForRemoval = (await host.AddPdf(groupId)).Single();
+
+            await host.Delete(pdfForRemoval.HtmlUri)
+                .ExpectStatusCode(HttpStatusCode.OK);
+
+            await host.Get(pdfForRemoval.PdfUri)
+                .ExpectStatusCode(HttpStatusCode.NotFound)
+                .WithContentOf<string>()
+                .Passing(body => body.Should().Match("*PDF*removed*"));
+
+            await host.Get(pdfForRemoval.HtmlUri)
+                .ExpectStatusCode(HttpStatusCode.NotFound)
+                .WithContentOf<string>()
+                .Passing(body => body.Should().Match("*PDF*removed*"));
+        }
+
+        [Fact]
         public async Task WhenPdfIsRemovedMultipleTimes_ThenItShouldReturnSameResultEachTime()
         {
             var host = TestHost.Run<TestStartup>();
