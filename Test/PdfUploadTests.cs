@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Hangfire.SqlServer;
@@ -49,6 +50,11 @@ namespace Pdf.Storage.Hangfire
                 .ExpectStatusCode(HttpStatusCode.NotFound)
                 .WithContentOf<string>()
                 .Passing(x => x.Should().Match("*PDF*generating*"));
+
+            await host.Get($"/v1/pdf/{groupId}/{newPdf.Id}.html")
+                .ExpectStatusCode(HttpStatusCode.NotFound)
+                .WithContentOf<string>()
+                .Passing(x => x.Should().Match("*PDF*generating*"));
         }
 
         [Fact]
@@ -60,7 +66,7 @@ namespace Pdf.Storage.Hangfire
             var newPdf = (await host.AddPdf(groupId)).Single();
 
             newPdf.PdfUri.Should().Be($"http://localhost:5000/v1/pdf/{groupId}/{newPdf.Id}.pdf");
-            newPdf.Id.Should().Be(newPdf.Id);
+            newPdf.HtmlUri.Should().Be($"http://localhost:5000/v1/pdf/{groupId}/{newPdf.Id}.html");
             newPdf.GroupId.Should().Be(groupId.ToString());
             ((JObject)newPdf.Data)["Key"].Value<string>().Should().Be("keyHere");
         }
@@ -71,11 +77,17 @@ namespace Pdf.Storage.Hangfire
             var host = TestHost.Run<TestStartup>();
             var groupId = Guid.NewGuid();
 
-            var newPdf = (await host.AddPdf(groupId)).Single();
+            var newPdfs = (await host.AddPdf(groupId, amountOfDataRows: 10));
 
-            newPdf.PdfUri.Should().Be($"http://localhost:5000/v1/pdf/{groupId}/{newPdf.Id}.pdf");
-            newPdf.Id.Should().Be(newPdf.Id);
-            newPdf.GroupId.Should().Be(groupId.ToString());
+            newPdfs.Should().HaveCount(10);
+
+            var firstNewPdf = newPdfs[0];
+            firstNewPdf.PdfUri.Should().Be($"http://localhost:5000/v1/pdf/{groupId}/{firstNewPdf.Id}.pdf");
+            firstNewPdf.HtmlUri.Should().Be($"http://localhost:5000/v1/pdf/{groupId}/{firstNewPdf.Id}.html");
+            firstNewPdf.GroupId.Should().Be(groupId.ToString());
+
+            var secondNewPdf = newPdfs.First();
+            secondNewPdf.PdfUri.Should().Be($"http://localhost:5000/v1/pdf/{groupId}/{secondNewPdf.Id}.pdf");
         }
 
         [Fact]
@@ -89,6 +101,13 @@ namespace Pdf.Storage.Hangfire
             await host.Get(newPdf.Single().PdfUri)
                 .WithContentOf<byte[]>()
                 .Passing(x => x.Length.Should().BeGreaterThan(1));
+
+            await host.Get(newPdf.Single().HtmlUri)
+                .WithContentOf<string>()
+                .Passing(x =>
+                {
+                    x.Should().Match("*key_for_row_0*");
+                });
         }
 
         [Fact]

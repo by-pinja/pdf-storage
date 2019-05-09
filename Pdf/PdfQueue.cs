@@ -34,7 +34,7 @@ namespace Pdf.Storage.Pdf
             var (data, html) = _pdfConverter.CreatePdfFromHtml(rawData.Html, JObject.Parse(rawData.TemplateData), JObject.Parse(rawData.Options));
 
             _storage.AddOrReplace(new StorageData(new StorageFileId(entity), data));
-            _storage.AddOrReplace(new StorageData(new StorageFileId(entity, "html"), Encoding.Unicode.GetBytes(html)));
+            _storage.AddOrReplace(new StorageData(new StorageFileId(entity, "html"), Encoding.Default.GetBytes(html)));
 
             entity.Processed = true;
 
