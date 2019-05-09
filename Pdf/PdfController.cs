@@ -11,6 +11,7 @@ using Pdf.Storage.Hangfire;
 using Pdf.Storage.Mq;
 using Pdf.Storage.Pdf.CustomPages;
 using Pdf.Storage.Pdf.Dto;
+using Pdf.Storage.Pdf.PdfStores;
 using Pdf.Storage.Util;
 
 namespace Pdf.Storage.Pdf
@@ -97,7 +98,7 @@ namespace Pdf.Storage.Pdf
                 return _errorPages.PdfIsStillProcessingResponse();
             }
 
-            var pdf = _pdfStorage.GetPdf(pdfEntity.GroupId, pdfEntity.FileId);
+            var pdf = _pdfStorage.Get(new StorageFileId(pdfEntity));
 
             if (!noCount)
             {
@@ -166,7 +167,7 @@ namespace Pdf.Storage.Pdf
             // This delay solves folloing problem, if pdfs are added, merged and then removed instantly, merge requires these
             // binaries on its background jobs and deleting them during those routines creates complicated scenarios.
             // To avoid that scenario this delay is added, this makes pretty sure that all pdfs are generated before delete.
-            _backgroundJobs.Schedule<IStorage>(storage => storage.RemovePdf(groupId, pdfId), TimeSpan.FromDays(1));
+            _backgroundJobs.Schedule<IStorage>(storage => storage.Remove(new StorageFileId(pdfEntity)), TimeSpan.FromDays(1));
 
             pdfEntity.Removed = true;
             _context.SaveChanges();

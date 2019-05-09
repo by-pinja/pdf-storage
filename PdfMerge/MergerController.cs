@@ -9,6 +9,7 @@ using Pdf.Storage.Data;
 using Pdf.Storage.Hangfire;
 using Pdf.Storage.Mq;
 using Pdf.Storage.Pdf;
+using Pdf.Storage.Pdf.PdfStores;
 
 namespace Pdf.Storage.PdfMerge
 {
@@ -35,7 +36,7 @@ namespace Pdf.Storage.PdfMerge
         }
 
         [HttpPost("v1/merge/{groupId}/")]
-        public IActionResult MergePdfs(string groupId, [Required][FromBody] PdfMergeRequest request)
+        public ActionResult<MergeResponse> MergePdfs(string groupId, [Required][FromBody] PdfMergeRequest request)
         {
             if (request.PdfIds.Length < 1)
                 return BadRequest("Attleast one pdf must be defined, current length 0");
@@ -80,7 +81,7 @@ namespace Pdf.Storage.PdfMerge
 
             _context.SaveChanges();
 
-            mergeEntity.HangfireJobId = _backgroundJob.EnqueueWithHighPriority<IPdfMerger>(merger => merger.MergePdf(mergeEntity.GroupId, mergeEntity.FileId, request.PdfIds));
+            mergeEntity.HangfireJobId = _backgroundJob.EnqueueWithHighPriority<IPdfMerger>(merger => merger.MergePdf(new StorageFileId(mergeEntity), request.PdfIds));
             _context.SaveChanges();
 
             return Accepted(new MergeResponse(mergeEntity.FileId, filePath));

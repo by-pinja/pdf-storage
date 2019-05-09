@@ -1,16 +1,16 @@
-﻿namespace Pdf.Storage.Pdf
+﻿using Pdf.Storage.Pdf.PdfStores;
+
+namespace Pdf.Storage.Pdf
 {
-    public class StoredPdf
+    public class StorageData
     {
-        public string Group { get; }
-        public string Id { get; }
+        public StorageFileId StorageFileId { get; }
         public byte[] Data { get; }
 
-        public StoredPdf(string group, string id, byte[] data)
+        public StorageData(StorageFileId storageFileId, byte[] data)
         {
-            Group = @group;
-            Id = id;
             Data = data;
+            StorageFileId = storageFileId;
         }
     }
 }

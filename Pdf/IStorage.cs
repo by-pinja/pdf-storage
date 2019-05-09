@@ -1,9 +1,11 @@
-﻿namespace Pdf.Storage.Pdf
+﻿using Pdf.Storage.Pdf.PdfStores;
+
+namespace Pdf.Storage.Pdf
 {
     public interface IStorage
     {
-        void AddOrReplacePdf(StoredPdf pdf);
-        void RemovePdf(string groupId, string pdfId);
-        StoredPdf GetPdf(string groupId, string pdfId);
+        void AddOrReplace(StorageData pdf);
+        void Remove(StorageFileId storageFileId);
+        StorageData Get(StorageFileId storageFileId);
     }
 }

@@ -5,6 +5,7 @@ using Google.Apis.Storage.v1;
 using Google.Cloud.Storage.V1;
 using Microsoft.Extensions.Options;
 using Pdf.Storage.Hangfire;
+using Pdf.Storage.Pdf.PdfStores;
 
 namespace Pdf.Storage.Pdf
 {
@@ -26,30 +27,30 @@ namespace Pdf.Storage.Pdf
 
         private readonly StorageClient _storageClient;
 
-        private string GetObjectName(string groupId, string fileId)
+        public void AddOrReplace(StorageData storageData)
         {
-            return $"{groupId}_{fileId}.pdf";
-        }
-
-        public void AddOrReplacePdf(StoredPdf pdf)
-        {
-            using (Stream stream = new MemoryStream(pdf.Data))
+            using (Stream stream = new MemoryStream(storageData.Data))
             {
-                _storageClient.UploadObject(_settings.GoogleBucketName, GetObjectName(pdf.Group, pdf.Id),
+                _storageClient.UploadObject(_settings.GoogleBucketName, GetObjectName(storageData.StorageFileId),
                     "application/pdf", stream, null, null);
             }
         }
 
-        public StoredPdf GetPdf(string groupId, string pdfId)
+        public StorageData Get(StorageFileId storageFileId)
         {
             var pdfBytes = new MemoryStream();
-            _storageClient.DownloadObject(_settings.GoogleBucketName, GetObjectName(groupId, pdfId), pdfBytes, null, null);
-            return new StoredPdf(groupId, pdfId, pdfBytes.ToArray());
+            _storageClient.DownloadObject(_settings.GoogleBucketName, GetObjectName(storageFileId), pdfBytes, null, null);
+            return new StorageData(storageFileId, pdfBytes.ToArray());
         }
 
-        public void RemovePdf(string groupId, string pdfId)
+        public void Remove(StorageFileId storageFileId)
         {
-            _storageClient.DeleteObject(_settings.GoogleBucketName, GetObjectName(groupId, pdfId));
+            _storageClient.DeleteObject(_settings.GoogleBucketName, GetObjectName(storageFileId));
+        }
+
+        private static string GetObjectName(StorageFileId storageFileId)
+        {
+            return $"{storageFileId.Group}_{storageFileId.Id}.{storageFileId.Extension}";
         }
     }
 }
