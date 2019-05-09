@@ -85,13 +85,5 @@ namespace Pdf.Storage.PdfMerge
 
             return Accepted(new MergeResponse(mergeEntity.FileId, filePath));
         }
-
-        private IEnumerable<string> MissingPdfFiles(string[] pdfIds, string groupId)
-        {
-            return _context.PdfFiles
-                .Where(x => x.GroupId == groupId && !x.Removed)
-                .Where(x => !pdfIds.Any(id => x.FileId == id))
-                .Select(x => x.FileId);
-        }
     }
 }

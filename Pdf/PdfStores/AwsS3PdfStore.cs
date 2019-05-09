@@ -12,8 +12,7 @@ namespace Pdf.Storage.Pdf
     public class AwsS3PdfStore : IPdfStorage
     {
         private readonly IAmazonS3 s3Client;
-        private string bucketName;
-        private static readonly RegionEndpoint bucketRegion = RegionEndpoint.EUCentral1;
+        private readonly string bucketName;
 
         public AwsS3PdfStore(IOptions<AwsS3Config> options)
         {
