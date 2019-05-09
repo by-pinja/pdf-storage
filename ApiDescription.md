@@ -8,7 +8,7 @@ Generates PDF files from given html template and stores them in constant URI.
   many PDFs without sending same template content multiple times -> just data.
 - Merging pdfs
 - Usage information: how many times pdf is opened and so on.
-- Designed to survive
+- Designed to handle very large batches of PDF:s.
 
 ## Templating
 
