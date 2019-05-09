@@ -11,6 +11,7 @@
         }
 
         public string PdfUri { get; }
+        public string HtmlUri { get; }
         public string Id { get; }
         public string GroupId { get; }
         public object Data { get; }

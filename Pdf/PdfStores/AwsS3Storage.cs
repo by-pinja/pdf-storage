@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using Amazon;
@@ -9,12 +9,12 @@ using Pdf.Storage.Config;
 
 namespace Pdf.Storage.Pdf
 {
-    public class AwsS3PdfStore : IPdfStorage
+    public class AwsS3Storage : IStorage
     {
         private readonly IAmazonS3 s3Client;
         private readonly string bucketName;
 
-        public AwsS3PdfStore(IOptions<AwsS3Config> options)
+        public AwsS3Storage(IOptions<AwsS3Config> options)
         {
             var region = RegionEndpoint.EnumerableAllRegions
                 .ToList()

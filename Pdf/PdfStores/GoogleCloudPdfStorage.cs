@@ -8,7 +8,7 @@ using Pdf.Storage.Hangfire;
 
 namespace Pdf.Storage.Pdf
 {
-    public class GoogleCloudPdfStorage : IPdfStorage
+    public class GoogleCloudPdfStorage : IStorage
     {
         private readonly AppSettings _settings;
 

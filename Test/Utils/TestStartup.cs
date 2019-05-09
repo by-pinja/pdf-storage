@@ -54,7 +54,7 @@ namespace Pdf.Storage.Hangfire
             var dbId = Guid.NewGuid().ToString();
             services.AddDbContext<PdfDataContext>(opt => opt.UseInMemoryDatabase(dbId));
 
-            services.AddSingleton<IPdfStorage, InMemoryPdfStorage>();
+            services.AddSingleton<IStorage, InMemoryPdfStorage>();
 
             services.AddTransient<IPdfMerger, PdfMerger>();
 

@@ -18,11 +18,11 @@ namespace Pdf.Storage.PdfMerge
     public class PdfMerger : IPdfMerger
     {
         private readonly IHostingEnvironment _env;
-        private readonly IPdfStorage _pdfStorage;
+        private readonly IStorage _pdfStorage;
         private readonly PdfDataContext _context;
         private readonly ILogger<PdfMerger> _logger;
 
-        public PdfMerger(IHostingEnvironment env, IPdfStorage pdfStorage, PdfDataContext context, ILogger<PdfMerger> logger)
+        public PdfMerger(IHostingEnvironment env, IStorage pdfStorage, PdfDataContext context, ILogger<PdfMerger> logger)
         {
             _env = env;
             _pdfStorage = pdfStorage;

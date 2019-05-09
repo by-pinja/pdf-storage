@@ -1,6 +1,6 @@
 ﻿namespace Pdf.Storage.Pdf
 {
-    public interface IPdfStorage
+    public interface IStorage
     {
         void AddOrReplacePdf(StoredPdf pdf);
         void RemovePdf(string groupId, string pdfId);

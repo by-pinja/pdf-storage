@@ -12,14 +12,14 @@ namespace Pdf.Storage.Pdf
     public class PdfQueue : IPdfQueue
     {
         private readonly PdfDataContext _context;
-        private readonly IPdfStorage _pdfStorage;
+        private readonly IStorage _pdfStorage;
         private readonly IPdfConvert _pdfConverter;
         private readonly IMqMessages _mqMessages;
 
-        public PdfQueue(PdfDataContext context, IPdfStorage pdfStorage, IPdfConvert pdfConverter, IMqMessages mqMessages)
+        public PdfQueue(PdfDataContext context, IStorage storage, IPdfConvert pdfConverter, IMqMessages mqMessages)
         {
             _context = context;
-            _pdfStorage = pdfStorage;
+            _pdfStorage = storage;
             _pdfConverter = pdfConverter;
             _mqMessages = mqMessages;
         }

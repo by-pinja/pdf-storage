@@ -19,5 +19,10 @@ namespace Pdf.Storage.Util
         {
             return $"{_settings.Value.BaseUrl}/v1/pdf/{groupId}/{pdfFileId}.pdf";
         }
+
+        public string HtmlUri(string groupId, string pdfFileId)
+        {
+            return $"{_settings.Value.BaseUrl}/v1/pdf/{groupId}/{pdfFileId}.html";
+        }
     }
 }

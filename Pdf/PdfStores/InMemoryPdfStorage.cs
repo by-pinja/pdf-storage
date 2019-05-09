@@ -3,7 +3,7 @@ using Pdf.Storage.Pdf;
 
 namespace Pdf.Storage.Hangfire
 {
-    public class InMemoryPdfStorage : IPdfStorage
+    public class InMemoryPdfStorage : IStorage
     {
         private readonly Dictionary<string, StoredPdf> _localStore = new Dictionary<string, StoredPdf>();
 

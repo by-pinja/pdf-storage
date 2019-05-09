@@ -18,7 +18,7 @@ namespace Pdf.Storage.Pdf
     public class PdfController : Controller
     {
         private readonly PdfDataContext _context;
-        private readonly IPdfStorage _pdfStorage;
+        private readonly IStorage _pdfStorage;
         private readonly Uris _uris;
         private readonly IHangfireQueue _backgroundJobs;
         private readonly IErrorPages _errorPages;
@@ -26,7 +26,7 @@ namespace Pdf.Storage.Pdf
 
         public PdfController(
             PdfDataContext context,
-            IPdfStorage pdfStorage,
+            IStorage pdfStorage,
             Uris uris,
             IHangfireQueue backgroundJob,
             IErrorPages errorPages,
@@ -42,7 +42,7 @@ namespace Pdf.Storage.Pdf
 
         [Authorize(AuthenticationSchemes = "ApiKey")]
         [HttpPost("/v1/pdf/{groupId}/")]
-        public IActionResult AddNewPdf([Required] string groupId, [FromBody] NewPdfRequest request)
+        public ActionResult<IEnumerable<NewPdfResponse>> AddNewPdf([Required] string groupId, [FromBody] NewPdfRequest request)
         {
             var responses = request.RowData.ToList().Select(row =>
             {
@@ -58,6 +58,7 @@ namespace Pdf.Storage.Pdf
 
                 entity.HangfireJobId =
                     _backgroundJobs.Enqueue<IPdfQueue>(que => que.CreatePdf(entity.Id));
+
                 _context.SaveChanges();
 
                 var pdfUri = _uris.PdfUri(groupId, entity.FileId);
@@ -165,7 +166,7 @@ namespace Pdf.Storage.Pdf
             // This delay solves folloing problem, if pdfs are added, merged and then removed instantly, merge requires these
             // binaries on its background jobs and deleting them during those routines creates complicated scenarios.
             // To avoid that scenario this delay is added, this makes pretty sure that all pdfs are generated before delete.
-            _backgroundJobs.Schedule<IPdfStorage>(storage => storage.RemovePdf(groupId, pdfId), TimeSpan.FromDays(1));
+            _backgroundJobs.Schedule<IStorage>(storage => storage.RemovePdf(groupId, pdfId), TimeSpan.FromDays(1));
 
             pdfEntity.Removed = true;
             _context.SaveChanges();

@@ -120,13 +120,13 @@ namespace Pdf.Storage
             {
                 case "awsS3":
                     services.Configure<AwsS3Config>(Configuration.GetSection("AwsS3"));
-                    services.AddSingleton<IPdfStorage, AwsS3PdfStore>();
+                    services.AddSingleton<IStorage, AwsS3Storage>();
                     break;
                 case "googleBucket":
-                    services.AddTransient<IPdfStorage, GoogleCloudPdfStorage>();
+                    services.AddTransient<IStorage, GoogleCloudPdfStorage>();
                     break;
                 case "inMemory":
-                    services.AddSingleton<IPdfStorage, InMemoryPdfStorage>();
+                    services.AddSingleton<IStorage, InMemoryPdfStorage>();
                     break;
                 default:
                     throw new InvalidOperationException($"Invalid configuration: PdfStorageType ({Configuration["PdfStorageType"]})");
