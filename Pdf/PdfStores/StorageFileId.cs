@@ -20,7 +20,7 @@ namespace Pdf.Storage.Pdf.PdfStores
             Extension = extension;
         }
 
-        public StorageFileId(PdfEntity pdfEntity) : this(pdfEntity.GroupId, pdfEntity.FileId, "pdf")
+        public StorageFileId(PdfEntity pdfEntity, string extension = "pdf") : this(pdfEntity.GroupId, pdfEntity.FileId, extension)
         {
         }
     }

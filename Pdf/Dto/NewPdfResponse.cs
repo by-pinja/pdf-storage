@@ -2,12 +2,13 @@
 {
     public class NewPdfResponse
     {
-        public NewPdfResponse(string id, string groupId, string pdfUri, object data)
+        public NewPdfResponse(string id, string groupId, string pdfUri, string htmlUri, object data)
         {
             Id = id;
             GroupId = groupId;
             PdfUri = pdfUri;
             Data = data;
+            HtmlUri = htmlUri;
         }
 
         public string PdfUri { get; }

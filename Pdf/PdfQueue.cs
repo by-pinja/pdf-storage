@@ -7,6 +7,7 @@ using Pdf.Storage.Mq;
 using Pdf.Storage.Hangfire;
 using Newtonsoft.Json.Linq;
 using Pdf.Storage.Pdf.PdfStores;
+using System.Text;
 
 namespace Pdf.Storage.Pdf
 {
@@ -33,6 +34,7 @@ namespace Pdf.Storage.Pdf
             var (data, html) = _pdfConverter.CreatePdfFromHtml(rawData.Html, JObject.Parse(rawData.TemplateData), JObject.Parse(rawData.Options));
 
             _storage.AddOrReplace(new StorageData(new StorageFileId(entity), data));
+            _storage.AddOrReplace(new StorageData(new StorageFileId(entity, "html"), Encoding.Unicode.GetBytes(html)));
 
             entity.Processed = true;
 

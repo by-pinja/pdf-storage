@@ -63,16 +63,22 @@ namespace Pdf.Storage.Pdf
                 _context.SaveChanges();
 
                 var pdfUri = _uris.PdfUri(groupId, entity.FileId);
+                var htmlUri = _uris.HtmlUri(groupId, entity.FileId);
 
-                return new NewPdfResponse(entity.FileId, entity.GroupId, pdfUri, row);
+                return new NewPdfResponse(entity.FileId, entity.GroupId, pdfUri, htmlUri, row);
             });
 
             return StatusCode(202, responses.ToList());
         }
 
-        [HttpGet("/v1/pdf/{groupId}/{pdfId}.pdf")]
-        public IActionResult GetPdf(string groupId, string pdfId, [FromQuery] bool noCount)
+        [HttpGet("/v1/pdf/{groupId}/{pdfId}.{extension}")]
+        public IActionResult Get(string groupId, string pdfId, string extension, [FromQuery] bool noCount)
         {
+            if(extension != "html" && extension != "pdf")
+            {
+                return BadRequest("Only extensions 'pdf' and 'html' are supported.");
+            }
+
             var pdfEntity = _context.PdfFiles.SingleOrDefault(x => x.GroupId == groupId && x.FileId == pdfId);
 
             if (pdfEntity == null)
@@ -98,7 +104,7 @@ namespace Pdf.Storage.Pdf
                 return _errorPages.PdfIsStillProcessingResponse();
             }
 
-            var pdf = _pdfStorage.Get(new StorageFileId(pdfEntity));
+            var pdf = _pdfStorage.Get(new StorageFileId(groupId, pdfId, extension));
 
             if (!noCount)
             {
@@ -107,11 +113,11 @@ namespace Pdf.Storage.Pdf
                 _mqMessages.PdfOpened(groupId, pdfId);
             }
 
-            return new FileStreamResult(new MemoryStream(pdf.Data), "application/pdf");
+            return new FileStreamResult(new MemoryStream(pdf.Data), pdf.ContentType);
         }
 
-        [HttpHead("/v1/pdf/{groupId}/{pdfId}.pdf")]
-        public IActionResult GetPdfHead(string groupId, string pdfId)
+        [HttpHead("/v1/pdf/{groupId}/{pdfId}.{extension}")]
+        public IActionResult GetPdfHead(string groupId, string pdfId, string extension)
         {
             var pdfEntity = _context.PdfFiles.SingleOrDefault(x => x.GroupId == groupId && x.FileId == pdfId);
 
@@ -167,7 +173,7 @@ namespace Pdf.Storage.Pdf
             // This delay solves folloing problem, if pdfs are added, merged and then removed instantly, merge requires these
             // binaries on its background jobs and deleting them during those routines creates complicated scenarios.
             // To avoid that scenario this delay is added, this makes pretty sure that all pdfs are generated before delete.
-            _backgroundJobs.Schedule<IStorage>(storage => storage.Remove(new StorageFileId(pdfEntity)), TimeSpan.FromDays(1));
+            _backgroundJobs.Schedule<IStorage>(storage => storage.Remove(new StorageFileId(pdfEntity, "pdf")), TimeSpan.FromDays(1));
 
             pdfEntity.Removed = true;
             _context.SaveChanges();
