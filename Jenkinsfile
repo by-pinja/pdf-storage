@@ -2,8 +2,7 @@ library 'jenkins-ptcs-library@0.5.0'
 
 podTemplate(label: pod.label,
   containers: pod.templates + [
-    containerTemplate(name: 'dotnet', image: 'mcr.microsoft.com/dotnet/core/sdk:2.2', ttyEnabled: true, command: '/bin/sh -c', args: 'cat'),
-    containerTemplate(name: 'node', image: 'node:8.16.0-jessie', ttyEnabled: true, command: '/bin/sh -c', args: 'cat')
+    containerTemplate(name: 'dotnet', image: 'mcr.microsoft.com/dotnet/core/sdk:2.2.203-alpine3.8', ttyEnabled: true, command: '/bin/sh -c', args: 'cat'),
   ]
 ) {
     def project = 'pdf-storage'
@@ -13,15 +12,10 @@ podTemplate(label: pod.label,
          checkout scm
       }
       stage('Build') {
-        container('node') {
-          sh """
-            apt-get update
-            apt-get -y install pdftk
-            npm install
-          """
-        }
         container('dotnet') {
           sh """
+            apk add --no-cache chromium pdftk
+
             dotnet restore
             dotnet publish -c Release -o out
           """
