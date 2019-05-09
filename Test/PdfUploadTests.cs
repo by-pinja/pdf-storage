@@ -49,12 +49,12 @@ namespace Pdf.Storage.Hangfire
             await host.Get($"/v1/pdf/{groupId}/{newPdf.Id}.pdf")
                 .ExpectStatusCode(HttpStatusCode.NotFound)
                 .WithContentOf<string>()
-                .Passing(x => x.Should().Match("*PDF*generating*"));
+                .Passing(x => x.Should().Match("*generat*file*"));
 
             await host.Get($"/v1/pdf/{groupId}/{newPdf.Id}.html")
                 .ExpectStatusCode(HttpStatusCode.NotFound)
                 .WithContentOf<string>()
-                .Passing(x => x.Should().Match("*PDF*generating*"));
+                .Passing(x => x.Should().Match("*generat*file*"));
         }
 
         [Fact]
