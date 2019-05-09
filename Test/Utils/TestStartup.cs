@@ -1,10 +1,12 @@
 ﻿using System;
+using System.IO;
 using System.Linq.Expressions;
 using Hangfire;
 using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -39,11 +41,13 @@ namespace Pdf.Storage.Hangfire
             services.AddTransient<Uris>();
             services.AddTransient<IMqMessages, MqMessagesNullObject>();
 
-            services.AddSingleton<IHangfireQueue>(provider => {
+            services.AddSingleton<IHangfireQueue>(provider =>
+            {
                 return new HangfireMock(provider);
             });
 
-            services.AddSingleton<HangfireMock>(provider => {
+            services.AddSingleton<HangfireMock>(provider =>
+            {
                 return (HangfireMock)provider.GetService<IHangfireQueue>();
             });
 
@@ -54,7 +58,11 @@ namespace Pdf.Storage.Hangfire
 
             services.AddTransient<IPdfMerger, PdfMerger>();
 
-            services.Configure<AppSettings>(a => a.BaseUrl = "http://localhost:5000");
+            var configuration = new ConfigurationBuilder()
+                .AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json"))
+                .Build();
+
+            services.Configure<AppSettings>(configuration);
         }
 
         public void Configure(IApplicationBuilder app)
