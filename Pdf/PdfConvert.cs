@@ -6,16 +6,19 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Pdf.Storage.Pdf
 {
     public class PdfConvert : IPdfConvert
     {
         private readonly ILogger<PdfConvert> _logger;
+        private readonly IOptions<AppSettings> _settings;
 
-        public PdfConvert(ILogger<PdfConvert> logger)
+        public PdfConvert(ILogger<PdfConvert> logger, IOptions<AppSettings> settings)
         {
             _logger = logger;
+            _settings = settings;
         }
 
         public (byte[] data, string html) CreatePdfFromHtml(string html, object templateData, object options)
@@ -41,13 +44,21 @@ namespace Pdf.Storage.Pdf
         {
             var p = GetCorrectProcessForSystem(tempPath);
 
-            p.Start();
-            p.WaitForExit(30 * 1000);
+                p.Start();
 
-            _logger.LogInformation("StdOut: " + p.StandardOutput.ReadToEnd());
-            _logger.LogInformation("StdError: " + p.StandardError.ReadToEnd());
+                var processExitedNicely = p.WaitForExit(30 * 1000);
 
-            return File.ReadAllBytes(Path.Combine(tempPath, "output.pdf")).ToArray();
+                _logger.LogInformation("StdOut: " + p.StandardOutput.ReadToEnd());
+                _logger.LogInformation("StdError: " + p.StandardError.ReadToEnd());
+
+                if(!processExitedNicely)
+                {
+                    _logger.LogError($"Process {p.ProcessName} didn't exit nicely.");
+                    p.Kill();
+                    throw new InvalidOperationException("Failed to generate pdf.");
+                }
+
+                return File.ReadAllBytes(Path.Combine(tempPath, "output.pdf")).ToArray();
         }
 
         private Process GetCorrectProcessForSystem(string tempPath)
@@ -58,7 +69,8 @@ namespace Pdf.Storage.Pdf
             {
                 return CreateProcess(
                     workingDir: tempPath,
-                    fileName: @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+                    fileName: _settings.Value.WindowsChromePath
+                        ?? throw new InvalidOperationException("Chrome path for windows not set."),
                     arguments: args);
             }
 

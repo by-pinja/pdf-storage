@@ -6,5 +6,6 @@
         public string GoogleBucketName { get; set; }
         public string GoogleAuthFile { get; set; }
         public string AwsS3BucketName { get; set; }
+        public string WindowsChromePath { get; set; }
     }
 }
