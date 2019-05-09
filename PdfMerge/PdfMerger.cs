@@ -55,7 +55,7 @@ namespace Pdf.Storage.PdfMerge
                         $"Tried to merge files that are not ready, non ready pdf list is '{pdfEntities.Where(x => !x.Processed).Select(x => x.FileId).Aggregate("", (a, b) => $"{a}, {b}").Trim(',')}'");
 
                 var pdfs = pdfIds
-                    .Select(id => _pdfStorage.Get(storageIdForMergedPdf))
+                    .Select(id => _pdfStorage.Get(new StorageFileId(storageIdForMergedPdf.Group, id, "pdf")))
                     .Select(pdf => (tempFile: Path.Combine($@"{temp}", $"{pdf.StorageFileId.Id}.pdf"), data: pdf.Data)).ToList();
 
                 pdfs.ForEach(x => File.WriteAllBytes(x.tempFile, x.data));

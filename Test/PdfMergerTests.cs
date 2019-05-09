@@ -22,9 +22,9 @@ namespace Pdf.Storage.Hangfire
 
             var group = Guid.NewGuid();
 
-            var firstPdf = (await host.AddPdf(group)).Single();
+            var newPdf = (await host.AddPdf(group)).Single();
 
-            var response = await host.Post($"v1/merge/{group}", new PdfMergeRequest(firstPdf.Id))
+            var response = await host.Post($"v1/merge/{group}", new PdfMergeRequest(newPdf.Id))
                 .ExpectStatusCode(HttpStatusCode.Accepted)
                 .WithContentOf<MergeResponse>()
                 .Passing(x => x.PdfUri.Should().StartWith("http"))
@@ -42,14 +42,14 @@ namespace Pdf.Storage.Hangfire
             var host = TestHost.Run<TestStartup>();
 
             var group = Guid.NewGuid();
-            var firstPdf = (await host.AddPdf(group)).Single();
+            var newPdf = (await host.AddPdf(group)).Single();
 
-            await host.Post($"v1/merge/{group}", new PdfMergeRequest(firstPdf.Id))
+            await host.Post($"v1/merge/{group}", new PdfMergeRequest(newPdf.Id))
                 .ExpectStatusCode(HttpStatusCode.Accepted)
                 .WithContentOf<MergeResponse>()
                 .Select();
 
-            await host.Get($"/v1/usage/{group}/{firstPdf.Id}.pdf")
+            await host.Get($"/v1/usage/{group}/{newPdf.Id}.pdf")
                 .ExpectStatusCode(HttpStatusCode.OK)
                 .WithContentOf<PdfUsageCountResponse>()
                 .Passing(x =>
@@ -85,12 +85,12 @@ namespace Pdf.Storage.Hangfire
         {
             var host = TestHost.Run<TestStartup>();
             var group = Guid.NewGuid();
-            var firstPdf = (await host.AddPdf(group)).Single();
+            var newPdf = (await host.AddPdf(group)).Single();
 
-            await host.Delete(firstPdf.PdfUri)
+            await host.Delete(newPdf.PdfUri)
                 .ExpectStatusCode(HttpStatusCode.OK);
 
-            await host.Post($"v1/merge/{group}", new PdfMergeRequest(firstPdf.GroupId, firstPdf.Id))
+            await host.Post($"v1/merge/{group}", new PdfMergeRequest(newPdf.GroupId, newPdf.Id))
                 .ExpectStatusCode(HttpStatusCode.BadRequest);
         }
     }
