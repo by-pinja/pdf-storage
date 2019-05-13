@@ -7,6 +7,7 @@ namespace Pdf.Storage.Pdf.Dto
     {
         [Required]
         public string GroupId { get; set;}
+
         [Required]
         public string PdfId { get; set;}
     }

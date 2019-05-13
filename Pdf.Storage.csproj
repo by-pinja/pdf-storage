@@ -36,6 +36,8 @@
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.3.100.1" />
     <PackageReference Include="AWSSDK.S3" Version="3.3.100.1" />
     <PackageReference Include="Stubble.Core" Version="1.2.7" />
+    <PackageReference Include="Stubble.Extensions.JsonNet " Version="1.0.18" />
+    <PackageReference Include="BarcodeLib" Version="2.2.2" />
   </ItemGroup>
 
   <ItemGroup>

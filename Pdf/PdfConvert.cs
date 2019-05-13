@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json.Linq;
 
 namespace Pdf.Storage.Pdf
 {
@@ -21,7 +22,7 @@ namespace Pdf.Storage.Pdf
             _settings = settings;
         }
 
-        public (byte[] data, string html) CreatePdfFromHtml(string html, object templateData, object options)
+        public byte[] CreatePdfFromHtml(string html, JObject options)
         {
             var tempDir = ResolveTemporaryDirectory();
 
@@ -31,7 +32,7 @@ namespace Pdf.Storage.Pdf
 
                 var data = GeneratePdf(tempDir);
 
-                return (data, html);
+                return data;
             }
             finally
             {

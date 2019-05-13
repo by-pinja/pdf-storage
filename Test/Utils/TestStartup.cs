@@ -35,11 +35,12 @@ namespace Pdf.Storage.Hangfire
             services.AddAuthentication()
                 .AddDisabledApiKeyAuth();
 
-            services.AddTransient<IPdfConvert, PdfConvert>();
-            services.AddTransient<IPdfQueue, PdfQueue>();
-            services.AddTransient<IErrorPages, ErrorPages>();
-            services.AddTransient<Uris>();
+            services.AddCommonAppServices();
+
             services.AddTransient<IMqMessages, MqMessagesNullObject>();
+            services.AddSingleton<IStorage, InMemoryPdfStorage>();
+
+            services.AddSwaggerGenConfiguration();
 
             services.AddSingleton<IHangfireQueue>(provider =>
             {
@@ -54,10 +55,6 @@ namespace Pdf.Storage.Hangfire
             var dbId = Guid.NewGuid().ToString();
             services.AddDbContext<PdfDataContext>(opt => opt.UseInMemoryDatabase(dbId));
 
-            services.AddSingleton<IStorage, InMemoryPdfStorage>();
-
-            services.AddTransient<IPdfMerger, PdfMerger>();
-
             var configuration = new ConfigurationBuilder()
                 .AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json"))
                 .Build();
@@ -68,6 +65,7 @@ namespace Pdf.Storage.Hangfire
         public void Configure(IApplicationBuilder app)
         {
             app.UseAuthentication();
+            app.UseSwagger();
             app.UseMvc();
         }
     }

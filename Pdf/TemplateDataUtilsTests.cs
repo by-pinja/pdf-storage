@@ -10,16 +10,16 @@ namespace Pdf.Storage.Pdf
         [Fact]
         public void WhenTemplateIsMergedToRow_ThenOutputContainsBoth()
         {
-            var result = TemplateDataUtils.GetTemplateData(new {Prop1 = 1}, new {Prop2 = 2});
-            result.Single(x => x.Key == "Prop1").Value.Should().Be(1);
-            result.Single(x => x.Key == "Prop2").Value.Should().Be(2);
+            var result = TemplateDataUtils.MergeBaseTemplatingWithRows(JObject.FromObject(new {Prop1 = 1}), JObject.FromObject(new {Prop2 = 2}));
+            result["Prop1"].Value<int>().Should().Be(1);
+            result["Prop2"].Value<int>().Should().Be(2);
         }
 
         [Fact]
         public void WhenTemplateIsMergedToRowWithConflictingData_ThenOutputContainsRowData()
         {
-            var result = TemplateDataUtils.GetTemplateData(new { Prop1 = 1 }, new { Prop1 = 2 });
-            result.Single(x => x.Key == "Prop1").Value.Should().Be(2);
+            var result = TemplateDataUtils.MergeBaseTemplatingWithRows(JObject.FromObject(new { Prop1 = 1 }), JObject.FromObject(new { Prop1 = 2 }));
+            result["Prop1"].Value<int>().Should().Be(2);
         }
     }
 }

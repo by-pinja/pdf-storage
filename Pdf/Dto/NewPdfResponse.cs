@@ -1,8 +1,10 @@
-﻿namespace Pdf.Storage.Pdf.Dto
+﻿using Newtonsoft.Json.Linq;
+
+namespace Pdf.Storage.Pdf.Dto
 {
     public class NewPdfResponse
     {
-        public NewPdfResponse(string id, string groupId, string pdfUri, string htmlUri, object data)
+        public NewPdfResponse(string id, string groupId, string pdfUri, string htmlUri, JObject data)
         {
             Id = id;
             GroupId = groupId;
@@ -15,6 +17,6 @@
         public string HtmlUri { get; }
         public string Id { get; }
         public string GroupId { get; }
-        public object Data { get; }
+        public JObject Data { get; }
     }
 }
