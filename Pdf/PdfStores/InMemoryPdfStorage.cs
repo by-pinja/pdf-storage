@@ -1,34 +1,35 @@
 ﻿using System.Collections.Generic;
 using Pdf.Storage.Pdf;
+using Pdf.Storage.Pdf.PdfStores;
 
 namespace Pdf.Storage.Hangfire
 {
-    public class InMemoryPdfStorage : IPdfStorage
+    public class InMemoryPdfStorage : IStorage
     {
-        private readonly Dictionary<string, StoredPdf> _localStore = new Dictionary<string, StoredPdf>();
+        private readonly Dictionary<string, StorageData> _localStore = new Dictionary<string, StorageData>();
 
-        public void AddOrReplacePdf(StoredPdf pdf)
+        public void AddOrReplace(StorageData storageData)
         {
-            if (_localStore.ContainsKey(GetKey(pdf.Group, pdf.Id)))
-                _localStore.Remove(GetKey(pdf.Group, pdf.Id));
+            if (_localStore.ContainsKey(GetKey(storageData.StorageFileId)))
+                _localStore.Remove(GetKey(storageData.StorageFileId));
 
-            _localStore.Add(GetKey(pdf.Group, pdf.Id), pdf);
+            _localStore.Add(GetKey(storageData.StorageFileId), storageData);
         }
 
-        public StoredPdf GetPdf(string groupId, string pdfId)
+        public StorageData Get(StorageFileId storageFileId)
         {
-            return _localStore[GetKey(groupId, pdfId)];
+            return _localStore[GetKey(storageFileId)];
         }
 
-        public void RemovePdf(string groupId, string pdfId)
+        public void Remove(StorageFileId storageFileId)
         {
-            if (_localStore.ContainsKey(GetKey(groupId, pdfId)))
-                _localStore.Remove(GetKey(groupId, pdfId));
+            if (_localStore.ContainsKey(GetKey(storageFileId)))
+                _localStore.Remove(GetKey(storageFileId));
         }
 
-        private static string GetKey(string groupId, string pdfId)
+        private static string GetKey(StorageFileId storageFileId)
         {
-            return $"{groupId}_{pdfId}";
+            return $"{storageFileId.Group}_{storageFileId.Id}.{storageFileId.Extension}";
         }
     }
 }

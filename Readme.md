@@ -47,11 +47,11 @@ Or overwrite them with environment variables `Mock__Mq = "true"` etc.
 
 On linux (debian) set development, install pdftk and chromium.
 
-On windows chrome is required.
-
 ```bash
-sudo apt-get -y install pdftk
+sudo apt-get -y install pdftk chromium
 ```
+
+On windows chrome is required.
 
 ## Run local development database
 

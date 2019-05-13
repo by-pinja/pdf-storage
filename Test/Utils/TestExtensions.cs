@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.TestHost;
@@ -9,17 +10,18 @@ namespace Pdf.Storage.Utils.Test
 {
     public static class TestExtensions
     {
-        public static Task<NewPdfResponse[]> AddPdf(this TestServer host, Guid groupId)
+        public static Task<NewPdfResponse[]> AddPdf(this TestServer host, Guid groupId, int amountOfDataRows = 1)
         {
+            var data = Enumerable.Range(0, amountOfDataRows).Select(i => new {
+                Key = $"key_for_row_{i}"
+            }).ToArray();
+
             return host.Post($"/v1/pdf/{groupId}/",
                     new NewPdfRequest
                     {
                         Html = "<body> {{ TEXT }} </body>",
                         BaseData = new {},
-                        RowData = new object[] {
-                            new {
-                                Key = "keyHere"
-                            }}
+                        RowData = data
                     }
                 ).ExpectStatusCode(HttpStatusCode.Accepted)
                 .WithContentOf<NewPdfResponse[]>()
