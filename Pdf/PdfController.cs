@@ -19,7 +19,7 @@ namespace Pdf.Storage.Pdf
     public class PdfController : Controller
     {
         private readonly PdfDataContext _context;
-        private readonly IStorage _pdfStorage;
+        private readonly IStorage _storage;
         private readonly Uris _uris;
         private readonly IHangfireQueue _backgroundJobs;
         private readonly IErrorPages _errorPages;
@@ -34,7 +34,7 @@ namespace Pdf.Storage.Pdf
             IMqMessages mqMessages)
         {
             _context = context;
-            _pdfStorage = pdfStorage;
+            _storage = pdfStorage;
             _uris = uris;
             _backgroundJobs = backgroundJob;
             _errorPages = errorPages;
@@ -104,7 +104,7 @@ namespace Pdf.Storage.Pdf
                 return _errorPages.PdfIsStillProcessingResponse();
             }
 
-            var pdf = _pdfStorage.Get(new StorageFileId(groupId, pdfId, extension));
+            var pdf = _storage.Get(new StorageFileId(groupId, pdfId, extension));
 
             if (!noCount)
             {
@@ -117,7 +117,7 @@ namespace Pdf.Storage.Pdf
         }
 
         [HttpHead("/v1/pdf/{groupId}/{pdfId}.{extension}")]
-        public IActionResult GetPdfHead(string groupId, string pdfId, string extension)
+        public IActionResult GetPdfHead(string groupId, string pdfId)
         {
             var pdfEntity = _context.PdfFiles.SingleOrDefault(x => x.GroupId == groupId && x.FileId == pdfId);
 

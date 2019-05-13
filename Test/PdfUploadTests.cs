@@ -141,12 +141,12 @@ namespace Pdf.Storage.Hangfire
             await host.Get(pdfForRemoval.PdfUri)
                 .ExpectStatusCode(HttpStatusCode.NotFound)
                 .WithContentOf<string>()
-                .Passing(body => body.Should().Match("*PDF*removed*"));
+                .Passing(body => body.Should().Match("*file*removed*"));
 
             await host.Get(pdfForRemoval.HtmlUri)
                 .ExpectStatusCode(HttpStatusCode.NotFound)
                 .WithContentOf<string>()
-                .Passing(body => body.Should().Match("*PDF*removed*"));
+                .Passing(body => body.Should().Match("*file*removed*"));
         }
 
         [Fact]
