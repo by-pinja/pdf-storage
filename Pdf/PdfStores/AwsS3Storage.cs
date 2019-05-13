@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using Amazon;
@@ -6,16 +6,16 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.Extensions.Options;
 using Pdf.Storage.Config;
+using Pdf.Storage.Pdf.PdfStores;
 
 namespace Pdf.Storage.Pdf
 {
-    public class AwsS3PdfStore : IPdfStorage
+    public class AwsS3Storage : IStorage
     {
         private readonly IAmazonS3 s3Client;
-        private string bucketName;
-        private static readonly RegionEndpoint bucketRegion = RegionEndpoint.EUCentral1;
+        private readonly string bucketName;
 
-        public AwsS3PdfStore(IOptions<AwsS3Config> options)
+        public AwsS3Storage(IOptions<AwsS3Config> options)
         {
             var region = RegionEndpoint.EnumerableAllRegions
                 .ToList()
@@ -38,48 +38,48 @@ namespace Pdf.Storage.Pdf
             this.s3Client.EnsureBucketExistsAsync(bucketName);
         }
 
-        public void AddOrReplacePdf(StoredPdf pdf)
+        public void AddOrReplace(StorageData storageData)
         {
             var putRequest = new PutObjectRequest
             {
                 BucketName = bucketName,
-                Key = GetKey(pdf.Group, pdf.Id),
-                InputStream = new MemoryStream(pdf.Data)
+                Key = GetKey(storageData.StorageFileId),
+                InputStream = new MemoryStream(storageData.Data)
             };
 
             this.s3Client.PutObjectAsync(putRequest).Wait();
         }
 
-        public StoredPdf GetPdf(string groupId, string pdfId)
+        public StorageData Get(StorageFileId storageFileId)
         {
             GetObjectRequest request = new GetObjectRequest
             {
                 BucketName = bucketName,
-                Key = GetKey(groupId, pdfId)
+                Key = GetKey(storageFileId)
             };
             using (GetObjectResponse response = this.s3Client.GetObjectAsync(request).Result)
             using (Stream responseStream = response.ResponseStream)
             using (var memstream = new MemoryStream())
             {
                 response.ResponseStream.CopyTo(memstream);
-                return new StoredPdf(groupId, pdfId, memstream.ToArray());
+                return new StorageData(storageFileId, memstream.ToArray());
             }
         }
 
-        public void RemovePdf(string groupId, string pdfId)
+        public void Remove(StorageFileId storageFileId)
         {
             var deleteObjectRequest = new DeleteObjectRequest
             {
                 BucketName = bucketName,
-                Key = GetKey(groupId, pdfId)
+                Key = GetKey(storageFileId)
             };
 
             this.s3Client.DeleteObjectAsync(deleteObjectRequest).Wait();
         }
 
-        private string GetKey(string groupId, string pdfId)
+        private string GetKey(StorageFileId storageFileId)
         {
-            return $"{groupId}_{pdfId}";
+            return $"{storageFileId.Group}_{storageFileId.Id}_{storageFileId.Extension}";
         }
     }
 }
