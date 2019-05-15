@@ -23,6 +23,6 @@ else
         throw "MigrationName parameter is required when adding new migrations."
     }
 
-    #dotnet ef migrations add --context "NpSqlDataContextForMigrations" $MigrationName -o ./Migrations/NpSql/
+    dotnet ef migrations add --context "NpSqlDataContextForMigrations" $MigrationName -o ./Migrations/NpSql/
     dotnet ef migrations add --context "MsSqlDataContextForMigrations" $MigrationName -o ./Migrations/MsSql/
 }
