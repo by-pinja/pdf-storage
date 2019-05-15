@@ -11,7 +11,7 @@ using System;
 
 namespace Pdf.Storage.Migrations
 {
-    [DbContext(typeof(PdfDataContext))]
+    [DbContext(typeof(NpSqlDataContextForMigrations))]
     [Migration("20180116164959_DeleteApi")]
     partial class DeleteApi
     {

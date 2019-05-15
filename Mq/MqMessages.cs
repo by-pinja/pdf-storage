@@ -8,16 +8,16 @@ using RabbitMQ.Client;
 
 namespace Pdf.Storage.Mq
 {
-    public class MqMessages : IMqMessages
+    public class RabbitMqMessages : IMqMessages
     {
-        private readonly ILogger<MqMessages> _logger;
+        private readonly ILogger<RabbitMqMessages> _logger;
         private readonly Uris _uris;
-        private readonly MqConfig _mqConfig;
+        private readonly RabbitMqConfig _mqConfig;
         private const string Exhcange = "eventale.topic";
         private const string PdfOpenedKey = "pdf-storage.v1.opened";
         private const string PdfGeneratedKey = "pdf-storage.v1.generated";
 
-        public MqMessages(IOptions<MqConfig> mqConfig, ILogger<MqMessages> logger, Uris uris)
+        public RabbitMqMessages(IOptions<RabbitMqConfig> mqConfig, ILogger<RabbitMqMessages> logger, Uris uris)
         {
             _logger = logger;
             _uris = uris;
