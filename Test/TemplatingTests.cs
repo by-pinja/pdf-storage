@@ -67,7 +67,7 @@ namespace Pdf.Storage.Test
                     // It's possible that this test will cause false positive on depency update of libraries if image generation changes:
                     // if so manually validate image as correct one and update this test again to match expectations.
                     // This is here to alert possible error if something have changed for image generation.
-                    x.Should().Match("*<img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASIAAAB4CAYAAABW3P+TAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAABzySURB*\"/>*");
+                    x.Should().Match("*<img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUh*\"/>*");
                 });
         }
     }
