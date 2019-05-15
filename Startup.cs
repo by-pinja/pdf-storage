@@ -24,9 +24,6 @@ using Hangfire.PostgreSql;
 using Amazon.S3;
 using Pdf.Storage.Config;
 using Microsoft.OpenApi.Models;
-using Pdf.Storage.Pdf.Config;
-using Pdf.Storage.Pdf.PdfStores;
-using Pdf.Storage.Migrations;
 
 namespace Pdf.Storage
 {
@@ -44,7 +41,7 @@ namespace Pdf.Storage
             services.AddAuthentication()
                 .AddApiKeyAuth(options =>
                 {
-                    if (Configuration.GetChildren().All(x => x.Key != "ApiAuthentication"))
+                    if(Configuration.GetChildren().All(x => x.Key != "ApiAuthentication"))
                         throw new InvalidOperationException($"Expected 'ApiAuthentication' section.");
 
                     var keys = Configuration.GetSection("ApiAuthentication:Keys")
@@ -67,83 +64,58 @@ namespace Pdf.Storage
 
             services.AddSwaggerGenConfiguration();
 
-            services.Configure<CommonConfig>(Configuration);
+            services.Configure<AppSettings>(Configuration);
+
+            if (bool.Parse(Configuration["Mock:Db"] ?? "false"))
+            {
+                var dbId = Guid.NewGuid().ToString();
+
+                services.AddDbContext<PdfDataContext>(opt => opt.UseInMemoryDatabase(dbId));
+
+                services.AddHangfire(config => config.UseMemoryStorage());
+            }
+            else
+            {
+                services.AddDbContext<PdfDataContext>(opt =>
+                    opt.UseNpgsql(Configuration["ConnectionString"]));
+
+                services.AddHangfire(config =>
+                    config
+                        .UseFilter(new PreserveOriginalQueueAttribute())
+                        .UsePostgreSqlStorage(Configuration["ConnectionString"] ?? throw new InvalidOperationException("Missing: ConnectionString")));
+            }
 
             services.AddCommonAppServices();
 
             services.AddTransient<IHangfireQueue, HangfireQueue>();
 
-            switch (Configuration["DbType"])
+            if (bool.Parse(Configuration["Mock:Mq"] ?? "false"))
             {
-                case "inMemory":
-                    var dbId = Guid.NewGuid().ToString();
-                    services.AddDbContext<PdfDataContext>(opt => opt.UseInMemoryDatabase(dbId));
-                    services.AddHangfire(config => config.UseMemoryStorage());
-                    break;
-                case "postreSql":
-                    services.AddDbContext<NpSqlDataContextForMigrations>(opt =>
-                        opt.UseNpgsql(Configuration["ConnectionString"]));
-
-                    services.AddDbContext<PdfDataContext>(opt =>
-                        opt.UseNpgsql(Configuration["ConnectionString"]));
-
-                    services.AddHangfire(config =>
-                        config
-                            .UseFilter(new PreserveOriginalQueueAttribute())
-                            .UsePostgreSqlStorage(Configuration["ConnectionString"] ?? throw new InvalidOperationException("Missing: ConnectionString")));
-                    break;
-                case "sqlServer":
-                    services.AddDbContext<MsSqlDataContextForMigrations>(opt =>
-                            opt.UseSqlServer(Configuration["ConnectionString"]));
-
-                    services.AddDbContext<PdfDataContext>(opt =>
-                            opt.UseSqlServer(Configuration["ConnectionString"]));
-
-                    services.AddHangfire(config =>
-                        config
-                            .UseFilter(new PreserveOriginalQueueAttribute())
-                            .UseSqlServerStorage(Configuration["ConnectionString"] ?? throw new InvalidOperationException("Missing: ConnectionString")));
-                    break;
-                default:
-                    throw new InvalidOperationException($"Unknown DbType from configuration '{Configuration["DbType"]}'");
+                services.AddTransient<IMqMessages, MqMessagesNullObject>();
+            }
+            else
+            {
+                services.AddTransient<IMqMessages, MqMessages>();
             }
 
-            switch (Configuration["MqType"])
-            {
-                case "rabbitMq":
-                    services.Configure<RabbitMqConfig>(Configuration.GetSection("RabbitMq"));
-                    services.AddTransient<IMqMessages, RabbitMqMessages>();
-                    break;
-                case "disabled":
-                case "inMemory":
-                    services.AddTransient<IMqMessages, MqMessagesNullObject>();
-                    break;
-                default:
-                    throw new InvalidOperationException($"Unknown MqType from configuration '{Configuration["MqType"]}'");
-            }
-
-            switch (Configuration["PdfStorageType"])
+            switch(Configuration["PdfStorageType"] ?? throw new InvalidOperationException("PdfStorageType missing."))
             {
                 case "awsS3":
                     services.Configure<AwsS3Config>(Configuration.GetSection("AwsS3"));
                     services.AddSingleton<IStorage, AwsS3Storage>();
                     break;
                 case "googleBucket":
-                    services.Configure<GoogleCloudConfig>(Configuration.GetSection("GoogleCloud"));
                     services.AddTransient<IStorage, GoogleCloudPdfStorage>();
-                    break;
-                case "azureStorage":
-                    services.Configure<AzureStorageConfig>(Configuration.GetSection("AzureStorage"));
-                    services.AddSingleton<IStorage, AzureStorage>();
                     break;
                 case "inMemory":
                     services.AddSingleton<IStorage, InMemoryPdfStorage>();
                     break;
                 default:
-                    throw new InvalidOperationException($"Unknown PdfStorageType from configuration '{Configuration["PdfStorageType"]}'");
+                    throw new InvalidOperationException($"Invalid configuration: PdfStorageType ({Configuration["PdfStorageType"]})");
             }
 
             services.Configure<ApiKeyAuthenticationOptions>(Configuration.GetSection("ApiAuthentication"));
+            services.Configure<MqConfig>(Configuration.GetSection("Mq"));
             services.AddTransient<CleanUpCronJob>();
         }
 
@@ -169,7 +141,7 @@ namespace Pdf.Storage
 
             hangfireQueue.ScheduleRecurring<CleanUpCronJob>("clearObsoletePdfSourceDataRows", job => job.Execute(), Cron.Hourly());
 
-            switch (GetAppRole())
+            switch(GetAppRole())
             {
                 case "api":
                     app.UseMvc();

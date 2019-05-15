@@ -8,9 +8,9 @@ using Pdf.Storage.Data;
 
 namespace Pdf.Storage.Migrations
 {
-    [DbContext(typeof(NpSqlDataContextForMigrations))]
-    [Migration("20170613123349_PdfUsage")]
-    partial class PdfUsage
+    [DbContext(typeof(PdfDataContext))]
+    [Migration("20170802114015_TemporaryCallbackUri")]
+    partial class TemporaryCallbackUri
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -28,6 +28,8 @@ namespace Pdf.Storage.Migrations
                     b.Property<string>("GroupId");
 
                     b.Property<int>("OpenedTimes");
+
+                    b.Property<string>("PdfOpenedCallbackUri");
 
                     b.Property<bool>("Processed");
 

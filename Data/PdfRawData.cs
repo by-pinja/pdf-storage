@@ -20,7 +20,10 @@ namespace Pdf.Storage.Data
         public Guid ParentId { get; protected set; }
         public string Html { get; protected set; }
 
+        [Column(TypeName = "jsonb")]
         public JObject TemplateData { get; protected set; }
+
+        [Column(TypeName = "jsonb")]
         public JObject Options { get; protected set; }
     }
 }
