@@ -68,7 +68,7 @@ namespace Pdf.Storage.Hangfire
             newPdf.PdfUri.Should().Be($"http://localhost:5000/v1/pdf/{groupId}/{newPdf.Id}.pdf");
             newPdf.HtmlUri.Should().Be($"http://localhost:5000/v1/pdf/{groupId}/{newPdf.Id}.html");
             newPdf.GroupId.Should().Be(groupId.ToString());
-            ((JObject)newPdf.Data)["Key"].Value<string>().Should().Be("key_for_row_0");
+            newPdf.Data["content"].Value<string>().Should().Be("key_for_row_0");
         }
 
         [Fact]

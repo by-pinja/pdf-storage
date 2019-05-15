@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json.Linq;
 
 namespace Pdf.Storage.Pdf.Dto
 {
@@ -8,11 +9,11 @@ namespace Pdf.Storage.Pdf.Dto
         public string Html { get; set; }
 
         [Required]
-        public object BaseData { get; set; }
+        public JObject BaseData { get; set; } = new JObject();
 
         [Required]
-        public object[] RowData { get; set; } = new object[0];
+        public JToken RowData { get; set; } = new JArray();
 
-        public object Options { get; set; } = new object {};
+        public JObject Options { get; set; } = new JObject();
     }
 }

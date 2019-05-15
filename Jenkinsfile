@@ -15,6 +15,7 @@ podTemplate(label: pod.label,
         container('dotnet') {
           sh """
             apk add --no-cache chromium pdftk
+            apk add --no-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ libgdiplus
 
             dotnet restore
             dotnet publish -c Release -o out

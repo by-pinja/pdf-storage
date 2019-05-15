@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Pdf.Storage.Data
 {
@@ -13,6 +15,14 @@ namespace Pdf.Storage.Data
             modelBuilder.Entity<PdfOpenedEntity>()
                 .HasOne(x => x.Parent)
                 .WithMany(x => x.Usage);
+
+            modelBuilder.Entity<PdfRawDataEntity>().Property(e => e.TemplateData).HasConversion(
+                v => JsonConvert.SerializeObject(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
+                v => JsonConvert.DeserializeObject<JObject>(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
+
+            modelBuilder.Entity<PdfRawDataEntity>().Property(e => e.Options).HasConversion(
+                v => JsonConvert.SerializeObject(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
+                v => JsonConvert.DeserializeObject<JObject>(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
 
             modelBuilder.Entity<PdfEntity>()
                 .HasIndex(b => b.FileId);

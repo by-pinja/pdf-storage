@@ -62,21 +62,7 @@ namespace Pdf.Storage
 
             services.AddMvc(options => options.Filters.Add(new ValidateModelAttribute()));
 
-            services.AddSwaggerGen(c =>
-            {
-                var basePath = System.AppContext.BaseDirectory;
-
-                c.SwaggerDoc("v1",
-                    new OpenApiInfo
-                    {
-                        Title = "Pdf.Storage",
-                        Version = "v1",
-                        Description = File.ReadAllText(Path.Combine(basePath, "ApiDescription.md"))
-                    });
-
-                c.AddSecurityDefinition("ApiKey", ApiKey.OpenApiSecurityScheme);
-                c.AddSecurityRequirement(ApiKey.OpenApiSecurityRequirement("ApiKey"));
-            });
+            services.AddSwaggerGenConfiguration();
 
             services.Configure<AppSettings>(Configuration);
 
@@ -99,11 +85,8 @@ namespace Pdf.Storage
                         .UsePostgreSqlStorage(Configuration["ConnectionString"] ?? throw new InvalidOperationException("Missing: ConnectionString")));
             }
 
-            services.AddTransient<IPdfConvert, PdfConvert>();
-            services.AddTransient<IPdfQueue, PdfQueue>();
-            services.AddTransient<IErrorPages, ErrorPages>();
-            services.AddTransient<IPdfMerger, PdfMerger>();
-            services.AddTransient<Uris>();
+            services.AddCommonAppServices();
+
             services.AddTransient<IHangfireQueue, HangfireQueue>();
 
             if (bool.Parse(Configuration["Mock:Mq"] ?? "false"))
