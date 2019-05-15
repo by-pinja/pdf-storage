@@ -12,7 +12,7 @@ namespace Pdf.Storage.Pdf.Dto
         public JObject BaseData { get; set; } = new JObject();
 
         [Required]
-        public JObject[] RowData { get; set; } = new JObject[0];
+        public JToken RowData { get; set; } = new JArray();
 
         public JObject Options { get; set; } = new JObject();
     }

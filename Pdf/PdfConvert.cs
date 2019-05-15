@@ -14,9 +14,9 @@ namespace Pdf.Storage.Pdf
     public class PdfConvert : IPdfConvert
     {
         private readonly ILogger<PdfConvert> _logger;
-        private readonly IOptions<CommonConfig> _settings;
+        private readonly IOptions<AppSettings> _settings;
 
-        public PdfConvert(ILogger<PdfConvert> logger, IOptions<CommonConfig> settings)
+        public PdfConvert(ILogger<PdfConvert> logger, IOptions<AppSettings> settings)
         {
             _logger = logger;
             _settings = settings;

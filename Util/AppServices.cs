@@ -34,10 +34,9 @@ namespace Pdf.Storage.Util
             services.AddTransient<IPdfConvert, PdfConvert>();
             services.AddTransient<IPdfQueue, PdfQueue>();
             services.AddTransient<IErrorPages, ErrorPages>();
-            services.AddSingleton<Uris>();
-            services.AddSingleton<TemplatingEngine>();
+            services.AddTransient<Uris>();
+            services.AddTransient<TemplatingEngine>();
             services.AddTransient<IPdfMerger, PdfMerger>();
-
             return services;
         }
     }

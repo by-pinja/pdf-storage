@@ -11,10 +11,11 @@ using System;
 
 namespace Pdf.Storage.Migrations
 {
-    [DbContext(typeof(NpSqlDataContextForMigrations))]
-    partial class PdfDataContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(PdfDataContext))]
+    [Migration("20180619091008_BetterPriorityFeature")]
+    partial class BetterPriorityFeature
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,10 +44,6 @@ namespace Pdf.Storage.Migrations
                     b.Property<int>("Type");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("FileId");
-
-                    b.HasIndex("GroupId");
 
                     b.ToTable("PdfFiles");
                 });

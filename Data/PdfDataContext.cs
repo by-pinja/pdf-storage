@@ -12,24 +12,6 @@ namespace Pdf.Storage.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            if(Database.IsNpgsql())
-            {
-                modelBuilder.Entity<PdfRawDataEntity>(eb =>
-                {
-                    eb.Property(b => b.TemplateData).HasColumnType("jsonb");
-                    eb.Property(b => b.Options).HasColumnType("jsonb");
-                });
-            }
-
-            if(Database.IsSqlServer())
-            {
-                modelBuilder.Entity<PdfRawDataEntity>(eb =>
-                {
-                    eb.Property(b => b.TemplateData).HasColumnType("nvarchar(max)");
-                    eb.Property(b => b.Options).HasColumnType("nvarchar(max)");
-                });
-            }
-
             modelBuilder.Entity<PdfOpenedEntity>()
                 .HasOne(x => x.Parent)
                 .WithMany(x => x.Usage);

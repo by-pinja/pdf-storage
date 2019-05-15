@@ -124,23 +124,7 @@ namespace Pdf.Storage.Hangfire
             await host.Get(pdfForRemoval.PdfUri)
                 .ExpectStatusCode(HttpStatusCode.NotFound)
                 .WithContentOf<string>()
-                .Passing(body => body.Should().Match("*file*removed*"));
-        }
-
-        [Fact]
-        public async Task WhenPdfIsAddedWithEmptyRowTable_ThenReturnBadRequest()
-        {
-            var host = TestHost.Run<TestStartup>();
-            var groupId = Guid.NewGuid();
-
-            await host.Post($"/v1/pdf/{groupId}/",
-                    new NewPdfRequest
-                    {
-                        Html = "someString",
-                        BaseData = JObject.FromObject(new {}),
-                        RowData = new JObject[0]
-                    }
-                ).ExpectStatusCode(HttpStatusCode.BadRequest);
+                .Passing(body => body.Should().Match("*PDF*removed*"));
         }
 
         [Fact]

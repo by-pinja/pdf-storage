@@ -13,13 +13,11 @@ namespace Pdf.Storage.Utils.Test
     {
         public static Task<NewPdfResponse[]> AddPdf(this TestServer host, Guid groupId, int amountOfDataRows = 1, string html = null, object baseData = null)
         {
-            var data = Enumerable.Range(0, amountOfDataRows)
-                .Select(i => JObject.FromObject(
-                    new
-                    {
-                        content = $"key_for_row_{i}"
-                    }))
-                .ToArray();
+            var data = JArray.FromObject(Enumerable.Range(0, amountOfDataRows)
+            .Select(i => new
+            {
+                content = $"key_for_row_{i}"
+            }));
 
             return host.Post($"/v1/pdf/{groupId}/",
                     new NewPdfRequest
