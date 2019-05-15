@@ -6,6 +6,7 @@ using System.Linq;
 using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using Pdf.Storage.Data;
 using Pdf.Storage.Hangfire;
 using Pdf.Storage.Mq;
@@ -45,14 +46,14 @@ namespace Pdf.Storage.Pdf
         [HttpPost("/v1/pdf/{groupId}/")]
         public ActionResult<IEnumerable<NewPdfResponse>> AddNewPdf([Required] string groupId, [FromBody] NewPdfRequest request)
         {
-            var responses = request.RowData.ToList().Select(row =>
+            var responses = request.RowData.Select(row =>
             {
                 var entity = _context.PdfFiles.Add(new PdfEntity(groupId, PdfType.Pdf)).Entity;
 
                 var rawData = _context.RawData.Add(
                     new PdfRawDataEntity(entity.Id,
                         request.Html,
-                        TemplateDataUtils.GetTemplateData(request.BaseData, row),
+                        TemplateDataUtils.MergeBaseTemplatingWithRows(request.BaseData, row),
                         request.Options)).Entity;
 
                 _context.SaveChanges();
@@ -65,7 +66,7 @@ namespace Pdf.Storage.Pdf
                 var pdfUri = _uris.PdfUri(groupId, entity.FileId);
                 var htmlUri = _uris.HtmlUri(groupId, entity.FileId);
 
-                return new NewPdfResponse(entity.FileId, entity.GroupId, pdfUri, htmlUri, row);
+                return new NewPdfResponse(entity.FileId, entity.GroupId, pdfUri, htmlUri, (JObject)row);
             });
 
             return StatusCode(202, responses.ToList());

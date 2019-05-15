@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.TestHost;
+using Newtonsoft.Json.Linq;
 using Pdf.Storage.Pdf.Dto;
 using Protacon.NetCore.WebApi.TestUtil;
 
@@ -10,17 +11,23 @@ namespace Pdf.Storage.Utils.Test
 {
     public static class TestExtensions
     {
-        public static Task<NewPdfResponse[]> AddPdf(this TestServer host, Guid groupId, int amountOfDataRows = 1)
+        public static Task<NewPdfResponse[]> AddPdf(this TestServer host, Guid groupId, int amountOfDataRows = 1, string html = null, object baseData = null)
         {
-            var data = Enumerable.Range(0, amountOfDataRows).Select(i => new {
-                Key = $"key_for_row_{i}"
-            }).ToArray();
+            var data = JArray.FromObject(Enumerable.Range(0, amountOfDataRows)
+            .Select(i => new
+            {
+                content = $"key_for_row_{i}"
+            }));
 
             return host.Post($"/v1/pdf/{groupId}/",
                     new NewPdfRequest
                     {
-                        Html = "<body> {{ TEXT }} </body>",
-                        BaseData = new {},
+                        Html = html ?? "<body> {{ header }} {{ content }} </body>",
+                        BaseData = JObject.FromObject(
+                            baseData ?? new
+                            {
+                                header = "header_value_here"
+                            }),
                         RowData = data
                     }
                 ).ExpectStatusCode(HttpStatusCode.Accepted)

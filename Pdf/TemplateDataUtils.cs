@@ -5,14 +5,12 @@ namespace Pdf.Storage.Pdf
 {
     public static class TemplateDataUtils
     {
-        public static ExpandoObject GetTemplateData(object templateData, object rowData)
+        public static JObject MergeBaseTemplatingWithRows(JObject templateData, JToken rowData)
         {
-            var templateDataAsJ = JObject.FromObject(templateData);
-
-            templateDataAsJ.Merge(JObject.FromObject(rowData), 
+            templateData.Merge(rowData,
                 new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Replace });
 
-            return templateDataAsJ.ToObject<ExpandoObject>();
+            return templateData;
         }
     }
 }

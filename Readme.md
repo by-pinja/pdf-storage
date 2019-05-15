@@ -15,6 +15,8 @@ Key aspects:
   faster output (files that are currently opened if queue is long) before everything else.
 - Supports AWS, Azure and Google services and data stores.
 
+See [Api description document](ApiDescription.md)
+
 ## Running locally for development
 
 Install .NET core SDK.
