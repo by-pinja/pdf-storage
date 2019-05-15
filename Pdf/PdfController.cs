@@ -20,7 +20,7 @@ namespace Pdf.Storage.Pdf
     public class PdfController : Controller
     {
         private readonly PdfDataContext _context;
-        private readonly IStorage _storage;
+        private readonly IStorage _pdfStorage;
         private readonly Uris _uris;
         private readonly IHangfireQueue _backgroundJobs;
         private readonly IErrorPages _errorPages;
@@ -35,7 +35,7 @@ namespace Pdf.Storage.Pdf
             IMqMessages mqMessages)
         {
             _context = context;
-            _storage = pdfStorage;
+            _pdfStorage = pdfStorage;
             _uris = uris;
             _backgroundJobs = backgroundJob;
             _errorPages = errorPages;
@@ -46,6 +46,9 @@ namespace Pdf.Storage.Pdf
         [HttpPost("/v1/pdf/{groupId}/")]
         public ActionResult<IEnumerable<NewPdfResponse>> AddNewPdf([Required] string groupId, [FromBody] NewPdfRequest request)
         {
+            if(!request.RowData.Any())
+                return BadRequest("Expected to get attleast one 'rowData' element, but got none.");
+
             var responses = request.RowData.Select(row =>
             {
                 var entity = _context.PdfFiles.Add(new PdfEntity(groupId, PdfType.Pdf)).Entity;
@@ -105,7 +108,7 @@ namespace Pdf.Storage.Pdf
                 return _errorPages.PdfIsStillProcessingResponse();
             }
 
-            var pdf = _storage.Get(new StorageFileId(groupId, pdfId, extension));
+            var pdf = _pdfStorage.Get(new StorageFileId(groupId, pdfId, extension));
 
             if (!noCount)
             {

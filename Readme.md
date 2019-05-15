@@ -31,21 +31,18 @@ Navigate [http://localhost:5000/doc/](http://localhost:5000/doc/)
 
 ## Local development, mocks enabled
 
-At default setup, all mocks are enabled in `appsettings.Development.json`. This way service should start and fuction correctly without any external depencies.
+At default setup with `Development` environents all mocks are enabled in `appsettings.Development.json`.
+This way service should start and fuction correctly without any external depencies.
 
-Set `$Env:ASPNETCORE_ENVIRONMENT = "Development"` if run from command line. Visual studio defaults to development environment.
-
-```js
+```json
 {
-	"Mock": {
-		"Mq": "true",
-		"Db": "true",
-	},
-	"PdfStorageType": "inMemory"
+  "DbType": "inMemory",
+  "MqType": "inMemory",
+  "PdfStorageType": "inMemory"
 }
 ```
 
-Or overwrite them with environment variables `Mock__Mq = "true"` etc.
+Or overwrite them with environment variables `PdfStorageType = "inMemory"` etc.
 
 On linux (debian) set development, install pdftk and chromium.
 
@@ -57,9 +54,21 @@ On windows chrome is required.
 
 ## Run local development database
 
+PostreSQL:
+
 ```bash
 docker run --name pdf-storage-postgress -e POSTGRES_PASSWORD=passwordfortesting -it -p 5432:5432 postgres
 ```
+
+Connect with `User ID=postgres;Password=passwordfortesting;Host=localhost;Port=5432;Database=pdfstorage;Pooling=true;`.
+
+SqlServer:
+
+```bash
+docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=testpassword1#!' -p 1433:1433 --name sql1 -d mcr.microsoft.com/mssql/server:2017-latest
+```
+
+Connect with `Server=localhost,1433;Database=pdf-storage;User=sa;Password=testpassword1#!`
 
 ## Hangfire dashboard
 
@@ -86,8 +95,9 @@ Mount valid service account file and configure it's path and configure google co
 ```json
 {
   "PdfStorageType": "googleBucket",
-  "googleBucketName": "pdf-storage-master",
-  "googleAuthFile": "/path/to/key/google.key.json",
+  "GoogleCloud": {
+    "GoogleBucketName": "pdf-storage-master",
+    "GoogleAuthFile": "/path/to/key/google.key.json"
 }
 ```
 
@@ -110,18 +120,11 @@ Example (not valid) service account file, see google service accounts for futher
 
 ### AWS S3
 
-Configure application to use pdf store:
+Configure application to use pdf store.
 
 ```json
 {
-  "PdfStorageType": "awsS3"
-}
-```
-
-Then configure AWS configuration:
-
-```json
-{
+  "PdfStorageType": "awsS3",
   "AwsS3": {
     "AwsS3BucketName": "pdf-storage-master",
     "AccessKey": "thisisaccesskey",
@@ -130,4 +133,33 @@ Then configure AWS configuration:
     "AwsRegion": "EUCentral1"
   }
 }
+```
+
+### Azure storage
+
+Pdf storage supports azure storage accounts as storage.
+
+```json
+{
+  "PdfStorageType": "azureStorage",
+  "AzureStorage": {
+    "StorageConnectionString": "DefaultEndpointsProtocol=https;AccountName=[your_account];AccountKey=[your_key];EndpointSuffix=core.windows.net",
+    "ContainerName": "pdf-storage"
+}
+```
+
+## Migrations
+
+Theres special script for migrations since multiple DB engines are supported.
+
+```powershell
+./AddOrRemoveMigrations.ps1 -MigrationName "DescriptionForMigration"
+```
+
+### Removing latest migration
+
+Usefull for development.
+
+```powershell
+./AddOrRemoveMigrations.ps1 -Operation Remove -MigrationName "DescriptionForMigration"
 ```
