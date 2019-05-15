@@ -1,6 +1,6 @@
 ﻿namespace Pdf.Storage.Mq
 {
-    public class MqConfig
+    public class RabbitMqConfig
     {
         public string Host { get; set; }
         public bool UseMock { get; set; }

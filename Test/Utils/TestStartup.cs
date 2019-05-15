@@ -59,7 +59,7 @@ namespace Pdf.Storage.Hangfire
                 .AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json"))
                 .Build();
 
-            services.Configure<AppSettings>(configuration);
+            services.Configure<CommonConfig>(configuration);
         }
 
         public void Configure(IApplicationBuilder app)

@@ -19,12 +19,12 @@ namespace Pdf.Storage.PdfMerge
         private readonly PdfDataContext _context;
         private readonly IMqMessages _mqMessages;
         private readonly ILogger<MergerController> _logger;
-        private readonly AppSettings _settings;
+        private readonly CommonConfig _settings;
 
         public MergerController(
             IHangfireQueue backgroundJob,
             PdfDataContext context,
-            IOptions<AppSettings> settings,
+            IOptions<CommonConfig> settings,
             IMqMessages mqMessages,
             ILogger<MergerController> logger)
         {

@@ -11,9 +11,9 @@ using System;
 
 namespace Pdf.Storage.Migrations
 {
-    [DbContext(typeof(PdfDataContext))]
-    [Migration("20180620085917_PdfFileIndexes")]
-    partial class PdfFileIndexes
+    [DbContext(typeof(NpSqlDataContextForMigrations))]
+    [Migration("20180601131758_PdfQueuePriority")]
+    partial class PdfQueuePriority
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -27,8 +27,6 @@ namespace Pdf.Storage.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<DateTime>("Created");
-
                     b.Property<string>("FileId");
 
                     b.Property<string>("GroupId");
@@ -41,13 +39,7 @@ namespace Pdf.Storage.Migrations
 
                     b.Property<bool>("Removed");
 
-                    b.Property<int>("Type");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("FileId");
-
-                    b.HasIndex("GroupId");
 
                     b.ToTable("PdfFiles");
                 });
