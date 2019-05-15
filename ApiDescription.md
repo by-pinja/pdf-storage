@@ -63,9 +63,7 @@ Generates
 <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASIAAAB4CAYAAABW..."/>
 ```
 
-### Format
-
-In general form translator is either
+### Syntax
 
 ```text
 [translate:type]data
@@ -76,6 +74,12 @@ different for each of them.
 
 ```text
 [translate:type:{ optionValue: "value" }]data
+```
+
+Real example:
+
+```text
+[translate:barcode:{includeText: true, foregroundColor: '#4286f4'}]AE5C9B
 ```
 
 ### List of translators and options
