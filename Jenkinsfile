@@ -32,6 +32,7 @@ podTemplate(label: pod.label,
       stage('Package') {
         container('docker') {
           def publishedImage = publishContainerToGcr(project);
+          publishTagToDockerhub(project);
           if(env.BRANCH_NAME == "master") {
               updateImageToK8sTestEnv(publishedImage)
           }
