@@ -8,9 +8,9 @@ using Pdf.Storage.Data;
 
 namespace Pdf.Storage.Migrations
 {
-    [DbContext(typeof(PdfDataContext))]
-    [Migration("20170613123349_PdfUsage")]
-    partial class PdfUsage
+    [DbContext(typeof(NpSqlDataContextForMigrations))]
+    [Migration("20170612115248_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -34,29 +34,6 @@ namespace Pdf.Storage.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PdfFiles");
-                });
-
-            modelBuilder.Entity("Pdf.Storage.Data.PdfOpenedEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<Guid?>("ParentId");
-
-                    b.Property<DateTime>("Stamp");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParentId");
-
-                    b.ToTable("PdfOpenedEntity");
-                });
-
-            modelBuilder.Entity("Pdf.Storage.Data.PdfOpenedEntity", b =>
-                {
-                    b.HasOne("Pdf.Storage.Data.PdfEntity", "Parent")
-                        .WithMany("Usage")
-                        .HasForeignKey("ParentId");
                 });
         }
     }

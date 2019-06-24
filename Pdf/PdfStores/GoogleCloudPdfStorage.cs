@@ -11,9 +11,9 @@ namespace Pdf.Storage.Pdf
 {
     public class GoogleCloudPdfStorage : IStorage
     {
-        private readonly AppSettings _settings;
+        private readonly GoogleCloudConfig _settings;
 
-        public GoogleCloudPdfStorage(IOptions<AppSettings> settings)
+        public GoogleCloudPdfStorage(IOptions<GoogleCloudConfig> settings)
         {
             _settings = settings.Value;
 

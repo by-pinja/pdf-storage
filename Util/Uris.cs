@@ -8,9 +8,9 @@ namespace Pdf.Storage.Util
 {
     public class Uris
     {
-        private readonly IOptions<AppSettings> _settings;
+        private readonly IOptions<CommonConfig> _settings;
 
-        public Uris(IOptions<AppSettings> settings)
+        public Uris(IOptions<CommonConfig> settings)
         {
             _settings = settings;
         }
