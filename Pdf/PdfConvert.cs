@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -43,8 +41,8 @@ namespace Pdf.Storage.Pdf
 
         private byte[] GeneratePdf(string tempPath)
         {
-            var p = GetCorrectProcessForSystem(tempPath);
-
+            using (var p = GetCorrectProcessForSystem(tempPath))
+            {
                 p.Start();
 
                 var processExitedNicely = p.WaitForExit(30 * 1000);
@@ -52,7 +50,7 @@ namespace Pdf.Storage.Pdf
                 _logger.LogInformation("StdOut: " + p.StandardOutput.ReadToEnd());
                 _logger.LogInformation("StdError: " + p.StandardError.ReadToEnd());
 
-                if(!processExitedNicely)
+                if (!processExitedNicely)
                 {
                     _logger.LogError($"Process {p.ProcessName} didn't exit nicely.");
                     p.Kill();
@@ -60,6 +58,7 @@ namespace Pdf.Storage.Pdf
                 }
 
                 return File.ReadAllBytes(Path.Combine(tempPath, "output.pdf")).ToArray();
+            }
         }
 
         private Process GetCorrectProcessForSystem(string tempPath)
