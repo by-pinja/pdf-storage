@@ -56,7 +56,7 @@ namespace Pdf.Storage.Pdf
                 var rawData = _context.RawData.Add(
                     new PdfRawDataEntity(entity.Id,
                         request.Html,
-                        TemplateDataUtils.MergeBaseTemplatingWithRows(request.BaseData, row),
+                        TemplateUtils.MergeBaseTemplatingWithRows(request.BaseData, row),
                         request.Options)).Entity;
 
                 _context.SaveChanges();

@@ -5,12 +5,12 @@ using Xunit;
 
 namespace Pdf.Storage.Pdf
 {
-    public class TemplateDataUtilsTests
+    public class TemplateUtilsTests
     {
         [Fact]
         public void WhenTemplateIsMergedToRow_ThenOutputContainsBoth()
         {
-            var result = TemplateDataUtils.MergeBaseTemplatingWithRows(JObject.FromObject(new {Prop1 = 1}), JObject.FromObject(new {Prop2 = 2}));
+            var result = TemplateUtils.MergeBaseTemplatingWithRows(JObject.FromObject(new {Prop1 = 1}), JObject.FromObject(new {Prop2 = 2}));
             result["Prop1"].Value<int>().Should().Be(1);
             result["Prop2"].Value<int>().Should().Be(2);
         }
@@ -18,7 +18,7 @@ namespace Pdf.Storage.Pdf
         [Fact]
         public void WhenTemplateIsMergedToRowWithConflictingData_ThenOutputContainsRowData()
         {
-            var result = TemplateDataUtils.MergeBaseTemplatingWithRows(JObject.FromObject(new { Prop1 = 1 }), JObject.FromObject(new { Prop1 = 2 }));
+            var result = TemplateUtils.MergeBaseTemplatingWithRows(JObject.FromObject(new { Prop1 = 1 }), JObject.FromObject(new { Prop1 = 2 }));
             result["Prop1"].Value<int>().Should().Be(2);
         }
     }
