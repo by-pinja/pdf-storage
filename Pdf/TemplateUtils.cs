@@ -1,4 +1,5 @@
-﻿using System.Dynamic;
+﻿using System;
+using System.Dynamic;
 using Newtonsoft.Json.Linq;
 
 namespace Pdf.Storage.Pdf
@@ -18,8 +19,24 @@ namespace Pdf.Storage.Pdf
         // to html page that enforces print to wait until elements are loaded.
         public static string AddWaitForAllPageElementsFixToHtml(string html)
         {
+            if(string.IsNullOrWhiteSpace(html))
+            {
+                return html;
+            }
+
             const string workaroundScript = "<script type=\"text/javascript\">await page.waitFor('*')</script>";
-            return html;
+
+            if(html.Contains("<head>", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return html.Replace("<head>", $"<head>{workaroundScript}", StringComparison.InvariantCultureIgnoreCase);
+            }
+
+            if(html.Contains("<html>", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return html.Replace("<html>", $"<html><head>{workaroundScript}</head>", StringComparison.InvariantCultureIgnoreCase);
+            }
+
+            return $"{workaroundScript}{html}";
         }
     }
 }

@@ -34,6 +34,8 @@ namespace Pdf.Storage.Pdf
             var rawData = _context.RawData.Single(x => x.ParentId == pdfEntityId);
 
             var templatedHtml = _templatingEngine.Render(rawData.Html, rawData.TemplateData);
+            templatedHtml = TemplateUtils.AddWaitForAllPageElementsFixToHtml(templatedHtml);
+
             var data = _pdfConverter.CreatePdfFromHtml(templatedHtml, rawData.Options);
 
             _storage.AddOrReplace(new StorageData(new StorageFileId(entity), data));
