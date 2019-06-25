@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Linq;
-using Hangfire;
-using Microsoft.Extensions.Options;
 using Pdf.Storage.Data;
 using Pdf.Storage.Mq;
-using Pdf.Storage.Hangfire;
-using Newtonsoft.Json.Linq;
 using Pdf.Storage.Pdf.PdfStores;
 using System.Text;
 

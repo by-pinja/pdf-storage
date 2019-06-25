@@ -24,19 +24,7 @@ namespace Pdf.Storage.Pdf
                 return html;
             }
 
-            const string workaroundScript = "<script type=\"text/javascript\">await page.waitFor('*')</script>";
-
-            if(html.Contains("<head>", StringComparison.InvariantCultureIgnoreCase))
-            {
-                return html.Replace("<head>", $"<head>{workaroundScript}", StringComparison.InvariantCultureIgnoreCase);
-            }
-
-            if(html.Contains("<html>", StringComparison.InvariantCultureIgnoreCase))
-            {
-                return html.Replace("<html>", $"<html><head>{workaroundScript}</head>", StringComparison.InvariantCultureIgnoreCase);
-            }
-
-            return $"{workaroundScript}{html}";
+            return html + "<script type=\"text/javascript\">await page.waitFor('*')</script>";
         }
     }
 }

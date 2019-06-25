@@ -30,24 +30,10 @@ namespace Pdf.Storage.Pdf
         }
 
         [Fact]
-        public void WhenTheresNoHeadOrHtmlElement_ThenAddToBeginning()
+        public void WhenTheresContentAddWorkaroundScriptToEnd()
         {
             var result = TemplateUtils.AddWaitForAllPageElementsFixToHtml("some random content <a hred='..'></a>");
-            result.Should().Match("<script type=\"text/javascript\">await page.waitFor('*')</script>some random*");
-        }
-
-        [Fact]
-        public void WhenTheresHeadElement_AddScriptToItAtBeginning()
-        {
-            var result = TemplateUtils.AddWaitForAllPageElementsFixToHtml("<html><head></head>some content<a hred='..'></a>");
-            result.Should().Match("<html><head><script type=\"text/javascript\">await page.waitFor('*')</script></head>s*");
-        }
-
-        [Fact]
-        public void WhenTheresHtmlButNoExistingHeadElement_ThenAddDummyHeadAndScript()
-        {
-            var result = TemplateUtils.AddWaitForAllPageElementsFixToHtml("<html><body>some content<a hred='..'></a>");
-            result.Should().Match("<html><head><script type=\"text/javascript\">await page.waitFor('*')</script></head><body>s*");
+            result.Should().Match("some random content <a hred='..'></a><script type=\"text/javascript\">await page.waitFor('*')</script>");
         }
     }
 }
