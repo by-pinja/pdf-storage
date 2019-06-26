@@ -1,3 +1,4 @@
+[![Docker pulls](https://img.shields.io/docker/pulls/ptcos/pdf-storage.svg)](https://hub.docker.com/r/ptcos/pdf-storage/)
 [![Build Status](https://jenkins.protacon.cloud/buildStatus/icon?job=www.github.com/pdf-storage/master)](https://jenkins.protacon.cloud/job/www.github.com/job/pdf-storage/job/master/)
 
 # PDF-STORAGE
