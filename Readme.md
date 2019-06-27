@@ -107,15 +107,15 @@ Example (not valid) service account file, see google service accounts for futher
 ```json
 {
   "type": "service_account",
-  "project_id": "ptcs-internal",
-  "private_key_id": "8349f90611b76043d8bf01ae4cb09835434cb9bb",
+  "project_id": "some-project",
+  "private_key_id": "1234",
   "private_key": "-----BEGIN PRIVATE KEY-----\nKEY_SHOULD_BE_HERE-----END PRIVATE KEY-----\n",
-  "client_email": "pdf-storage-master@ptcs-internal.iam.gserviceaccount.com",
-  "client_id": "101865608634637923419",
+  "client_email": "pdf-storage-master@some-project.com",
+  "client_id": "1234",
   "auth_uri": "https://accounts.google.com/o/oauth2/auth",
   "token_uri": "https://accounts.google.com/o/oauth2/token",
   "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/pdf-storage-master%40ptcs-internal.iam.gserviceaccount.com"
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/pdf-storage-master%40some-project.some-project.com"
 }
 ```
 
