@@ -21,6 +21,9 @@ podTemplate(label: pod.label,
       stage('Test') {
         container('dotnet') {
           sh """
+            apk add --no-cache chromium pdftk
+            apk add --no-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ libgdiplus
+
             dotnet test
           """
         }
