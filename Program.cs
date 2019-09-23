@@ -15,9 +15,6 @@ namespace Pdf.Storage
 
             await host.DownloadPrequisitiesIfNeeded();
 
-            if(args.Any(x => x == "--only-download-depencies"))
-                return;
-
             host.MigrateDb();
 
             await host.RunAsync();

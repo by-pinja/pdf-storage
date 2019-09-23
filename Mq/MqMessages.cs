@@ -27,7 +27,6 @@ namespace Pdf.Storage.Mq
         public void PdfOpened(string groupId, string pdfId)
         {
             PublishMessage(groupId, pdfId, PdfOpenedKey);
-
         }
 
         public void PdfGenerated(string groupId, string pdfId)

@@ -41,7 +41,7 @@
     <PackageReference Include="Stubble.Extensions.JsonNet " Version="1.0.18" />
     <PackageReference Include="BarcodeLib" Version="2.2.2" />
     <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="10.0.2" />
-    <PackageReference Include="PuppeteerSharp" Version="1.20.0" />
+    <PackageReference Include="PuppeteerSharp" Version="1.17.0" />
   </ItemGroup>
 
   <ItemGroup>

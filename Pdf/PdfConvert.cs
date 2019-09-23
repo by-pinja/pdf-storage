@@ -36,21 +36,37 @@ namespace Pdf.Storage.Pdf
             finally
             {
                 _logger.LogInformation($"Removing temporary folder: {tempDir}");
-                Directory.Delete(tempDir, true);
+                //Directory.Delete(tempDir, true);
             }
         }
 
         private async Task<byte[]> GeneratePdf(string tempPath)
         {
-            using var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+            var browser = await Puppeteer.LaunchAsync(new LaunchOptions
             {
-                Headless = true
+                ExecutablePath = "/usr/bin/chromium-browser",
+                Headless = true,
+                Timeout = 10*1000,
+                IgnoreHTTPSErrors = true,
+                DumpIO = true,
+                Args = new [] { "--no-sandbox", "--disable-dev-shm-usage", "--incognito", "--disable-gpu", "--disable-software-rasterizer" },
+                EnqueueTransportMessages = false
+                // Args = new[]
+                // {
+                //     "--no-sandbox",
+                //     "--disable-setuid-sandbox",
+                //     "--incognito",
+                //     "--disable-dev-shm-usage",
+                //     "--disable-gpu",
+                //     "--headless",
+                //     "--disable-software-rasterizer"
+                // }
             });
 
             var page = await browser.NewPageAsync();
-            await page.GoToAsync(Path.Combine(tempPath, "source.html"));
+            await page.GoToAsync($"file:///{Path.Combine(tempPath, "source.html")}");
+            _logger.LogInformation("foobarbarbar");
             await page.PdfAsync(Path.Combine(tempPath, "output.pdf"), new PdfOptions { Format = PaperFormat.A4 });
-
             return File.ReadAllBytes(Path.Combine(tempPath, "output.pdf")).ToArray();
         }
 
