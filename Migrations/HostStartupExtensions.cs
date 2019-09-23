@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Pdf.Storage.Data;
 using PuppeteerSharp;
 
@@ -57,15 +58,18 @@ namespace Pdf.Storage.Migrations
             {
                 var services = scope.ServiceProvider;
                 var logger = services.GetRequiredService<ILogger<Program>>();
+                var commonSettings = services.GetRequiredService<IOptions<CommonConfig>>();
 
-                if(Environment.GetEnvironmentVariable("RUNNING_IN_CONTAINER") == "1")
+                if (commonSettings.Value.PuppeteerChromiumPath != default)
                 {
-                    logger.LogInformation("Running in container (environment RUNNING_IN_CONTAINER=1), skipping all pre-install steps.");
-                    return host;
+                    logger.LogInformation($"Puppeteer is configured to use path {commonSettings.Value.PuppeteerChromiumPath}, skipping automatic download.");
+                }
+                else
+                {
+                    logger.LogInformation("Making sure correct chromium for puppeteer is available.");
+                    await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
                 }
 
-                logger.LogInformation("Making sure correct chromium for puppeteer is available.");
-                await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
             }
 
             return host;

@@ -14,11 +14,13 @@ namespace Pdf.Storage.Pdf
     {
         private readonly ILogger<PdfConvert> _logger;
         private readonly IOptions<CommonConfig> _settings;
+        private readonly string _chromiumPath;
 
         public PdfConvert(ILogger<PdfConvert> logger, IOptions<CommonConfig> settings)
         {
             _logger = logger;
             _settings = settings;
+            _chromiumPath = _settings.Value.PuppeteerChromiumPath ?? new BrowserFetcher().GetExecutablePath(BrowserFetcher.DefaultRevision);
         }
 
         public byte[] CreatePdfFromHtml(string html, JObject options)
@@ -44,30 +46,16 @@ namespace Pdf.Storage.Pdf
         {
             var browser = await Puppeteer.LaunchAsync(new LaunchOptions
             {
-                ExecutablePath = "/usr/bin/chromium-browser",
+                ExecutablePath = _chromiumPath,
                 Headless = true,
-                Timeout = 10*1000,
                 IgnoreHTTPSErrors = true,
-                DumpIO = true,
                 Args = new [] { "--no-sandbox", "--disable-dev-shm-usage", "--incognito", "--disable-gpu", "--disable-software-rasterizer" },
                 EnqueueTransportMessages = false
-                // Args = new[]
-                // {
-                //     "--no-sandbox",
-                //     "--disable-setuid-sandbox",
-                //     "--incognito",
-                //     "--disable-dev-shm-usage",
-                //     "--disable-gpu",
-                //     "--headless",
-                //     "--disable-software-rasterizer"
-                // }
             });
 
             var page = await browser.NewPageAsync();
             await page.GoToAsync($"file:///{Path.Combine(tempPath, "source.html")}");
-            _logger.LogInformation("foobarbarbar");
-            await page.PdfAsync(Path.Combine(tempPath, "output.pdf"), new PdfOptions { Format = PaperFormat.A4 });
-            return File.ReadAllBytes(Path.Combine(tempPath, "output.pdf")).ToArray();
+            return await page.PdfDataAsync(new PdfOptions { Format = PaperFormat.A4 });
         }
 
         private string ResolveTemporaryDirectory()

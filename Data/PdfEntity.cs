@@ -5,7 +5,7 @@ namespace Pdf.Storage.Data
 {
     public class PdfEntity
     {
-        protected PdfEntity() {}
+        public PdfEntity() {}
 
         public PdfEntity(string groupId, PdfType type)
         {

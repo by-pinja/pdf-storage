@@ -81,7 +81,10 @@ namespace Pdf.Storage.PdfMerge
 
             _context.SaveChanges();
 
-            mergeEntity.HangfireJobId = _backgroundJob.EnqueueWithHighPriority<IPdfMerger>(merger => merger.MergePdf(new StorageFileId(mergeEntity, "pdf"), request.PdfIds));
+            var storageFile = new StorageFileId(mergeEntity, "pdf");
+
+            mergeEntity.HangfireJobId = _backgroundJob.EnqueueWithHighPriority<IPdfMerger>(merger => merger.MergePdf(storageFile, request.PdfIds));
+
             _context.SaveChanges();
 
             return Accepted(new MergeResponse(mergeEntity.FileId, filePath));

@@ -27,7 +27,7 @@ RUN \
   && rm -rf /var/cache/apk/* /tmp/*
 
 # Tells software that it is running in container and have all requirements pre-installed.
-ENV RUNNING_IN_CONTAINER=1
+ENV PuppeteerChromiumPath=/usr/bin/chromium-browser
 
 ENV ASPNETCORE_ENVIRONMENT=Production
 
