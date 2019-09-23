@@ -28,11 +28,8 @@ namespace Pdf.Storage.Pdf
 
         public void AddOrReplace(StorageData storageData)
         {
-            using (Stream stream = new MemoryStream(storageData.Data))
-            {
-                _storageClient.UploadObject(_settings.GoogleBucketName, GetObjectName(storageData.StorageFileId),
-                    "application/pdf", stream, null, null);
-            }
+            using Stream stream = new MemoryStream(storageData.Data);
+            _storageClient.UploadObject(_settings.GoogleBucketName, GetObjectName(storageData.StorageFileId), "application/pdf", stream, null, null);
         }
 
         public StorageData Get(StorageFileId storageFileId)

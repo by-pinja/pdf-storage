@@ -77,7 +77,7 @@ namespace Pdf.Storage.PdfMerge
 
         private byte[] MergeFiles(string tempPath, IEnumerable<string> tempFiles)
         {
-            var p = GetCorrectProcessForSystem(tempPath, tempFiles);
+            using var p = GetCorrectProcessForSystem(tempPath, tempFiles);
 
             p.Start();
             p.WaitForExit(60 * 1000);

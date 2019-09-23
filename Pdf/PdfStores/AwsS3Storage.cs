@@ -57,13 +57,13 @@ namespace Pdf.Storage.Pdf
                 BucketName = bucketName,
                 Key = GetKey(storageFileId)
             };
-            using (GetObjectResponse response = this.s3Client.GetObjectAsync(request).Result)
-            using (Stream responseStream = response.ResponseStream)
-            using (var memstream = new MemoryStream())
-            {
-                response.ResponseStream.CopyTo(memstream);
-                return new StorageData(storageFileId, memstream.ToArray());
-            }
+
+            using GetObjectResponse response = this.s3Client.GetObjectAsync(request).Result;
+            using Stream responseStream = response.ResponseStream;
+            using var memstream = new MemoryStream();
+
+            response.ResponseStream.CopyTo(memstream);
+            return new StorageData(storageFileId, memstream.ToArray());
         }
 
         public void Remove(StorageFileId storageFileId)
