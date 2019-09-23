@@ -58,14 +58,14 @@ namespace Pdf.Storage.Migrations
                 var services = scope.ServiceProvider;
                 var logger = services.GetRequiredService<ILogger<Program>>();
 
-                // if(Environment.GetEnvironmentVariable("RUNNING_IN_CONTAINER") == "1")
-                // {
-                //     logger.LogInformation("Running in container (environment RUNNING_IN_CONTAINER=1), skipping all pre-install steps.");
-                //     return host;
-                // }
+                if(Environment.GetEnvironmentVariable("RUNNING_IN_CONTAINER") == "1")
+                {
+                    logger.LogInformation("Running in container (environment RUNNING_IN_CONTAINER=1), skipping all pre-install steps.");
+                    return host;
+                }
 
                 logger.LogInformation("Making sure correct chromium for puppeteer is available.");
-                //await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
+                await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
             }
 
             return host;

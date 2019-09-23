@@ -9,6 +9,8 @@ namespace Pdf.Storage.Pdf.PdfStores
         public string Id { get; }
         public string Extension { get; }
 
+        protected StorageFileId() {}
+
         public StorageFileId(string group, string id, string extension)
         {
             Group = group ?? throw new ArgumentNullException(nameof(group));

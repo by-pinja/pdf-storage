@@ -34,13 +34,17 @@
     <PackageReference Include="xunit" Version="2.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc2" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc3" />
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.3.100.1" />
     <PackageReference Include="AWSSDK.S3" Version="3.3.100.1" />
     <PackageReference Include="Stubble.Core" Version="1.2.7" />
     <PackageReference Include="Stubble.Extensions.JsonNet " Version="1.0.18" />
     <PackageReference Include="BarcodeLib" Version="2.2.2" />
     <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="10.0.2" />
+
+    <!--  When you update PuppeteerSharp you must also find corresponding version
+          in alpine at Dockerfile. Alpine limits available chromium versions available so don't update
+          this without check them out. Chromium version must be about same as puppeteer expects -->
     <PackageReference Include="PuppeteerSharp" Version="1.17.0" />
   </ItemGroup>
 
