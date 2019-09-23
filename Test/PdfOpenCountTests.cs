@@ -5,14 +5,16 @@ using System.Net;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.AspNetCore.TestHost;
+using Pdf.Storage.Hangfire;
 using Pdf.Storage.Pdf;
 using Pdf.Storage.Pdf.Dto;
 using Pdf.Storage.Utils.Test;
 using Protacon.NetCore.WebApi.TestUtil;
 using Xunit;
 
-namespace Pdf.Storage.Hangfire
+namespace Pdf.Storage.Test
 {
+    [Collection(ChromiumFixtureCollection.Name)]
     public class PdfOpenCountTests
     {
         [Fact]

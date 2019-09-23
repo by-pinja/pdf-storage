@@ -7,6 +7,7 @@ using Xunit;
 
 namespace Pdf.Storage.Test
 {
+    [Collection(ChromiumFixtureCollection.Name)]
     public class CommonInfraTests
     {
         [Fact]
