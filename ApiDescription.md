@@ -84,6 +84,17 @@ Real example:
 
 ### List of translators and options
 
-| Type  | Options  | Description |
-|---|---|---|
-| barcode  | ```{type:'code128|ean13|ean8|upca|upce|itf14|code39', width: 290, height: 120, includeText: false, foregroundColor: "#ffffff" , backgroundColor: "#000000" }``` |  Generates barcode image of type `code128|...` |
+#### barcode
+
+Generates barcode image of type `code128|...`
+
+```json
+{
+  "type":"code128|ean13|ean8|upca|upce|itf14|code39",
+  "width": 290,
+  "height": 120,
+  "includeText": false,
+  "foregroundColor": "#ffffff",
+  "backgroundColor": "#000000"
+}
+```
