@@ -7,6 +7,7 @@
     <PackageId>Pdf.Storate</PackageId>
     <GenerateProgramFile>false</GenerateProgramFile>
     <UserSecretsId>29daae28-ca01-4571-a752-561bae77dd89</UserSecretsId>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -40,6 +41,7 @@
     <PackageReference Include="Stubble.Extensions.JsonNet " Version="1.0.18" />
     <PackageReference Include="BarcodeLib" Version="2.2.2" />
     <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="10.0.2" />
+    <PackageReference Include="PuppeteerSharp" Version="1.20.0" />
   </ItemGroup>
 
   <ItemGroup>

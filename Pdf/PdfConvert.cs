@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
+using PuppeteerSharp;
+using PuppeteerSharp.Media;
 
 namespace Pdf.Storage.Pdf
 {
@@ -28,7 +29,7 @@ namespace Pdf.Storage.Pdf
             {
                 File.WriteAllText(Path.Combine(tempDir, "source.html"), html);
 
-                var data = GeneratePdf(tempDir);
+                var data = GeneratePdf(tempDir).Result;
 
                 return data;
             }
@@ -39,63 +40,18 @@ namespace Pdf.Storage.Pdf
             }
         }
 
-        private byte[] GeneratePdf(string tempPath)
+        private async Task<byte[]> GeneratePdf(string tempPath)
         {
-            using (var p = GetCorrectProcessForSystem(tempPath))
+            using var browser = await Puppeteer.LaunchAsync(new LaunchOptions
             {
-                p.Start();
+                Headless = true
+            });
 
-                var processExitedNicely = p.WaitForExit(30 * 1000);
+            var page = await browser.NewPageAsync();
+            await page.GoToAsync(Path.Combine(tempPath, "source.html"));
+            await page.PdfAsync(Path.Combine(tempPath, "output.pdf"), new PdfOptions { Format = PaperFormat.A4 });
 
-                _logger.LogInformation("StdOut: " + p.StandardOutput.ReadToEnd());
-                _logger.LogInformation("StdError: " + p.StandardError.ReadToEnd());
-
-                if (!processExitedNicely)
-                {
-                    _logger.LogError($"Process {p.ProcessName} didn't exit nicely.");
-                    p.Kill();
-                    throw new InvalidOperationException("Failed to generate pdf.");
-                }
-
-                return File.ReadAllBytes(Path.Combine(tempPath, "output.pdf")).ToArray();
-            }
-        }
-
-        private Process GetCorrectProcessForSystem(string tempPath)
-        {
-            var args = $"--headless --disable-gpu --use-mock-keychain --no-sandbox --hide-scrollbars --print-to-pdf={Path.Combine(tempPath, "output.pdf")} {Path.Combine(tempPath, "source.html")}";
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                return CreateProcess(
-                    workingDir: tempPath,
-                    fileName: _settings.Value.WindowsChromePath
-                        ?? throw new InvalidOperationException("Chrome path for windows not set."),
-                    arguments: args);
-            }
-
-            return CreateProcess(
-                workingDir: tempPath,
-                fileName: "chromium-browser",
-                arguments: args);
-        }
-
-        private Process CreateProcess(string workingDir, string fileName, string arguments)
-        {
-            _logger.LogInformation($"Running '{fileName} {arguments}'");
-
-            return new Process
-            {
-                StartInfo =
-                    {
-                        WorkingDirectory = workingDir,
-                        FileName = fileName,
-                        Arguments = arguments,
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true
-                    }
-            };
+            return File.ReadAllBytes(Path.Combine(tempPath, "output.pdf")).ToArray();
         }
 
         private string ResolveTemporaryDirectory()
