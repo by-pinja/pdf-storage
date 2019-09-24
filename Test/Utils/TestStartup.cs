@@ -48,6 +48,7 @@ namespace Pdf.Storage.Hangfire
 
             var configuration = new ConfigurationBuilder()
                 .AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json"))
+                .AddEnvironmentVariables()
                 .Build();
 
             services.Configure<CommonConfig>(configuration);
