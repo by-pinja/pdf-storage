@@ -43,7 +43,7 @@ namespace Pdf.Storage.Pdf
             var rawData = _context.RawData.Single(x => x.ParentId == pdfEntityId);
 
             var templatedHtml = _templatingEngine.Render(rawData.Html, rawData.TemplateData);
-
+            templatedHtml = TemplateUtils.AddWaitForAllPageElementsFixToHtml(templatedHtml);
             var data = GeneratePdfDataFromHtml(pdfEntityId, templatedHtml).Result;
 
             _storage.AddOrReplace(new StorageData(new StorageFileId(entity), data));
@@ -65,13 +65,22 @@ namespace Pdf.Storage.Pdf
                 ExecutablePath = _chromiumPath,
                 Headless = true,
                 IgnoreHTTPSErrors = true,
-                Args = new [] { "--no-sandbox", "--disable-dev-shm-usage", "--incognito", "--disable-gpu", "--disable-software-rasterizer" },
+                Args = new[] { "--no-sandbox", "--disable-dev-shm-usage", "--incognito", "--disable-gpu", "--disable-software-rasterizer" },
                 EnqueueTransportMessages = false
             });
 
             var page = await browser.NewPageAsync();
 
-            await page.SetContentAsync(html);
+            await page.SetContentAsync(html,
+            new NavigationOptions
+            {
+                Timeout = 15 * 1000,
+                WaitUntil = new[]
+                {
+                    WaitUntilNavigation.Load,
+                    WaitUntilNavigation.DOMContentLoaded
+                }
+            });
 
             return await page.PdfDataAsync(new PdfOptions { Format = PaperFormat.A4 });
         }
