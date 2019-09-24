@@ -1,6 +1,4 @@
-﻿using System;
-using System.Dynamic;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 
 namespace Pdf.Storage.Pdf
 {

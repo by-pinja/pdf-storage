@@ -2,7 +2,6 @@
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using NSubstitute;
 using Pdf.Storage.Data;
 using Pdf.Storage.Pdf.Dto;
 
