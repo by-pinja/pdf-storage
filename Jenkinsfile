@@ -42,6 +42,7 @@ podTemplate(label: pod.label,
       stage('Test') {
         container('dotnet') {
           sh """
+            ls /usr/bin/chromium-browser
             PuppeteerChromiumPath=/usr/bin/chromium-browser dotnet test
           """
         }
