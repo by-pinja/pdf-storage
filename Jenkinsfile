@@ -2,7 +2,7 @@ library 'jenkins-ptcs-library@1.0.0'
 
 podTemplate(label: pod.label,
   containers: pod.templates + [
-    containerTemplate(name: 'dotnet', image: 'mcr.microsoft.com/dotnet/core/sdk:2.2.203-alpine3.8', ttyEnabled: true, command: '/bin/sh -c', args: 'cat'),
+    containerTemplate(name: 'dotnet', image: 'mcr.microsoft.com/dotnet/core/sdk:2.2.401-alpine3.8', ttyEnabled: true, command: '/bin/sh -c', args: 'cat'),
   ]
 ) {
     def project = 'pdf-storage'
@@ -14,12 +14,12 @@ podTemplate(label: pod.label,
       stage('Prepare') {
         container('dotnet') {
           sh """
-            echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
-            echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories
-            echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
-            apk --no-cache  update
-            apk --no-cache  upgrade
-            apk add --no-cache --virtual .build-deps
+            echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories \
+            && echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
+            && echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
+            && apk --no-cache  update \
+            && apk --no-cache  upgrade \
+            && apk add --no-cache --virtual .build-deps \
               gifsicle \
               pngquant \
               optipng \
