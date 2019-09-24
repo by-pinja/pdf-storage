@@ -34,22 +34,21 @@ namespace Pdf.Storage.Pdf
 
                 if (translatorMatch.Success)
                 {
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        var options = GetBarcodeOptions(translatorMatch);
+                    using var memoryStream = new MemoryStream();
 
-                        var barcode = _barcode.Encode(
-                            ResolveBarcodeType(options.Type),
-                            translatorMatch.Groups[3].Value,
-                            ColorTranslator.FromHtml(options.ForegroundColor),
-                            ColorTranslator.FromHtml(options.BackgroundColor),
-                            options.Width,
-                            options.Height);
+                    var options = GetBarcodeOptions(translatorMatch);
 
-                        barcode.Save(memoryStream, ImageFormat.Png);
+                    var barcode = _barcode.Encode(
+                        ResolveBarcodeType(options.Type),
+                        translatorMatch.Groups[3].Value,
+                        ColorTranslator.FromHtml(options.ForegroundColor),
+                        ColorTranslator.FromHtml(options.BackgroundColor),
+                        options.Width,
+                        options.Height);
 
-                        property.Value = $"data:image/png;base64,{Convert.ToBase64String(memoryStream.ToArray())}";
-                    }
+                    barcode.Save(memoryStream, ImageFormat.Png);
+
+                    property.Value = $"data:image/png;base64,{Convert.ToBase64String(memoryStream.ToArray())}";
                 }
             }
         }
@@ -68,25 +67,17 @@ namespace Pdf.Storage.Pdf
 
         private BarcodeLib.TYPE ResolveBarcodeType(string type)
         {
-            switch(type)
+            return type switch
             {
-                case "code128":
-                    return BarcodeLib.TYPE.CODE128;
-                case "ean13":
-                    return BarcodeLib.TYPE.EAN13;
-                case "ean8":
-                    return BarcodeLib.TYPE.EAN8;
-                case "upca":
-                    return BarcodeLib.TYPE.UPCA;
-                case "upce":
-                    return BarcodeLib.TYPE.UPCE;
-                case "itf14":
-                    return BarcodeLib.TYPE.ITF14;
-                case "code39":
-                    return BarcodeLib.TYPE.CODE39;
-                default:
-                    return BarcodeLib.TYPE.CODE128;
-            }
+                "code128" => BarcodeLib.TYPE.CODE128,
+                "ean13" => BarcodeLib.TYPE.EAN13,
+                "ean8" => BarcodeLib.TYPE.EAN8,
+                "upca" => BarcodeLib.TYPE.UPCA,
+                "upce" => BarcodeLib.TYPE.UPCE,
+                "itf14" => BarcodeLib.TYPE.ITF14,
+                "code39" => BarcodeLib.TYPE.CODE39,
+                _ => BarcodeLib.TYPE.CODE128,
+            };
         }
     }
 }

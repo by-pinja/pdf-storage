@@ -15,18 +15,12 @@ namespace Pdf.Storage.Pdf
             Data = data;
             StorageFileId = storageFileId;
 
-            switch(storageFileId.Extension)
+            ContentType = storageFileId.Extension switch
             {
-                case "html":
-                    ContentType = "text/html";
-                    break;
-                case "pdf":
-                    ContentType = "application/pdf";
-                    break;
-                default:
-                    ContentType = "text/plain";
-                    break;
-            }
+                "html" => "text/html",
+                "pdf" => "application/pdf",
+                _ => "text/plain",
+            };
         }
     }
 }

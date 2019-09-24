@@ -31,7 +31,6 @@ namespace Pdf.Storage.Util
 
         public static IServiceCollection AddCommonAppServices(this IServiceCollection services)
         {
-            services.AddTransient<IPdfConvert, PdfConvert>();
             services.AddTransient<IPdfQueue, PdfQueue>();
             services.AddTransient<IErrorPages, ErrorPages>();
             services.AddSingleton<Uris>();

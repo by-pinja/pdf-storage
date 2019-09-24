@@ -5,9 +5,11 @@ namespace Pdf.Storage.Pdf.PdfStores
 {
     public class StorageFileId
     {
-        public string Group { get; }
-        public string Id { get; }
-        public string Extension { get; }
+        public string Group { get; set; }
+        public string Id { get; set; }
+        public string Extension { get; set; }
+
+        public StorageFileId() {}
 
         public StorageFileId(string group, string id, string extension)
         {

@@ -1,21 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Hangfire.SqlServer;
-using Microsoft.AspNetCore.TestHost;
 using Newtonsoft.Json.Linq;
-using NSubstitute;
+using Pdf.Storage.Hangfire;
 using Pdf.Storage.Pdf.Dto;
 using Pdf.Storage.Utils.Test;
 using Protacon.NetCore.WebApi.TestUtil;
 using Xunit;
 
-namespace Pdf.Storage.Hangfire
+namespace Pdf.Storage.Test
 {
+    [Collection(ChromiumFixtureCollection.Name)]
     public class PdfUploadTests
     {
         [Fact]
@@ -77,7 +74,7 @@ namespace Pdf.Storage.Hangfire
             var host = TestHost.Run<TestStartup>();
             var groupId = Guid.NewGuid();
 
-            var newPdfs = (await host.AddPdf(groupId, amountOfDataRows: 10));
+            var newPdfs = await host.AddPdf(groupId, amountOfDataRows: 10);
 
             newPdfs.Should().HaveCount(10);
 
@@ -137,7 +134,7 @@ namespace Pdf.Storage.Hangfire
                     new NewPdfRequest
                     {
                         Html = "someString",
-                        BaseData = JObject.FromObject(new {}),
+                        BaseData = JObject.FromObject(new { }),
                         RowData = new JObject[0]
                     }
                 ).ExpectStatusCode(HttpStatusCode.BadRequest);

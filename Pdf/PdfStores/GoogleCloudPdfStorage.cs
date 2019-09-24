@@ -4,7 +4,6 @@ using Google.Apis.Auth.OAuth2;
 using Google.Apis.Storage.v1;
 using Google.Cloud.Storage.V1;
 using Microsoft.Extensions.Options;
-using Pdf.Storage.Hangfire;
 using Pdf.Storage.Pdf.PdfStores;
 
 namespace Pdf.Storage.Pdf
@@ -29,11 +28,8 @@ namespace Pdf.Storage.Pdf
 
         public void AddOrReplace(StorageData storageData)
         {
-            using (Stream stream = new MemoryStream(storageData.Data))
-            {
-                _storageClient.UploadObject(_settings.GoogleBucketName, GetObjectName(storageData.StorageFileId),
-                    "application/pdf", stream, null, null);
-            }
+            using Stream stream = new MemoryStream(storageData.Data);
+            _storageClient.UploadObject(_settings.GoogleBucketName, GetObjectName(storageData.StorageFileId), "application/pdf", stream, null, null);
         }
 
         public StorageData Get(StorageFileId storageFileId)

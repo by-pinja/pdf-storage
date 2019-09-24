@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Pdf.Storage.Data;
+using PuppeteerSharp;
 
 namespace Pdf.Storage.Migrations
 {
-    public static class MigrationExecutorExtensions
+    public static class HostStartupExtensions
     {
         public static IWebHost MigrateDb(this IWebHost host)
         {
@@ -47,6 +50,28 @@ namespace Pdf.Storage.Migrations
             }
 
             return host;
+        }
+
+        public static async Task<IWebHost> DownloadPrequisitiesIfNeeded(this IWebHost host)
+        {
+            using var scope = host.Services.CreateScope();
+
+            var services = scope.ServiceProvider;
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            var commonSettings = services.GetRequiredService<IOptions<CommonConfig>>();
+
+            if (commonSettings.Value.PuppeteerChromiumPath != default)
+            {
+                logger.LogInformation($"Puppeteer is configured to use path {commonSettings.Value.PuppeteerChromiumPath}, skipping automatic download.");
+            }
+            else
+            {
+                logger.LogInformation("Making sure correct chromium for puppeteer is available.");
+                await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
+            }
+
+            return host;
+
         }
     }
 }

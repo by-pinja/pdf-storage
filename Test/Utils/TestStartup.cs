@@ -1,21 +1,12 @@
 ﻿using System;
 using System.IO;
-using System.Linq.Expressions;
-using Hangfire;
-using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using NSubstitute;
 using Pdf.Storage.Data;
-using Pdf.Storage.Hangfire;
 using Pdf.Storage.Mq;
 using Pdf.Storage.Pdf;
-using Pdf.Storage.Pdf.CustomPages;
-using Pdf.Storage.PdfMerge;
 using Pdf.Storage.Util;
 using Protacon.NetCore.WebApi.ApiKeyAuth;
 using Protacon.NetCore.WebApi.Util.ModelValidation;
@@ -47,7 +38,7 @@ namespace Pdf.Storage.Hangfire
                 return new HangfireMock(provider);
             });
 
-            services.AddSingleton<HangfireMock>(provider =>
+            services.AddSingleton(provider =>
             {
                 return (HangfireMock)provider.GetService<IHangfireQueue>();
             });
@@ -57,6 +48,7 @@ namespace Pdf.Storage.Hangfire
 
             var configuration = new ConfigurationBuilder()
                 .AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json"))
+                .AddEnvironmentVariables()
                 .Build();
 
             services.Configure<CommonConfig>(configuration);

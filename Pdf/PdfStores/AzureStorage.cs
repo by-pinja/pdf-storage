@@ -37,21 +37,20 @@ namespace Pdf.Storage.Pdf.PdfStores
 
         public StorageData Get(StorageFileId storageFileId)
         {
-            using (var memorySteam = new MemoryStream())
-            {
-                var blob = _blobContainer.Value;
+            using var memorySteam = new MemoryStream();
 
-                var blobRef = GetBlobRef(storageFileId, blob);
+            var blob = _blobContainer.Value;
 
-                if (!blobRef.Exists())
-                    throw new InvalidOperationException($"Tried to open non existent blob '{GetBlobName(storageFileId)}'");
+            var blobRef = GetBlobRef(storageFileId, blob);
 
-                blobRef.DownloadToStream(memorySteam);
+            if (!blobRef.Exists())
+                throw new InvalidOperationException($"Tried to open non existent blob '{GetBlobName(storageFileId)}'");
 
-                var asDataArray = memorySteam.ToArray();
+            blobRef.DownloadToStream(memorySteam);
 
-                return new StorageData(storageFileId, asDataArray);
-            }
+            var asDataArray = memorySteam.ToArray();
+
+            return new StorageData(storageFileId, asDataArray);
         }
 
         public void Remove(StorageFileId storageFileId)
