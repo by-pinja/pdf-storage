@@ -54,25 +54,24 @@ namespace Pdf.Storage.Migrations
 
         public static async Task<IWebHost> DownloadPrequisitiesIfNeeded(this IWebHost host)
         {
-            using (var scope = host.Services.CreateScope())
+            using var scope = host.Services.CreateScope();
+
+            var services = scope.ServiceProvider;
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            var commonSettings = services.GetRequiredService<IOptions<CommonConfig>>();
+
+            if (commonSettings.Value.PuppeteerChromiumPath != default)
             {
-                var services = scope.ServiceProvider;
-                var logger = services.GetRequiredService<ILogger<Program>>();
-                var commonSettings = services.GetRequiredService<IOptions<CommonConfig>>();
-
-                if (commonSettings.Value.PuppeteerChromiumPath != default)
-                {
-                    logger.LogInformation($"Puppeteer is configured to use path {commonSettings.Value.PuppeteerChromiumPath}, skipping automatic download.");
-                }
-                else
-                {
-                    logger.LogInformation("Making sure correct chromium for puppeteer is available.");
-                    await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
-                }
-
+                logger.LogInformation($"Puppeteer is configured to use path {commonSettings.Value.PuppeteerChromiumPath}, skipping automatic download.");
+            }
+            else
+            {
+                logger.LogInformation("Making sure correct chromium for puppeteer is available.");
+                await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
             }
 
             return host;
+
         }
     }
 }
