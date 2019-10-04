@@ -14,7 +14,7 @@ company name, company logo.
 - rowData: data that generates a new document for each row. Can be used to
 generate multiple PDFs with a single request.
 
-For example, the followng input:
+For example, the following input:
 
 ```json
 {
