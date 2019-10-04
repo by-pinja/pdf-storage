@@ -164,3 +164,7 @@ Usefull for development.
 ```powershell
 ./AddOrRemoveMigrations.ps1 -Operation Remove -MigrationName "DescriptionForMigration"
 ```
+
+## License
+
+[The MIT License (MIT)](LICENSE)
