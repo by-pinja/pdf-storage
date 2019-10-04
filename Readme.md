@@ -146,6 +146,7 @@ Pdf storage supports azure storage accounts as storage.
   "AzureStorage": {
     "StorageConnectionString": "DefaultEndpointsProtocol=https;AccountName=[your_account];AccountKey=[your_key];EndpointSuffix=core.windows.net",
     "ContainerName": "pdf-storage"
+  }
 }
 ```
 
