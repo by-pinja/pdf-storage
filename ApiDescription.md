@@ -1,21 +1,20 @@
 ﻿# PDF-STORAGE API
 
-Generates PDF files from given html template and stores them in constant URI.
+Generates PDF files from HTML templates and stores them in constant URIs.
 
 ## Templating
 
-Generated pdf:s supported limited mustache templating.
+Generated PDFs support limited mustache templating.
+For further information, see [https://mustache.github.io/](https://mustache.github.io/).
 
-See [https://mustache.github.io/](https://mustache.github.io/)
+A PDF request has two key concepts for data: baseData and rowData.
 
-Pdf request has two concepts for data: base and row. With rowData you can
-generate multiple pdf:s with single request.
-
-- baseData: Data that is applied for every document, for example
+- baseData: data that is applied for every document. Examples:
 company name, company logo.
-- rowData: Data that generates new document for each row.
+- rowData: data that generates a new document for each row. Can be used to
+generate multiple PDFs with a single request.
 
-For example:
+For example, the followng input:
 
 ```json
 {
@@ -35,29 +34,32 @@ For example:
 }
 ```
 
-Generates two PDF:s with data "a" and "b" per document.
+generates two PDFs with data "a" and "b" per document.
 
 ## Translators
 
-Storage templating accepts 'translators' which converts string to another asset. For example: string as base64 image which is easy to embed template.
+The storage templating supports `translators`, which convert strings to other assets.
+For example: a string as a base64 image, which is easy to embed into a template.
+
+The following data
 
 ```json
 {
   "html": "string",
   "baseData": {},
   "rowData": [
-    { barcode: "[translate:barcode]AE3011A"}
+    { barcode: "[translate:barcode]AE3011A" }
   ]
 }
 ```
 
-With template
+used with the template
 
 ```html
 <img src="{{ barcode }}"/>
 ```
 
-Generates
+generates the following output:
 
 ```html
 <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASIAAAB4CAYAAABW..."/>
@@ -69,8 +71,7 @@ Generates
 [translate:type]data
 ```
 
-Or with options. Options are documented per translator and they are
-different for each of them.
+Translator specific options are supported and used as follows.
 
 ```text
 [translate:type:{ optionValue: "value" }]data
@@ -86,7 +87,7 @@ Real example:
 
 #### barcode
 
-Generates barcode image of type `code128|...`
+Generates a barcode image of type `code128|...`
 
 ```json
 {
