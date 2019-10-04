@@ -31,6 +31,13 @@ The default development setup mocks all external dependencies.
 
 Navigate to [http://localhost:5000/doc/](http://localhost:5000/doc/).
 
+The following headers must be included in API calls:
+
+```
+Authorization: ApiKey apikeyfortesting
+Content-Type: application/json-patch+json
+```
+
 ## Local development with mocks enabled
 
 The default `Development` environment setup enables all mocks in `appsettings.Development.json`.
