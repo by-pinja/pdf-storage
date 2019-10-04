@@ -44,8 +44,16 @@ namespace Pdf.Storage.Pdf
 
         [Authorize(AuthenticationSchemes = "ApiKey")]
         [HttpPost("/v1/pdf/{groupId}/")]
-        public ActionResult<IEnumerable<NewPdfResponse>> AddNewPdf([Required] string groupId, [FromBody] NewPdfRequest request)
+        public ActionResult<IEnumerable<NewPdfResponse>> AddNewPdf([Required] string groupId, [FromBody] object requestBody)
         {
+            NewPdfRequest request;
+
+            try {
+                request = JObject.Parse(requestBody.ToString()).ToObject<NewPdfRequest>();
+            } catch (System.ArgumentException) {
+                return BadRequest("Input is not valid JSON.");
+            }
+
             if(!request.RowData.Any())
                 return BadRequest("Expected to get attleast one 'rowData' element, but got none.");
 
