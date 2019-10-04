@@ -1,22 +1,23 @@
 [![Docker pulls](https://img.shields.io/docker/pulls/ptcos/pdf-storage.svg)](https://hub.docker.com/r/ptcos/pdf-storage/)
 [![Build Status](https://jenkins.protacon.cloud/buildStatus/icon?job=www.github.com/pdf-storage/master)](https://jenkins.protacon.cloud/job/www.github.com/job/pdf-storage/job/master/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # PDF-STORAGE
 
-Pdf storage is designed to be universally usable PDF generator from html templates.
+PDF storage is designed to be a universally usable PDF generator from HTML templates.
 
 Key aspects:
 
-- Consumer of API doesn't have to care how pdfs/templates and so on are persisted,
-  storage will handle that part.
-- Simple to use, simple API that takes html and templating data and respond with
-  final pdf URL.
-- Support merging pdf:s as one.
-- Survives very large amount of generated pfds and can prioritize files that require
-  faster output (files that are currently opened if queue is long) before everything else.
+- The consumer of the API doesn't have to care how PDFs, templates and so on are persisted - 
+  the storage will handle that part.
+- A simple API which takes HTML and templating data and responds with
+  a final PDF file URL.
+- Supports merging PDFs as one.
+- Can handle very large amounts of generated PDFs and prioritize files which require
+  a faster output (files which are currently opened if the queue is long) before everything else.
 - Supports AWS, Azure and Google services and data stores.
 
-See [Api description document](ApiDescription.md)
+For further details, see the [API description document](ApiDescription.md).
 
 ## Running locally for development
 
@@ -26,14 +27,21 @@ Install .NET core SDK.
 dotnet run --environment=Development
 ```
 
-Default development setup mocks all external depencies.
+The default development setup mocks all external dependencies.
 
-Navigate [http://localhost:5000/doc/](http://localhost:5000/doc/)
+Navigate to [http://localhost:5000/doc/](http://localhost:5000/doc/).
 
-## Local development, mocks enabled
+The following headers must be included in API calls:
 
-At default setup with `Development` environents all mocks are enabled in `appsettings.Development.json`.
-This way service should start and fuction correctly without any external depencies.
+```
+Authorization: ApiKey apikeyfortesting
+Content-Type: application/json-patch+json
+```
+
+## Local development with mocks enabled
+
+The default `Development` environment setup enables all mocks in `appsettings.Development.json`.
+This way the service should start and function correctly without any external dependencies.
 
 ```json
 {
@@ -43,19 +51,19 @@ This way service should start and fuction correctly without any external depenci
 }
 ```
 
-Or overwrite them with environment variables `PdfStorageType = "inMemory"` etc.
+These can be overwritten with environment variables: `PdfStorageType = "inMemory"` etc.
 
-On linux (debian) set development, install pdftk and chromium.
+On Linux (Debian) set development, install pdftk and chromium.
 
 ```bash
 sudo apt-get -y install pdftk chromium
 ```
 
-On windows chrome is required.
+On Windows, Chrome is required.
 
-## Run local development database
+## Run a local development database
 
-PostreSQL:
+PostgreSQL:
 
 ```bash
 docker run --name pdf-storage-postgress -e POSTGRES_PASSWORD=passwordfortesting -it -p 5432:5432 postgres
@@ -73,25 +81,27 @@ Connect with `Server=localhost,1433;Database=pdf-storage;User=sa;Password=testpa
 
 ## Hangfire dashboard
 
-Dashboard allows traffic only from localhost at production builds.
+Dashboard allows traffic only from localhost on production builds.
 
-For this reason portforwarding to running container is required (in kubernetes).
+For this reason, port forwarding to the running container is required (in Kubernetes).
 
 ```bash
 kubectl -n pdf-storage port-forward pdf-storage-master-4075827073-5h77r 5000
 ```
 
-Navigate (via forwarded port) [http://localhost:5000/hangfire](http://localhost:5000/hangfire)
+Navigate (via forwarded port) to [http://localhost:5000/hangfire](http://localhost:5000/hangfire).
 
-In other technologies localhost requirement applies but access methods may vary.
+## Other technologies
+
+The localhost requirement applies, but access methods may vary.
 
 ## PDF stores
 
 ### Google bucket
 
-Pdf storage supports google bucket for saving pdf binaries.
+PDF storage supports Google bucket for saving PDF binaries.
 
-Mount valid service account file and configure it's path and configure google configurations in appconfig or environment variables.
+Mount a valid service account file, configure its path and Google configurations in appconfig or environment variables.
 
 ```json
 {
@@ -102,7 +112,7 @@ Mount valid service account file and configure it's path and configure google co
 }
 ```
 
-Example (not valid) service account file, see google service accounts for futher information.
+Example (not valid) service account file, see Google service accounts for further information.
 
 ```json
 {
@@ -121,7 +131,7 @@ Example (not valid) service account file, see google service accounts for futher
 
 ### AWS S3
 
-Configure application to use pdf store.
+Configure application to use AWS S3 store.
 
 ```json
 {
@@ -138,7 +148,7 @@ Configure application to use pdf store.
 
 ### Azure storage
 
-Pdf storage supports azure storage accounts as storage.
+PDF storage supports Azure storage accounts as storage.
 
 ```json
 {
@@ -151,16 +161,16 @@ Pdf storage supports azure storage accounts as storage.
 
 ## Migrations
 
-Theres special script for migrations since multiple DB engines are supported.
+There is a special script for migrations since multiple database engines are supported.
 
 ```powershell
 ./AddOrRemoveMigrations.ps1 -MigrationName "DescriptionForMigration"
 ```
 
-### Removing latest migration
-
-Usefull for development.
+### Removing the latest migration
 
 ```powershell
 ./AddOrRemoveMigrations.ps1 -Operation Remove -MigrationName "DescriptionForMigration"
 ```
+
+Useful for development.
