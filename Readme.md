@@ -99,6 +99,7 @@ Mount valid service account file and configure it's path and configure google co
   "GoogleCloud": {
     "GoogleBucketName": "pdf-storage-master",
     "GoogleAuthFile": "/path/to/key/google.key.json"
+  }
 }
 ```
 
