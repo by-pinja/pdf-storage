@@ -46,7 +46,7 @@ namespace Pdf.Storage.Pdf
         [HttpPost("/v1/pdf/{groupId}/")]
         public ActionResult<IEnumerable<NewPdfResponse>> AddNewPdf([Required] string groupId, [FromBody] NewPdfRequest request)
         {
-            if(!request.RowData.Any())
+            if (!request.RowData.Any())
                 return BadRequest("Expected to get attleast one 'rowData' element, but got none.");
 
             var responses = request.RowData.Select(row =>
@@ -78,7 +78,7 @@ namespace Pdf.Storage.Pdf
         [HttpGet("/v1/pdf/{groupId}/{pdfId}.{extension}")]
         public IActionResult Get(string groupId, string pdfId, string extension, [FromQuery] bool noCount)
         {
-            if(extension != "html" && extension != "pdf")
+            if (extension != "html" && extension != "pdf")
             {
                 return BadRequest("Only extensions 'pdf' and 'html' are supported.");
             }

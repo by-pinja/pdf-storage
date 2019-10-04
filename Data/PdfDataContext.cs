@@ -12,7 +12,7 @@ namespace Pdf.Storage.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            if(Database.IsNpgsql())
+            if (Database.IsNpgsql())
             {
                 modelBuilder.Entity<PdfRawDataEntity>(eb =>
                 {
@@ -21,7 +21,7 @@ namespace Pdf.Storage.Data
                 });
             }
 
-            if(Database.IsSqlServer())
+            if (Database.IsSqlServer())
             {
                 modelBuilder.Entity<PdfRawDataEntity>(eb =>
                 {
