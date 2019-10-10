@@ -26,7 +26,7 @@ podTemplate(label: pod.label,
               libjpeg-turbo-utils \
               udev \
               ttf-opensans \
-              chromium=76.0.3809.132-r0 \
+              chromium=77.0.3865.90-r0 \
               libgdiplus \
               pdftk
           """
