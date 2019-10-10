@@ -21,13 +21,17 @@ namespace Pdf.Storage.Pdf
                 .ToList()
                 .SingleOrDefault(x => x.SystemName == options.Value.AwsRegion)
                 ?? throw new InvalidOperationException($"Cannot resolve {nameof(options.Value.AwsRegion)} ({options.Value.AwsRegion}) from valid options {String.Join(", ", RegionEndpoint.EnumerableAllRegions.Select(x => x.SystemName))}");
-
+                        
             var config = new AmazonS3Config
             {
                 RegionEndpoint = region,
-                ServiceURL = options.Value.AwsServiceURL ?? throw new InvalidOperationException($"Missing configuration {nameof(options.Value.AwsServiceURL)}"),
                 ForcePathStyle = true
             };
+
+            if (options.Value.AwsServiceURL != null)
+            {
+                config.ServiceURL = options.Value.AwsServiceURL;
+            }
 
             this.s3Client = new AmazonS3Client(
                 options.Value.AccessKey ?? throw new InvalidOperationException($"Missing configuration {nameof(options.Value.AccessKey)}"),
