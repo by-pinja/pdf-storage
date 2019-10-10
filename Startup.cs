@@ -92,7 +92,7 @@ namespace Pdf.Storage
                     services.AddDbContext<PdfDataContext>(opt =>
                             opt.UseSqlServer(Configuration["ConnectionString"]));
 
-                    services.AddTransient<HangfireAuthenticationMiddleware>();
+                    services.AddTransient<BasicAuthMiddleware>();
 
                     services.AddHangfire(config =>
                         config
@@ -168,8 +168,9 @@ namespace Pdf.Storage
 
             app.Map("/hangfire", appBuilder =>
             {
-                appBuilder.UseMiddleware<HangfireAuthenticationMiddleware>();
-                app.UseHangfireDashboard("/hangfire", new DashboardOptions
+                appBuilder.UseMiddleware<IpWhitelistMiddleware>();
+                appBuilder.UseMiddleware<BasicAuthMiddleware>();
+                appBuilder.UseHangfireDashboard("", new DashboardOptions
                 {
                     Authorization = new IDashboardAuthorizationFilter[] {}
                 });
