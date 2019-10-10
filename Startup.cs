@@ -164,16 +164,21 @@ namespace Pdf.Storage
             {
                 case "api":
                     app.UseMvc();
-                    app.UseHangfireDashboard();
+                    app.UseHangfireDashboard("/hangfire", new DashboardOptions
+                    {
+                        Authorization = new[] { new HangfireCookieAuthFilter() }
+                    });
                     break;
                 case "worker":
                     app.UseHangfireServer(options);
-                    app.UseHangfireDashboard();
                     break;
                 default:
                     app.UseMvc();
                     app.UseHangfireServer(options);
-                    app.UseHangfireDashboard();
+                    app.UseHangfireDashboard("/hangfire", new DashboardOptions
+                    {
+                        Authorization = new[] { new HangfireCookieAuthFilter() }
+                    });
                     break;
             }
         }
