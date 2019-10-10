@@ -19,6 +19,16 @@ Key aspects:
 
 For further details, see the [API description document](ApiDescription.md).
 
+## Testing locally in docker
+
+Easiest way to run and test application is to start in with docker
+
+```bash
+docker run -it -p 5000:5000 -e ASPNETCORE_ENVIRONMENT=Development ptcos/pdf-storage
+```
+
+Navigate to [http://localhost:5000/doc](http://localhost:5000/doc)
+
 ## Running locally for development
 
 Install .NET core SDK.
