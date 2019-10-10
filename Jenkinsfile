@@ -11,27 +11,6 @@ podTemplate(label: pod.label,
       stage('Checkout') {
          checkout scm
       }
-      stage('Prepare') {
-        container('dotnet') {
-          sh """
-            echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories \
-            && echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
-            && echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
-            && apk --no-cache  update \
-            && apk --no-cache  upgrade \
-            && apk add --no-cache --virtual .build-deps \
-              gifsicle \
-              pngquant \
-              optipng \
-              libjpeg-turbo-utils \
-              udev \
-              ttf-opensans \
-              chromium=77.0.3865.90-r0 \
-              libgdiplus \
-              pdftk
-          """
-        }
-      }
       stage('Build') {
         container('dotnet') {
           sh """
@@ -39,15 +18,7 @@ podTemplate(label: pod.label,
           """
         }
       }
-      stage('Test') {
-        container('dotnet') {
-          sh """
-            ls /usr/bin/chromium-browser
-            PuppeteerChromiumPath=/usr/bin/chromium-browser dotnet test
-          """
-        }
-      }
-      stage('Package') {
+      stage('Package & Test') {
         container('docker') {
           def publishedImage = publishContainerToGcr(project);
           publishTagToDockerhub(project);
