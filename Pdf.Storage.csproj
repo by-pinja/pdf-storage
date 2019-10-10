@@ -45,7 +45,7 @@
     <!--  When you update PuppeteerSharp you must also find corresponding version
           in alpine at Dockerfile. Alpine limits available chromium versions available so don't update
           this without check them out. Chromium version must be about same as puppeteer expects -->
-    <PackageReference Include="PuppeteerSharp" Version="1.17.0" />
+    <PackageReference Include="PuppeteerSharp" Version="1.19.0" />
   </ItemGroup>
 
   <ItemGroup>
