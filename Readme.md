@@ -183,4 +183,7 @@ There is a special script for migrations since multiple database engines are sup
 ./AddOrRemoveMigrations.ps1 -Operation Remove -MigrationName "DescriptionForMigration"
 ```
 
-Useful for development.
+## License
+
+[The MIT License (MIT)](LICENSE)
+
