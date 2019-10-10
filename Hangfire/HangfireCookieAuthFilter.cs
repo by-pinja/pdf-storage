@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Pdf.Storage.Hangfire
 {
-public class HangfireCookieAuthFilter : IDashboardAuthorizationFilter
+public class HangfireBasicAuthFilter : IDashboardAuthorizationFilter
     {
         public bool Authorize(DashboardContext context)
         {
@@ -55,7 +55,7 @@ public class HangfireCookieAuthFilter : IDashboardAuthorizationFilter
 
         private void SetChallengeResponse(HttpContext httpContext)
         {
-            //httpContext.Response.StatusCode = 401;
+            httpContext.Response.StatusCode = 401;
             httpContext.Response.Headers.Append("WWW-Authenticate", "Basic realm=\"Hangfire Dashboard\"");
             httpContext.Response.WriteAsync("Authentication is required.");
         }

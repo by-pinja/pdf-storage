@@ -1,16 +1,16 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Hangfire.Dashboard;
 using Microsoft.Extensions.Options;
-using Pdf.Storage;
 
-namespace Hangfire.Dashboard
+namespace Pdf.Storage.Hangfire
 {
-    public class LocalRequestsOnlyAuthorizationFilter : IDashboardAuthorizationFilter
+    public class HangfireIpBasedAuthorizationFilter : IDashboardAuthorizationFilter
     {
         private readonly IEnumerable<string> _allowedIpAddresses;
 
-        public LocalRequestsOnlyAuthorizationFilter(IOptions<CommonConfig> config)
+        public HangfireIpBasedAuthorizationFilter(IOptions<CommonConfig> config)
         {
             _allowedIpAddresses = config.Value.AllowedIpAddresses;
         }

@@ -18,6 +18,8 @@ using Pdf.Storage.Config;
 using Pdf.Storage.Pdf.Config;
 using Pdf.Storage.Pdf.PdfStores;
 using Pdf.Storage.Migrations;
+using Hangfire.Dashboard;
+using Microsoft.Extensions.Options;
 
 namespace Pdf.Storage
 {
@@ -90,6 +92,8 @@ namespace Pdf.Storage
                     services.AddDbContext<PdfDataContext>(opt =>
                             opt.UseSqlServer(Configuration["ConnectionString"]));
 
+                    services.AddTransient<HangfireAuthenticationMiddleware>();
+
                     services.AddHangfire(config =>
                         config
                             .UseFilter(new PreserveOriginalQueueAttribute())
@@ -160,27 +164,35 @@ namespace Pdf.Storage
 
             hangfireQueue.ScheduleRecurring<CleanUpCronJob>("clearObsoletePdfSourceDataRows", job => job.Execute(), Cron.Hourly());
 
-            switch (GetAppRole())
-            {
-                case "api":
-                    app.UseMvc();
-                    app.UseHangfireDashboard("/hangfire", new DashboardOptions
-                    {
-                        Authorization = new[] { new HangfireCookieAuthFilter() }
-                    });
-                    break;
-                case "worker":
-                    app.UseHangfireServer(options);
-                    break;
-                default:
-                    app.UseMvc();
-                    app.UseHangfireServer(options);
-                    app.UseHangfireDashboard("/hangfire", new DashboardOptions
-                    {
-                        Authorization = new[] { new HangfireCookieAuthFilter() }
-                    });
-                    break;
-            }
+            var commonConfig = app.ApplicationServices.GetRequiredService<IOptions<CommonConfig>>();
+
+            app.Map("/hangfire", appBuilder => {
+                appBuilder.UseMiddleware<HangfireAuthenticationMiddleware>();
+                appBuilder.UseHangfireServer(options);
+                appBuilder.UseHangfireDashboard("");
+            });
+
+            // switch (GetAppRole())
+            // {
+            //     case "api":
+            //         app.UseMvc();
+            //         app.UseHangfireDashboard("/hangfire", new DashboardOptions
+            //         {
+
+            //         });
+            //         break;
+            //     case "worker":
+            //         app.UseHangfireServer(options);
+            //         break;
+            //     default:
+            //         app.UseMvc();
+            //         app.UseHangfireServer(options);
+            //         app.UseHangfireDashboard("/hangfire", new DashboardOptions
+            //         {
+
+            //         });
+            //         break;
+            // }
         }
 
         private string GetAppRole()
