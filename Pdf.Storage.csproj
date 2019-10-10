@@ -4,7 +4,7 @@
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>Pdf.Storage</AssemblyName>
     <OutputType>Exe</OutputType>
-    <PackageId>Pdf.Storate</PackageId>
+    <PackageId>Pdf.Storage</PackageId>
     <GenerateProgramFile>false</GenerateProgramFile>
     <UserSecretsId>29daae28-ca01-4571-a752-561bae77dd89</UserSecretsId>
     <LangVersion>8.0</LangVersion>
