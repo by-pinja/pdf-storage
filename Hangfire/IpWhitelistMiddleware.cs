@@ -1,5 +1,4 @@
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -21,15 +20,35 @@ namespace Pdf.Storage.Hangfire
         {
             var remoteIp = context.Connection.RemoteIpAddress?.ToString();
 
-            if (_allowedIpAddresses.Contains("*") || remoteIp == "127.0.0.1" || remoteIp == "::1" || remoteIp == context.Connection.LocalIpAddress?.ToString() || _allowedIpAddresses.Any(x => x == remoteIp))
+            if (remoteIp == default)
+            {
+                await Unauthorized(context);
+                return;
+            }
+
+            if (IsRemoteIpAddressLocalHost(remoteIp, context) ||
+                _allowedIpAddresses.Contains("*") ||
+                _allowedIpAddresses.Any(x => x == remoteIp))
             {
                 await _next.Invoke(context);
                 return;
             }
 
+            await Unauthorized(context);
+        }
+
+        private static async Task Unauthorized(HttpContext context)
+        {
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
             context.Response.ContentType = "text/plain";
             await context.Response.WriteAsync($"Client ip not allowed ({context.Connection.RemoteIpAddress})");
+        }
+
+        private static bool IsRemoteIpAddressLocalHost(string remoteIp, HttpContext context)
+        {
+            return remoteIp == "127.0.0.1" ||
+                remoteIp == "::1" ||
+                remoteIp == context.Connection.LocalIpAddress?.ToString();
         }
     }
 }

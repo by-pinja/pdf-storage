@@ -25,14 +25,11 @@ namespace Pdf.Storage.Hangfire
 
         public async Task Invoke(HttpContext context)
         {
-            if (string.IsNullOrEmpty(_userName))
+            if (string.IsNullOrEmpty(_userName) || string.IsNullOrEmpty(_password))
             {
                 await _next.Invoke(context);
                 return;
             }
-
-            if (string.IsNullOrEmpty(_password))
-                throw new InvalidOperationException("Invalid configuration: username for hangfire is set but password isn't.");
 
             string authHeader = context.Request.Headers["Authorization"];
             if (authHeader != null && authHeader.StartsWith("Basic "))
