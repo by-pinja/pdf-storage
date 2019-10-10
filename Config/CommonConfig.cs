@@ -12,5 +12,8 @@ namespace Pdf.Storage
         // If empty, only localhost is allowed.
         // To allow any ip addreess add "*".
         public string[] AllowedIpAddresses { get; set; } = new string[] {};
+
+        public string HangfireDashboardUser { get; set; }
+        public string HangfireDashboardPassword { get; set; }
     }
 }

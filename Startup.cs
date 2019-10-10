@@ -166,33 +166,28 @@ namespace Pdf.Storage
 
             var commonConfig = app.ApplicationServices.GetRequiredService<IOptions<CommonConfig>>();
 
-            app.Map("/hangfire", appBuilder => {
+            app.Map("/hangfire", appBuilder =>
+            {
                 appBuilder.UseMiddleware<HangfireAuthenticationMiddleware>();
-                appBuilder.UseHangfireServer(options);
-                appBuilder.UseHangfireDashboard("");
+                app.UseHangfireDashboard("/hangfire", new DashboardOptions
+                {
+                    Authorization = new IDashboardAuthorizationFilter[] {}
+                });
             });
 
-            // switch (GetAppRole())
-            // {
-            //     case "api":
-            //         app.UseMvc();
-            //         app.UseHangfireDashboard("/hangfire", new DashboardOptions
-            //         {
-
-            //         });
-            //         break;
-            //     case "worker":
-            //         app.UseHangfireServer(options);
-            //         break;
-            //     default:
-            //         app.UseMvc();
-            //         app.UseHangfireServer(options);
-            //         app.UseHangfireDashboard("/hangfire", new DashboardOptions
-            //         {
-
-            //         });
-            //         break;
-            // }
+            switch (GetAppRole())
+            {
+                case "api":
+                    app.UseMvc();
+                    break;
+                case "worker":
+                    app.UseHangfireServer(options);
+                    break;
+                default:
+                    app.UseMvc();
+                    app.UseHangfireServer(options);
+                    break;
+            }
         }
 
         private string GetAppRole()
