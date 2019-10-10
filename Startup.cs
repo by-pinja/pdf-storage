@@ -164,8 +164,6 @@ namespace Pdf.Storage
 
             hangfireQueue.ScheduleRecurring<CleanUpCronJob>("clearObsoletePdfSourceDataRows", job => job.Execute(), Cron.Hourly());
 
-            var commonConfig = app.ApplicationServices.GetRequiredService<IOptions<CommonConfig>>();
-
             app.Map("/hangfire", appBuilder =>
             {
                 appBuilder.UseMiddleware<IpWhitelistMiddleware>();
