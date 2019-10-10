@@ -119,6 +119,7 @@ Mount a valid service account file, configure its path and Google configurations
   "GoogleCloud": {
     "GoogleBucketName": "pdf-storage-master",
     "GoogleAuthFile": "/path/to/key/google.key.json"
+  }
 }
 ```
 
