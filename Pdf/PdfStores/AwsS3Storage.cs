@@ -25,9 +25,13 @@ namespace Pdf.Storage.Pdf
             var config = new AmazonS3Config
             {
                 RegionEndpoint = region,
-                ServiceURL = options.Value.AwsServiceURL ?? throw new InvalidOperationException($"Missing configuration {nameof(options.Value.AwsServiceURL)}"),
                 ForcePathStyle = true
             };
+
+            if (options.Value.AwsServiceURL != null)
+            {
+                config.ServiceURL = options.Value.AwsServiceURL;
+            }
 
             _s3Client = new AmazonS3Client(
                 options.Value.AccessKey ?? throw new InvalidOperationException($"Missing configuration {nameof(options.Value.AccessKey)}"),
@@ -74,7 +78,7 @@ namespace Pdf.Storage.Pdf
                 Key = GetKey(storageFileId)
             };
 
-            this._s3Client.DeleteObjectAsync(deleteObjectRequest).Wait();
+            _s3Client.DeleteObjectAsync(deleteObjectRequest).Wait();
         }
 
         private string GetKey(StorageFileId storageFileId)

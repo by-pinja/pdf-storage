@@ -19,6 +19,16 @@ Key aspects:
 
 For further details, see the [API description document](ApiDescription.md).
 
+## Testing locally in docker
+
+Easiest way to run and test application is to start in with docker
+
+```bash
+docker run -it -p 5000:5000 -e ASPNETCORE_ENVIRONMENT=Development ptcos/pdf-storage
+```
+
+Navigate to [http://localhost:5000/doc](http://localhost:5000/doc)
+
 ## Running locally for development
 
 Install .NET core SDK.
@@ -109,6 +119,7 @@ Mount a valid service account file, configure its path and Google configurations
   "GoogleCloud": {
     "GoogleBucketName": "pdf-storage-master",
     "GoogleAuthFile": "/path/to/key/google.key.json"
+  }
 }
 ```
 
@@ -156,6 +167,7 @@ PDF storage supports Azure storage accounts as storage.
   "AzureStorage": {
     "StorageConnectionString": "DefaultEndpointsProtocol=https;AccountName=[your_account];AccountKey=[your_key];EndpointSuffix=core.windows.net",
     "ContainerName": "pdf-storage"
+  }
 }
 ```
 
@@ -173,4 +185,7 @@ There is a special script for migrations since multiple database engines are sup
 ./AddOrRemoveMigrations.ps1 -Operation Remove -MigrationName "DescriptionForMigration"
 ```
 
-Useful for development.
+## License
+
+[The MIT License (MIT)](LICENSE)
+
