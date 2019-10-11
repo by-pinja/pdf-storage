@@ -12,8 +12,8 @@ namespace Pdf.Storage.Pdf
 {
     public class AwsS3Storage : IStorage
     {
-        private readonly IAmazonS3 s3Client;
-        private readonly string bucketName;
+        private readonly IAmazonS3 _s3Client;
+        private readonly string _bucketName;
 
         public AwsS3Storage(IOptions<AwsS3Config> options)
         {
@@ -21,7 +21,7 @@ namespace Pdf.Storage.Pdf
                 .ToList()
                 .SingleOrDefault(x => x.SystemName == options.Value.AwsRegion)
                 ?? throw new InvalidOperationException($"Cannot resolve {nameof(options.Value.AwsRegion)} ({options.Value.AwsRegion}) from valid options {String.Join(", ", RegionEndpoint.EnumerableAllRegions.Select(x => x.SystemName))}");
-                        
+
             var config = new AmazonS3Config
             {
                 RegionEndpoint = region,
@@ -33,36 +33,36 @@ namespace Pdf.Storage.Pdf
                 config.ServiceURL = options.Value.AwsServiceURL;
             }
 
-            this.s3Client = new AmazonS3Client(
+            _s3Client = new AmazonS3Client(
                 options.Value.AccessKey ?? throw new InvalidOperationException($"Missing configuration {nameof(options.Value.AccessKey)}"),
                 options.Value.SecretKey ?? throw new InvalidOperationException($"Missing configuration {nameof(options.Value.AccessKey)}"),
                 config);
 
-            this.bucketName = options.Value.AwsS3BucketName ?? throw new InvalidOperationException($"Missing configuration {nameof(options.Value.AwsS3BucketName)}");
-            this.s3Client.EnsureBucketExistsAsync(bucketName);
+            _bucketName = options.Value.AwsS3BucketName ?? throw new InvalidOperationException($"Missing configuration {nameof(options.Value.AwsS3BucketName)}");
+            _s3Client.EnsureBucketExistsAsync(_bucketName);
         }
 
         public void AddOrReplace(StorageData storageData)
         {
             var putRequest = new PutObjectRequest
             {
-                BucketName = bucketName,
+                BucketName = _bucketName,
                 Key = GetKey(storageData.StorageFileId),
                 InputStream = new MemoryStream(storageData.Data)
             };
 
-            this.s3Client.PutObjectAsync(putRequest).Wait();
+            _s3Client.PutObjectAsync(putRequest).Wait();
         }
 
         public StorageData Get(StorageFileId storageFileId)
         {
             GetObjectRequest request = new GetObjectRequest
             {
-                BucketName = bucketName,
+                BucketName = _bucketName,
                 Key = GetKey(storageFileId)
             };
 
-            using GetObjectResponse response = this.s3Client.GetObjectAsync(request).Result;
+            using GetObjectResponse response = _s3Client.GetObjectAsync(request).Result;
             using Stream responseStream = response.ResponseStream;
             using var memstream = new MemoryStream();
 
@@ -74,11 +74,11 @@ namespace Pdf.Storage.Pdf
         {
             var deleteObjectRequest = new DeleteObjectRequest
             {
-                BucketName = bucketName,
+                BucketName = _bucketName,
                 Key = GetKey(storageFileId)
             };
 
-            this.s3Client.DeleteObjectAsync(deleteObjectRequest).Wait();
+            _s3Client.DeleteObjectAsync(deleteObjectRequest).Wait();
         }
 
         private string GetKey(StorageFileId storageFileId)
