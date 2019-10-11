@@ -10,18 +10,16 @@ namespace Pdf.Storage.Hangfire
     public class BasicAuthMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly IOptionsSnapshot<HangfireConfig> _commonConfig;
 
-        public BasicAuthMiddleware(RequestDelegate next, IOptionsSnapshot<HangfireConfig> commonConfig)
+        public BasicAuthMiddleware(RequestDelegate next)
         {
             _next = next;
-            _commonConfig = commonConfig;
         }
 
-        public async Task Invoke(HttpContext context)
+        public async Task Invoke(HttpContext context, IOptionsSnapshot<HangfireConfig> hangfireConfig)
         {
-            var validUsername = _commonConfig.Value.DashboardUser;
-            var validPassword = _commonConfig.Value.DashboardPassword;
+            var validUsername = hangfireConfig.Value.DashboardUser;
+            var validPassword = hangfireConfig.Value.DashboardPassword;
 
             if (string.IsNullOrEmpty(validUsername) || string.IsNullOrEmpty(validPassword))
             {

@@ -9,19 +9,17 @@ namespace Pdf.Storage.Hangfire
     public class IpWhitelistMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly IOptionsSnapshot<HangfireConfig> _hangfireConfig;
 
-        public IpWhitelistMiddleware(RequestDelegate next, IOptionsSnapshot<HangfireConfig> commonConfig)
+        public IpWhitelistMiddleware(RequestDelegate next)
         {
             _next = next;
-            _hangfireConfig = commonConfig;
         }
 
-        public async Task Invoke(HttpContext context)
+        public async Task Invoke(HttpContext context, IOptionsSnapshot<HangfireConfig> hangfireConfig)
         {
             var remoteIp = context.Connection.RemoteIpAddress?.ToString() ?? "remote_ip_address_not_available";
 
-            var allowedIpAddresses = _hangfireConfig.Value.AllowedIpAddresses;
+            var allowedIpAddresses = hangfireConfig.Value.AllowedIpAddresses;
 
             if (IsRemoteIpAddressLocalHost(remoteIp, context) ||
                 allowedIpAddresses.Contains("*") ||
