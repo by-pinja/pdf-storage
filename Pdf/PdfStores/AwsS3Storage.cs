@@ -62,7 +62,7 @@ namespace Pdf.Storage.Pdf
                 Key = GetKey(storageFileId)
             };
 
-            using GetObjectResponse response = this._s3Client.GetObjectAsync(request).Result;
+            using GetObjectResponse response = _s3Client.GetObjectAsync(request).Result;
             using Stream responseStream = response.ResponseStream;
             using var memstream = new MemoryStream();
 

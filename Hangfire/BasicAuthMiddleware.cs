@@ -52,7 +52,7 @@ namespace Pdf.Storage.Hangfire
             await context.Response.WriteAsync($"Authentication required.");
         }
 
-        public bool IsAuthorized(string username, string validUserName, string password, string validPassword)
+        private bool IsAuthorized(string username, string validUserName, string password, string validPassword)
         {
             return username.Equals(validUserName, StringComparison.InvariantCultureIgnoreCase) && password.Equals(validPassword);
         }

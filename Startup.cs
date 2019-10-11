@@ -92,8 +92,6 @@ namespace Pdf.Storage
                     services.AddDbContext<PdfDataContext>(opt =>
                             opt.UseSqlServer(Configuration["ConnectionString"]));
 
-                    services.AddTransient<BasicAuthMiddleware>();
-
                     services.AddHangfire(config =>
                         config
                             .UseFilter(new PreserveOriginalQueueAttribute())
