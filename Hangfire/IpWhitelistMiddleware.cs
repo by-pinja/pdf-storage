@@ -2,33 +2,30 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using Pdf.Storage.Config;
 
 namespace Pdf.Storage.Hangfire
 {
     public class IpWhitelistMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly string[] _allowedIpAddresses;
+        private readonly IOptionsSnapshot<HangfireConfig> _hangfireConfig;
 
-        public IpWhitelistMiddleware(RequestDelegate next, IOptions<CommonConfig> commonConfig)
+        public IpWhitelistMiddleware(RequestDelegate next, IOptionsSnapshot<HangfireConfig> commonConfig)
         {
             _next = next;
-            _allowedIpAddresses = commonConfig.Value.AllowedIpAddresses;
+            _hangfireConfig = commonConfig;
         }
 
         public async Task Invoke(HttpContext context)
         {
-            var remoteIp = context.Connection.RemoteIpAddress?.ToString();
+            var remoteIp = context.Connection.RemoteIpAddress?.ToString() ?? "remote_ip_address_not_available";
 
-            if (remoteIp == default)
-            {
-                await Unauthorized(context);
-                return;
-            }
+            var allowedIpAddresses = _hangfireConfig.Value.AllowedIpAddresses;
 
             if (IsRemoteIpAddressLocalHost(remoteIp, context) ||
-                _allowedIpAddresses.Contains("*") ||
-                _allowedIpAddresses.Any(x => x == remoteIp))
+                allowedIpAddresses.Contains("*") ||
+                allowedIpAddresses.Any(x => x == remoteIp))
             {
                 await _next.Invoke(context);
                 return;

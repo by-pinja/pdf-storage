@@ -139,6 +139,9 @@ namespace Pdf.Storage
             }
 
             services.Configure<ApiKeyAuthenticationOptions>(Configuration.GetSection("ApiAuthentication"));
+
+            services.Configure<HangfireConfig>(Configuration.GetSection("Hangfire"));
+
             services.AddTransient<CleanUpCronJob>();
         }
 

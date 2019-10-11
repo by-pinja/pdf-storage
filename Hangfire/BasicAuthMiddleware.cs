@@ -1,31 +1,29 @@
 using System;
-using System.Linq;
-using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using Pdf.Storage.Config;
 
 namespace Pdf.Storage.Hangfire
 {
     public class BasicAuthMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly IOptions<CommonConfig> _commonConfig;
-        private readonly string _userName;
-        private readonly string _password;
+        private readonly IOptionsSnapshot<HangfireConfig> _commonConfig;
 
-        public BasicAuthMiddleware(RequestDelegate next, IOptions<CommonConfig> commonConfig)
+        public BasicAuthMiddleware(RequestDelegate next, IOptionsSnapshot<HangfireConfig> commonConfig)
         {
             _next = next;
             _commonConfig = commonConfig;
-            _userName = commonConfig.Value.HangfireDashboardUser;
-            _password = commonConfig.Value.HangfireDashboardPassword;
         }
 
         public async Task Invoke(HttpContext context)
         {
-            if (string.IsNullOrEmpty(_userName) || string.IsNullOrEmpty(_password))
+            var validUsername = _commonConfig.Value.DashboardUser;
+            var validPassword = _commonConfig.Value.DashboardPassword;
+
+            if (string.IsNullOrEmpty(validUsername) || string.IsNullOrEmpty(validPassword))
             {
                 await _next.Invoke(context);
                 return;
@@ -40,7 +38,7 @@ namespace Pdf.Storage.Hangfire
                 var username = decodedUsernamePassword.Split(':', 2)[0];
                 var password = decodedUsernamePassword.Split(':', 2)[1];
 
-                if (IsAuthorized(username, password))
+                if (IsAuthorized(username, validUsername, password, validPassword))
                 {
                     await _next.Invoke(context);
                     return;
@@ -54,9 +52,9 @@ namespace Pdf.Storage.Hangfire
             await context.Response.WriteAsync($"Authentication required.");
         }
 
-        public bool IsAuthorized(string username, string password)
+        public bool IsAuthorized(string username, string validUserName, string password, string validPassword)
         {
-            return username.Equals(_userName, StringComparison.InvariantCultureIgnoreCase) && password.Equals(_password);
+            return username.Equals(validUserName, StringComparison.InvariantCultureIgnoreCase) && password.Equals(validPassword);
         }
     }
 }
