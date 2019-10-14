@@ -41,6 +41,7 @@
     <PackageReference Include="Stubble.Extensions.JsonNet " Version="1.0.18" />
     <PackageReference Include="BarcodeLib" Version="2.2.2" />
     <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="10.0.2" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.8.1" />
 
     <!--  When you update PuppeteerSharp you must also find corresponding version
           in alpine at Dockerfile. Alpine limits available chromium versions available so don't update

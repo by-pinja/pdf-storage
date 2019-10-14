@@ -34,6 +34,8 @@ namespace Pdf.Storage
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddApplicationInsightsTelemetry();
+
             services.AddAuthentication()
                 .AddApiKeyAuth(options =>
                 {
