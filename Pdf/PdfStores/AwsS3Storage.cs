@@ -20,7 +20,7 @@ namespace Pdf.Storage.Pdf
             var region = RegionEndpoint.EnumerableAllRegions
                 .ToList()
                 .SingleOrDefault(x => x.SystemName == options.Value.AwsRegion)
-                ?? throw new InvalidOperationException($"Cannot resolve {nameof(options.Value.AwsRegion)} ({options.Value.AwsRegion}) from valid options {String.Join(", ", RegionEndpoint.EnumerableAllRegions.Select(x => x.SystemName))}");
+                ?? throw new InvalidOperationException($"Cannot resolve {nameof(options.Value.AwsRegion)} ({options.Value.AwsRegion}) from valid options {string.Join(", ", RegionEndpoint.EnumerableAllRegions.Select(x => x.SystemName))}");
 
             var config = new AmazonS3Config
             {
@@ -56,14 +56,14 @@ namespace Pdf.Storage.Pdf
 
         public StorageData Get(StorageFileId storageFileId)
         {
-            GetObjectRequest request = new GetObjectRequest
+            var request = new GetObjectRequest
             {
                 BucketName = _bucketName,
                 Key = GetKey(storageFileId)
             };
 
-            using GetObjectResponse response = _s3Client.GetObjectAsync(request).Result;
-            using Stream responseStream = response.ResponseStream;
+            using var response = _s3Client.GetObjectAsync(request).Result;
+            using var responseStream = response.ResponseStream;
             using var memstream = new MemoryStream();
 
             response.ResponseStream.CopyTo(memstream);

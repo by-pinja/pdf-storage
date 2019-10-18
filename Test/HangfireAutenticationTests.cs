@@ -34,7 +34,7 @@ namespace Pdf.Storage.Test
         [Fact]
         public async Task WhenHangfireDashboardIsAccessedWithValidBasicAuthHeader_ThenAllowAccess()
         {
-            string basicAuthHeader = Convert.ToBase64String(Encoding.ASCII.GetBytes("foo:bar"));
+            var basicAuthHeader = Convert.ToBase64String(Encoding.ASCII.GetBytes("foo:bar"));
 
             var host = TestHost
                 .Run<TestStartup>()
