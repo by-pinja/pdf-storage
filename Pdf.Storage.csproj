@@ -56,7 +56,7 @@
     <None Update="Pdf\CustomPages\*.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="PdfMerge\PdfTkForWin\*">
+    <None Update="PdfMerge\QPdfForWin\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

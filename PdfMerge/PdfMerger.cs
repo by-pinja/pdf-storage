@@ -94,14 +94,14 @@ namespace Pdf.Storage.PdfMerge
             {
                 return CreateProcess(
                     workingDir: tempPath,
-                    fileName: $@"{_env.ContentRootPath}\PdfMerge\PdfTkForWin\pdftk.exe",
-                    arguments: tempFiles.Aggregate("", (a, b) => a + " " + b) + " cat output concat.pdf");
+                    fileName: $@"{_env.ContentRootPath}\PdfMerge\QPdfForWin\qpdf.exe",
+                    arguments: tempFiles.Aggregate("--empty --pages ", (a, b) => $"{a} {b} 1-z") + " -- concat.pdf");
             }
 
             return CreateProcess(
                 workingDir: tempPath,
-                fileName: "pdftk",
-                arguments: tempFiles.Aggregate("", (a, b) => a + " " + b) + $" cat output {tempPath}/concat.pdf");
+                fileName: "qpdf",
+                arguments:  tempFiles.Aggregate("--empty --pages ", (a, b) => $"{a} {b} 1-z") + $" -- {tempPath}/concat.pdf");
         }
 
         private Process CreateProcess(string workingDir, string fileName, string arguments)
