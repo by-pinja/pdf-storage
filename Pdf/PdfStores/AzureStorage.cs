@@ -16,8 +16,8 @@ namespace Pdf.Storage.Pdf.PdfStores
             _blobContainer = new Lazy<CloudBlobContainer>(() =>
             {
                 var storageAccount = CloudStorageAccount.Parse(azureConfig.Value.StorageConnectionString);
-                CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-                CloudBlobContainer blobContainer = blobClient.GetContainerReference(azureConfig.Value.ContainerName);
+                var blobClient = storageAccount.CreateCloudBlobClient();
+                var blobContainer = blobClient.GetContainerReference(azureConfig.Value.ContainerName);
                 blobContainer.CreateIfNotExists();
                 return blobContainer;
             });
