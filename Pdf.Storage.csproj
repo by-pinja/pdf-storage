@@ -56,7 +56,7 @@
     <None Update="Pdf\CustomPages\*.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="PdfMerge\QPdfForWin\*">
+    <None Update="PdfMerge\QPdfForWin\*" Condition=" '$(OS)' == 'Windows_NT' ">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

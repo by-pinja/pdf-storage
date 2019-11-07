@@ -29,7 +29,7 @@ ENV PuppeteerChromiumPath=/usr/bin/chromium-browser
 
 RUN dotnet publish -c release -o /out
 
-#RUN dotnet test
+RUN dotnet test
 
 FROM mcr.microsoft.com/dotnet/core/aspnet:2.2.7-alpine3.10
 ARG chromium_version
