@@ -44,7 +44,7 @@ namespace Pdf.Storage.Pdf
 
             var templatedHtml = _templatingEngine.Render(rawData.Html, rawData.TemplateData);
             templatedHtml = TemplateUtils.AddWaitForAllPageElementsFixToHtml(templatedHtml);
-            var data = GeneratePdfDataFromHtml(pdfEntityId, templatedHtml).Result;
+            var data = GeneratePdfDataFromHtml(pdfEntityId, templatedHtml).GetAwaiter().GetResult();
 
             _storage.AddOrReplace(new StorageData(new StorageFileId(entity), data));
             _storage.AddOrReplace(new StorageData(new StorageFileId(entity, "html"), Encoding.UTF8.GetBytes(templatedHtml)));
@@ -82,7 +82,11 @@ namespace Pdf.Storage.Pdf
                 }
             });
 
-            return await page.PdfDataAsync(new PdfOptions { Format = PaperFormat.A4 });
+            var result = await page.PdfDataAsync(new PdfOptions { Format = PaperFormat.A4 });
+            await page.CloseAsync();
+            await browser.CloseAsync();
+
+            return result;
         }
     }
 }
