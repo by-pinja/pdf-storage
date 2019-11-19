@@ -44,7 +44,7 @@ namespace Pdf.Storage.Pdf
 
             var templatedHtml = _templatingEngine.Render(rawData.Html, rawData.TemplateData);
             templatedHtml = TemplateUtils.AddWaitForAllPageElementsFixToHtml(templatedHtml);
-            var data = GeneratePdfDataFromHtml(pdfEntityId, templatedHtml).Result;
+            var data = GeneratePdfDataFromHtml(pdfEntityId, templatedHtml).GetAwaiter().GetResult();
 
             _storage.AddOrReplace(new StorageData(new StorageFileId(entity), data));
             _storage.AddOrReplace(new StorageData(new StorageFileId(entity, "html"), Encoding.UTF8.GetBytes(templatedHtml)));
@@ -69,20 +69,34 @@ namespace Pdf.Storage.Pdf
                 EnqueueTransportMessages = false
             });
 
-            var page = await browser.NewPageAsync();
+            byte[] result;
 
-            await page.SetContentAsync(html,
-            new NavigationOptions
+            try
             {
-                Timeout = 15 * 1000,
-                WaitUntil = new[]
-                {
-                    WaitUntilNavigation.Load,
-                    WaitUntilNavigation.DOMContentLoaded
-                }
-            });
+                var page = await browser.NewPageAsync();
 
-            return await page.PdfDataAsync(new PdfOptions { Format = PaperFormat.A4 });
+                await page.SetContentAsync(html,
+                    new NavigationOptions
+                    {
+                        Timeout = 15 * 1000,
+                        WaitUntil = new[] { WaitUntilNavigation.Load, WaitUntilNavigation.DOMContentLoaded }
+                    });
+
+                result = await page.PdfDataAsync(new PdfOptions { Format = PaperFormat.A4 });
+                await page.CloseAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Failed to generate pdf from {id}");
+                throw;
+            }
+            finally
+            {
+                await browser.CloseAsync();
+            }
+
+
+            return result;
         }
     }
 }
