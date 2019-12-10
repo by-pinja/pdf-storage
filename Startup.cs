@@ -58,7 +58,9 @@ namespace Pdf.Storage
                         .AllowAnyHeader());
             });
 
-            services.AddMvc(options => options.Filters.Add(new ValidateModelAttribute()));
+            services
+                .AddMvc(options => options.Filters.Add(new ValidateModelAttribute()))
+                .AddNewtonsoftJson();
 
             services.AddSwaggerGenConfiguration();
 
@@ -148,8 +150,10 @@ namespace Pdf.Storage
         public void Configure(IApplicationBuilder app, IHangfireQueue hangfireQueue)
         {
             app.UseCors("CorsPolicy");
+            app.UseRouting();
 
             app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseSwagger();
 
@@ -180,13 +184,17 @@ namespace Pdf.Storage
             switch (GetAppRole())
             {
                 case "api":
-                    app.UseMvc();
+                    app.UseEndpoints(endpoints => {
+                        endpoints.MapControllers();
+                    });
                     break;
                 case "worker":
                     app.UseHangfireServer(options);
                     break;
                 default:
-                    app.UseMvc();
+                    app.UseEndpoints(endpoints => {
+                        endpoints.MapControllers();
+                    });
                     app.UseHangfireServer(options);
                     break;
             }

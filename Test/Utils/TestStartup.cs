@@ -82,7 +82,9 @@ namespace Pdf.Storage.Hangfire
                 });
             });
 
-            app.UseMvc();
+            app.UseEndpoints(endpoints => {
+                endpoints.MapControllers();
+            });
         }
     }
 }
