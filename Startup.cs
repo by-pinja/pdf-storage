@@ -20,6 +20,8 @@ using Pdf.Storage.Pdf.PdfStores;
 using Pdf.Storage.Migrations;
 using Hangfire.Dashboard;
 using Microsoft.Extensions.Options;
+using System.Reflection;
+using System.IO;
 
 namespace Pdf.Storage
 {
@@ -161,6 +163,7 @@ namespace Pdf.Storage
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pdf.Storage");
                 c.RoutePrefix = "doc";
+
             });
 
             var options = new BackgroundJobServerOptions
