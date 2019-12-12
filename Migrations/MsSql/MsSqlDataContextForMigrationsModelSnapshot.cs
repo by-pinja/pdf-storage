@@ -15,30 +15,42 @@ namespace Pdf.Storage.Migrations.MsSql
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.2.4-servicing-10062")
+                .HasAnnotation("ProductVersion", "3.1.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("Pdf.Storage.Data.PdfEntity", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("Created");
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("FileId");
+                    b.Property<string>("FileId")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("GroupId");
+                    b.Property<string>("GroupId")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("HangfireJobId");
+                    b.Property<string>("HangfireJobId")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("OpenedTimes");
+                    b.Property<int>("OpenedTimes")
+                        .HasColumnType("int");
 
-                    b.Property<bool>("Processed");
+                    b.Property<string>("Options")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("Removed");
+                    b.Property<bool>("Processed")
+                        .HasColumnType("bit");
 
-                    b.Property<int>("Type");
+                    b.Property<bool>("Removed")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -52,37 +64,20 @@ namespace Pdf.Storage.Migrations.MsSql
             modelBuilder.Entity("Pdf.Storage.Data.PdfOpenedEntity", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("ParentId");
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("Stamp");
+                    b.Property<DateTime>("Stamp")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ParentId");
 
                     b.ToTable("PdfOpenedEntity");
-                });
-
-            modelBuilder.Entity("Pdf.Storage.Data.PdfRawDataEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Html");
-
-                    b.Property<string>("Options")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("ParentId");
-
-                    b.Property<string>("TemplateData")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("RawData");
                 });
 
             modelBuilder.Entity("Pdf.Storage.Data.PdfOpenedEntity", b =>

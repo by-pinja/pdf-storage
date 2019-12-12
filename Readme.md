@@ -79,7 +79,9 @@ PostgreSQL:
 docker run --name pdf-storage-postgress -e POSTGRES_PASSWORD=passwordfortesting -it -p 5432:5432 postgres
 ```
 
-Connect with `User ID=postgres;Password=passwordfortesting;Host=localhost;Port=5432;Database=pdfstorage;Pooling=true;`.
+```bash
+dotnet run --environment=development ConnectionString='User ID=postgres;Password=passwordfortesting;Host=localhost;Port=5432;Database=pdfstorage;Pooling=true;' DbType=postreSql
+```
 
 SqlServer:
 
@@ -87,7 +89,9 @@ SqlServer:
 docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=testpassword1#!' -p 1433:1433 --name sql1 -d mcr.microsoft.com/mssql/server:2017-latest
 ```
 
-Connect with `Server=localhost,1433;Database=pdf-storage;User=sa;Password=testpassword1#!`
+```bash
+dotnet run --environment=development ConnectionString='Server=localhost,1433;Database=pdf-storage;User=sa;Password=testpassword1#!' DbType=sqlServer
+```
 
 ## Hangfire dashboard
 
@@ -172,6 +176,12 @@ PDF storage supports Azure storage accounts as storage.
 ```
 
 ## Migrations
+
+Tooling requires `dotnet-ef` available, so run:
+
+```powershell
+dotnet tool install -g dotnet-ef
+```
 
 There is a special script for migrations since multiple database engines are supported.
 
