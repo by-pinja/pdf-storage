@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 namespace Pdf.Storage.Data
 {
@@ -25,6 +26,8 @@ namespace Pdf.Storage.Data
         public int OpenedTimes { get; set; }
         public string HangfireJobId { get; set; }
         public ICollection<PdfOpenedEntity> Usage { get; protected set; } = new List<PdfOpenedEntity>();
+        public JObject Options { get; set; }
+
         public bool IsValidForHighPriority() => !Processed && Type == PdfType.Pdf && HangfireJobId != null;
         public void MarkAsHighPriority(string newHangfireJobId)
         {

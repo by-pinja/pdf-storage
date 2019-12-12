@@ -6,10 +6,11 @@ namespace Pdf.Storage.Pdf
     {
         public static JObject MergeBaseTemplatingWithRows(JObject templateData, JToken rowData)
         {
-            templateData.Merge(rowData,
+            var copy = (JObject) templateData.DeepClone();
+            copy.Merge(rowData,
                 new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Replace });
 
-            return templateData;
+            return copy;
         }
 
         // Theres issue on underlaying print technology, when pdf is printed there is possiblity

@@ -19,9 +19,6 @@ using Pdf.Storage.Pdf.Config;
 using Pdf.Storage.Pdf.PdfStores;
 using Pdf.Storage.Migrations;
 using Hangfire.Dashboard;
-using Microsoft.Extensions.Options;
-using System.Reflection;
-using System.IO;
 
 namespace Pdf.Storage
 {
@@ -145,8 +142,6 @@ namespace Pdf.Storage
             services.Configure<ApiKeyAuthenticationOptions>(Configuration.GetSection("ApiAuthentication"));
 
             services.Configure<HangfireConfig>(Configuration.GetSection("Hangfire"));
-
-            services.AddTransient<CleanUpCronJob>();
         }
 
         public void Configure(IApplicationBuilder app, IHangfireQueue hangfireQueue)
@@ -171,8 +166,6 @@ namespace Pdf.Storage
                 Queues = HangfireConstants.GetQueues().ToArray(),
                 WorkerCount = 4,
             };
-
-            hangfireQueue.ScheduleRecurring<CleanUpCronJob>("clearObsoletePdfSourceDataRows", job => job.Execute(), Cron.Hourly());
 
             app.Map("/hangfire", appBuilder =>
             {
