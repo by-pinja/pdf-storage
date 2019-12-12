@@ -67,7 +67,6 @@ namespace Pdf.Storage.Pdf
             var responses = request.RowData.Select(row =>
             {
                 var entity = _context.PdfFiles.Add(new PdfEntity(groupId, PdfType.Pdf) { Options = request.Options }).Entity;
-
                 var templatedRow = TemplateUtils.MergeBaseTemplatingWithRows(request.BaseData, row);
                 PersistParsedHtmlTemplateOfPdfDocument(entity, request.Html, templatedRow);
 
@@ -101,7 +100,7 @@ namespace Pdf.Storage.Pdf
         /// This api serves generated PDF files and HTML data in it's raw for if requested.
         /// </remarks>
         [HttpGet("/v1/pdf/{groupId}/{pdfId}.{extension}")]
-        public IActionResult Get([FromQuery] string groupId, [FromQuery] string pdfId, [FromQuery] string extension, [FromQuery] bool noCount)
+        public IActionResult Get(string groupId, string pdfId, string extension, [FromQuery] bool noCount)
         {
             if (extension != "html" && extension != "pdf")
             {

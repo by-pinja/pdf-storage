@@ -37,7 +37,7 @@ namespace Pdf.Storage.Pdf
         public void CreatePdf(Guid pdfEntityId)
         {
             var entity = _context.PdfFiles.Single(x => x.Id == pdfEntityId);
-            var htmlFromStorage = _storage.Get(new StorageFileId(entity.GroupId, entity.Id.ToString(), "html"));
+            var htmlFromStorage = _storage.Get(new StorageFileId(entity, "html"));
             var data = GeneratePdfDataFromHtml(pdfEntityId, Encoding.UTF8.GetString(htmlFromStorage.Data)).GetAwaiter().GetResult();
 
             _storage.AddOrReplace(new StorageData(new StorageFileId(entity), data));
