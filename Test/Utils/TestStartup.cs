@@ -69,7 +69,11 @@ namespace Pdf.Storage.Hangfire
 
         public void Configure(IApplicationBuilder app)
         {
+            app.UseRouting();
+
             app.UseAuthentication();
+            app.UseAuthorization();
+
             app.UseSwagger();
 
             app.Map("/hangfire", appBuilder =>
