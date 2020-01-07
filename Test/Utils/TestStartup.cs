@@ -26,7 +26,8 @@ namespace Pdf.Storage.Hangfire
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc(options => options.Filters.Add(new ValidateModelAttribute()));
+            services.AddMvc(options => options.Filters.Add(new ValidateModelAttribute()))
+                    .AddNewtonsoftJson();
 
             services.AddAuthentication()
                 .AddDisabledApiKeyAuth();

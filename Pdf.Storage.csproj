@@ -10,6 +10,7 @@
     <LangVersion>8.0</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
+    <RestoreSources>C:\Users\savol\Github\Protacon.NetCore.WebApi.TestUtil\Protacon.NetCore.WebApi.TestUtil\bin\Debug;$(RestoreSources);https://api.nuget.org/v3/index.json</RestoreSources>
   </PropertyGroup>
 
   <ItemGroup>
@@ -53,6 +54,9 @@
           in alpine at Dockerfile. Alpine limits available chromium versions available so don't update
           this without check them out. Chromium version must be about same as puppeteer expects -->
     <PackageReference Include="PuppeteerSharp" Version="1.19.0" />
+
+    <!-- Remove this once testing library is updated -->
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.0" />
   </ItemGroup>
 
   <ItemGroup>
