@@ -59,7 +59,7 @@ namespace Pdf.Storage.Pdf
         /// <param name="request"></param>
         [Authorize(AuthenticationSchemes = "ApiKey")]
         [HttpPost("/v1/pdf/{groupId}/")]
-        public ActionResult<IEnumerable<NewPdfResponse>> AddNewPdf([Required] string groupId, [FromBody] NewPdfRequest request)
+        public ActionResult<IEnumerable<NewPdfResponse>> AddNewPdf([Required][FromRoute] string groupId, [FromBody] NewPdfRequest request)
         {
             if (!request.RowData.Any())
                 return BadRequest("Expected to get attleast one 'rowData' element, but got none.");
@@ -100,7 +100,7 @@ namespace Pdf.Storage.Pdf
         /// This api serves generated PDF files and HTML data in it's raw for if requested.
         /// </remarks>
         [HttpGet("/v1/pdf/{groupId}/{pdfId}.{extension}")]
-        public IActionResult Get(string groupId, string pdfId, string extension, [FromQuery] bool noCount)
+        public IActionResult Get([FromRoute] string groupId, [FromRoute] string pdfId, [FromRoute] string extension, [FromQuery] bool noCount)
         {
             if (extension != "html" && extension != "pdf")
             {
@@ -153,7 +153,7 @@ namespace Pdf.Storage.Pdf
         /// available.
         /// </remarks>
         [HttpHead("/v1/pdf/{groupId}/{pdfId}.{extension}")]
-        public IActionResult GetPdfHead(string groupId, string pdfId)
+        public IActionResult GetPdfHead([FromRoute] string groupId, [FromRoute] string pdfId)
         {
             var pdfEntity = _context.PdfFiles
                 .Select(x => new { x.GroupId, x.FileId, x.Processed })
@@ -176,7 +176,7 @@ namespace Pdf.Storage.Pdf
         /// Delete single PDF
         /// </summary>
         [HttpDelete("/v1/pdf/{groupId}/{pdfId}.{_}")]
-        public IActionResult RemoveSinglePdf(string groupId, string pdfId)
+        public IActionResult RemoveSinglePdf([FromRoute] string groupId, [FromRoute] string pdfId)
         {
             if (!RemovePdf(groupId, pdfId))
                 return NotFound();
