@@ -2,7 +2,7 @@
 # and match it with from https://pkgs.alpinelinux.org/packages
 ARG chromium_version=77.0.3865.120-r0
 
-FROM mcr.microsoft.com/dotnet/core/sdk:2.2.402-alpine3.10 as dotnetBuild
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1.100-alpine3.10 as dotnetBuild
 ARG chromium_version
 
 RUN \
@@ -31,7 +31,7 @@ RUN dotnet publish -c release -o /out
 
 RUN dotnet test
 
-FROM mcr.microsoft.com/dotnet/core/aspnet:2.2.7-alpine3.10
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1.0-alpine3.10
 ARG chromium_version
 
 RUN \

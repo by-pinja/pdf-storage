@@ -2,7 +2,7 @@ library 'jenkins-ptcs-library@2.1.0'
 
 podTemplate(label: pod.label,
   containers: pod.templates + [
-    containerTemplate(name: 'dotnet', image: 'mcr.microsoft.com/dotnet/core/sdk:2.2.402-alpine3.10', ttyEnabled: true, command: '/bin/sh -c', args: 'cat'),
+    containerTemplate(name: 'dotnet', image: 'mcr.microsoft.com/dotnet/core/sdk:3.1.100-alpine3.10', ttyEnabled: true, command: '/bin/sh -c', args: 'cat'),
   ]
 ) {
     def project = 'pdf-storage'
