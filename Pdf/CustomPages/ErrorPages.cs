@@ -10,7 +10,7 @@ namespace Pdf.Storage.Pdf.CustomPages
         private readonly string _filePathForNotFound;
         private readonly string _filePathForRemoved;
 
-        public ErrorPages(IHostingEnvironment env)
+        public ErrorPages(IWebHostEnvironment env)
         {
             _filePathForProcessing = $@"{env.ContentRootPath}/Pdf/CustomPages/processing.html";
             _filePathForNotFound = $@"{env.ContentRootPath}/Pdf/CustomPages/404.html";

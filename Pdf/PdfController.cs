@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
-using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
 using Pdf.Storage.Data;
 using Pdf.Storage.Hangfire;
 using Pdf.Storage.Mq;
@@ -42,9 +40,21 @@ namespace Pdf.Storage.Pdf
             _mqMessages = mqMessages;
         }
 
+        /// <summary>
+        /// Create new PDF from template.
+        /// </summary>
+        /// <remarks>
+        /// This is root of most operations in pdf storage. It will generate PDF and return constant resource URI where
+        /// PDF will be available in future.
+        ///
+        /// All generator operations are asyncronous so it might take few seconds before user can get actual template.
+        /// Until then in browser user will see message page that automatically shows PDF once it's ready.
+        /// </remarks>
+        /// <param name="groupId">Group id is is any string user like to provide that can be used to group PDF:s in some meaningfull manner.</param>
+        /// <param name="request"></param>
         [Authorize(AuthenticationSchemes = "ApiKey")]
         [HttpPost("/v1/pdf/{groupId}/")]
-        public ActionResult<IEnumerable<NewPdfResponse>> AddNewPdf([Required] string groupId, [FromBody] NewPdfRequest request)
+        public ActionResult<IEnumerable<NewPdfResponse>> AddNewPdf([Required][FromRoute] string groupId, [FromBody] NewPdfRequest request)
         {
             if (!request.RowData.Any())
                 return BadRequest("Expected to get attleast one 'rowData' element, but got none.");
@@ -69,14 +79,20 @@ namespace Pdf.Storage.Pdf
                 var pdfUri = _uris.PdfUri(groupId, entity.FileId);
                 var htmlUri = _uris.HtmlUri(groupId, entity.FileId);
 
-                return new NewPdfResponse(entity.FileId, entity.GroupId, pdfUri, htmlUri, (JObject)row);
+                return new NewPdfResponse(entity.FileId, entity.GroupId, pdfUri, htmlUri, row);
             });
 
             return StatusCode(202, responses.ToList());
         }
 
+        /// <summary>
+        /// Generated PDF uri
+        /// </summary>
+        /// <remarks>
+        /// This api serves generated PDF files and HTML data in it's raw for if requested.
+        /// </remarks>
         [HttpGet("/v1/pdf/{groupId}/{pdfId}.{extension}")]
-        public IActionResult Get(string groupId, string pdfId, string extension, [FromQuery] bool noCount)
+        public IActionResult Get([FromRoute] string groupId, [FromRoute] string pdfId, [FromRoute] string extension, [FromQuery] bool noCount)
         {
             if (extension != "html" && extension != "pdf")
             {
@@ -120,8 +136,16 @@ namespace Pdf.Storage.Pdf
             return new FileStreamResult(new MemoryStream(pdf.Data), pdf.ContentType);
         }
 
+        /// <summary>
+        /// Since generating PDF is asyncronous this HEAD can be used to poll if pdf is ready.
+        /// </summary>
+        /// <remarks>
+        /// This is commonly used with server side integrations where some third part needs to know
+        /// when PDF is ready. One example is printing service that automatically prints file once it's
+        /// available.
+        /// </remarks>
         [HttpHead("/v1/pdf/{groupId}/{pdfId}.{extension}")]
-        public IActionResult GetPdfHead(string groupId, string pdfId)
+        public IActionResult GetPdfHead([FromRoute] string groupId, [FromRoute] string pdfId)
         {
             var pdfEntity = _context.PdfFiles.SingleOrDefault(x => x.GroupId == groupId && x.FileId == pdfId);
 
@@ -138,8 +162,11 @@ namespace Pdf.Storage.Pdf
             return Ok();
         }
 
+        /// <summary>
+        /// Delete single PDF
+        /// </summary>
         [HttpDelete("/v1/pdf/{groupId}/{pdfId}.{_}")]
-        public IActionResult RemoveSinglePdf(string groupId, string pdfId)
+        public IActionResult RemoveSinglePdf([FromRoute] string groupId, [FromRoute] string pdfId)
         {
             if (!RemovePdf(groupId, pdfId))
                 return NotFound();
@@ -147,6 +174,9 @@ namespace Pdf.Storage.Pdf
             return Ok();
         }
 
+        /// <summary>
+        /// Batch delete
+        /// </summary>
         [HttpDelete("/v1/pdfs/")]
         public IActionResult RemoveMultiplePdfs([FromBody][Required] IEnumerable<PdfDeleteRequest> request)
         {

@@ -35,6 +35,14 @@ namespace Pdf.Storage.PdfMerge
             _settings = settings.Value;
         }
 
+        /// <summary>
+        /// Merge two or more pdf:s as single document.
+        /// </summary>
+        /// <remarks>
+        /// Sometimes you want to merge generated PDF:s as single larger paged document.
+        ///
+        /// Note: All pdf:s must be from single group, merging between groups isn't supported.
+        /// </remarks>
         [HttpPost("v1/merge/{groupId}/")]
         public ActionResult<MergeResponse> MergePdfs(string groupId, [Required][FromBody] PdfMergeRequest request)
         {

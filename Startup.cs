@@ -20,6 +20,8 @@ using Pdf.Storage.Pdf.PdfStores;
 using Pdf.Storage.Migrations;
 using Hangfire.Dashboard;
 using Microsoft.Extensions.Options;
+using System.Reflection;
+using System.IO;
 
 namespace Pdf.Storage
 {
@@ -58,7 +60,9 @@ namespace Pdf.Storage
                         .AllowAnyHeader());
             });
 
-            services.AddMvc(options => options.Filters.Add(new ValidateModelAttribute()));
+            services
+                .AddMvc(options => options.Filters.Add(new ValidateModelAttribute()))
+                .AddNewtonsoftJson();
 
             services.AddSwaggerGenConfiguration();
 
@@ -148,8 +152,10 @@ namespace Pdf.Storage
         public void Configure(IApplicationBuilder app, IHangfireQueue hangfireQueue)
         {
             app.UseCors("CorsPolicy");
+            app.UseRouting();
 
             app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseSwagger();
 
@@ -157,6 +163,7 @@ namespace Pdf.Storage
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pdf.Storage");
                 c.RoutePrefix = "doc";
+
             });
 
             var options = new BackgroundJobServerOptions
@@ -180,13 +187,17 @@ namespace Pdf.Storage
             switch (GetAppRole())
             {
                 case "api":
-                    app.UseMvc();
+                    app.UseEndpoints(endpoints => {
+                        endpoints.MapControllers();
+                    });
                     break;
                 case "worker":
                     app.UseHangfireServer(options);
                     break;
                 default:
-                    app.UseMvc();
+                    app.UseEndpoints(endpoints => {
+                        endpoints.MapControllers();
+                    });
                     app.UseHangfireServer(options);
                     break;
             }

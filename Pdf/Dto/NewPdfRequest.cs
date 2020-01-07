@@ -13,7 +13,6 @@ namespace Pdf.Storage.Pdf.Dto
 
         [Required]
         public JObject[] RowData { get; set; } = new JObject[0];
-
         public JObject Options { get; set; } = new JObject();
     }
 }

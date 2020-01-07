@@ -26,7 +26,8 @@ namespace Pdf.Storage.Hangfire
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc(options => options.Filters.Add(new ValidateModelAttribute()));
+            services.AddMvc(options => options.Filters.Add(new ValidateModelAttribute()))
+                    .AddNewtonsoftJson();
 
             services.AddAuthentication()
                 .AddDisabledApiKeyAuth();
@@ -69,7 +70,11 @@ namespace Pdf.Storage.Hangfire
 
         public void Configure(IApplicationBuilder app)
         {
+            app.UseRouting();
+
             app.UseAuthentication();
+            app.UseAuthorization();
+
             app.UseSwagger();
 
             app.Map("/hangfire", appBuilder =>
@@ -82,7 +87,9 @@ namespace Pdf.Storage.Hangfire
                 });
             });
 
-            app.UseMvc();
+            app.UseEndpoints(endpoints => {
+                endpoints.MapControllers();
+            });
         }
     }
 }
