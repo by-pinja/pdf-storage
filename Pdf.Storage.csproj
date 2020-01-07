@@ -47,7 +47,6 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="5.0.0-rc8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.0" />
-
     <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
 
     <!--  When you update PuppeteerSharp you must also find corresponding version

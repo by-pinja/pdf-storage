@@ -144,7 +144,7 @@ namespace Pdf.Storage
             services.Configure<HangfireConfig>(Configuration.GetSection("Hangfire"));
         }
 
-        public void Configure(IApplicationBuilder app, IHangfireQueue hangfireQueue)
+        public void Configure(IApplicationBuilder app)
         {
             app.UseCors("CorsPolicy");
             app.UseRouting();
