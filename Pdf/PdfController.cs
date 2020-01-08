@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -83,7 +84,7 @@ namespace Pdf.Storage.Pdf
                 return new NewPdfResponse(entity.FileId, entity.GroupId, pdfUri, htmlUri, row);
             });
 
-            return StatusCode(202, responses.ToList());
+            return Accepted(responses.ToList());
         }
 
         private void PersistParsedHtmlTemplateOfPdfDocument(PdfEntity entity, string html, JObject templateData)
