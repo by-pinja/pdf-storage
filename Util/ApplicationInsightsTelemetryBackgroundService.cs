@@ -13,7 +13,7 @@ namespace Pdf.Storage.Util
     public sealed class ApplicationInsightsTelemetryBackgroundService : BackgroundService
     {
         private const string MetricPrefix = "pdf-storage-hangfire";
-        private readonly TimeSpan _pushInterval = TimeSpan.FromSeconds(60);
+        private readonly TimeSpan _samplingInterval = TimeSpan.FromSeconds(60);
         private readonly TelemetryClient _telemetryClient;
         private readonly IMonitoringApi _hangfireApi;
         private readonly ILogger<ApplicationInsightsTelemetryBackgroundService> _logger;
@@ -31,7 +31,7 @@ namespace Pdf.Storage.Util
             {
                 try
                 {
-                    await Task.Delay(_pushInterval);
+                    await Task.Delay(_samplingInterval);
 
                     var hangfireStats = _hangfireApi.GetStatistics();
 
@@ -43,7 +43,7 @@ namespace Pdf.Storage.Util
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning("Writing additional telemetry failed: ", ex.Message);
+                    _logger.LogWarning(ex, "Writing additional telemetry failed");
                 }
             }
         }
