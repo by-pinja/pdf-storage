@@ -2,16 +2,18 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Pdf.Storage.Migrations;
 
-namespace Pdf.Storage.Migrations
+namespace Pdf.Storage.Migrations.NpSql
 {
     [DbContext(typeof(NpSqlDataContextForMigrations))]
-    partial class PdfDataContextModelSnapshot : ModelSnapshot
+    [Migration("20191212135553_RawDataDrop")]
+    partial class RawDataDrop
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

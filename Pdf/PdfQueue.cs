@@ -3,12 +3,12 @@ using System.Linq;
 using Pdf.Storage.Data;
 using Pdf.Storage.Mq;
 using Pdf.Storage.Pdf.PdfStores;
-using System.Text;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using PuppeteerSharp;
 using Microsoft.Extensions.Options;
 using PuppeteerSharp.Media;
+using System.Text;
 
 namespace Pdf.Storage.Pdf
 {
@@ -17,7 +17,6 @@ namespace Pdf.Storage.Pdf
         private readonly PdfDataContext _context;
         private readonly IStorage _storage;
         private readonly IMqMessages _mqMessages;
-        private readonly TemplatingEngine _templatingEngine;
         private readonly ILogger<PdfQueue> _logger;
         private readonly string _chromiumPath;
 
@@ -25,14 +24,12 @@ namespace Pdf.Storage.Pdf
             PdfDataContext context,
             IStorage storage,
             IMqMessages mqMessages,
-            TemplatingEngine templatingEngine,
             IOptions<CommonConfig> settings,
             ILogger<PdfQueue> logger)
         {
             _context = context;
             _storage = storage;
             _mqMessages = mqMessages;
-            _templatingEngine = templatingEngine;
             _logger = logger;
             _chromiumPath = settings.Value.PuppeteerChromiumPath ?? new BrowserFetcher().GetExecutablePath(BrowserFetcher.DefaultRevision);
         }
@@ -40,14 +37,10 @@ namespace Pdf.Storage.Pdf
         public void CreatePdf(Guid pdfEntityId)
         {
             var entity = _context.PdfFiles.Single(x => x.Id == pdfEntityId);
-            var rawData = _context.RawData.Single(x => x.ParentId == pdfEntityId);
-
-            var templatedHtml = _templatingEngine.Render(rawData.Html, rawData.TemplateData);
-            templatedHtml = TemplateUtils.AddWaitForAllPageElementsFixToHtml(templatedHtml);
-            var data = GeneratePdfDataFromHtml(pdfEntityId, templatedHtml).GetAwaiter().GetResult();
+            var htmlFromStorage = _storage.Get(new StorageFileId(entity, "html"));
+            var data = GeneratePdfDataFromHtml(pdfEntityId, Encoding.UTF8.GetString(htmlFromStorage.Data)).GetAwaiter().GetResult();
 
             _storage.AddOrReplace(new StorageData(new StorageFileId(entity), data));
-            _storage.AddOrReplace(new StorageData(new StorageFileId(entity, "html"), Encoding.UTF8.GetBytes(templatedHtml)));
 
             entity.Processed = true;
 

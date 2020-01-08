@@ -47,7 +47,7 @@ namespace Pdf.Storage.PdfMerge
         public ActionResult<MergeResponse> MergePdfs(string groupId, [Required][FromBody] PdfMergeRequest request)
         {
             if (request.PdfIds.Length < 1)
-                return BadRequest("Attleast one pdf must be defined, current length 0");
+                return BadRequest("Atleast one pdf must be defined, current length 0");
 
             var underlayingPdfFiles = _context.PdfFiles
                 .Where(x => x.GroupId == groupId && !x.Removed)

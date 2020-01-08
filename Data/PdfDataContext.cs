@@ -14,18 +14,16 @@ namespace Pdf.Storage.Data
         {
             if (Database.IsNpgsql())
             {
-                modelBuilder.Entity<PdfRawDataEntity>(eb =>
+                modelBuilder.Entity<PdfEntity>(eb =>
                 {
-                    eb.Property(b => b.TemplateData).HasColumnType("jsonb");
                     eb.Property(b => b.Options).HasColumnType("jsonb");
                 });
             }
 
             if (Database.IsSqlServer())
             {
-                modelBuilder.Entity<PdfRawDataEntity>(eb =>
+                modelBuilder.Entity<PdfEntity>(eb =>
                 {
-                    eb.Property(b => b.TemplateData).HasColumnType("nvarchar(max)");
                     eb.Property(b => b.Options).HasColumnType("nvarchar(max)");
                 });
             }
@@ -34,11 +32,7 @@ namespace Pdf.Storage.Data
                 .HasOne(x => x.Parent)
                 .WithMany(x => x.Usage);
 
-            modelBuilder.Entity<PdfRawDataEntity>().Property(e => e.TemplateData).HasConversion(
-                v => JsonConvert.SerializeObject(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
-                v => JsonConvert.DeserializeObject<JObject>(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
-
-            modelBuilder.Entity<PdfRawDataEntity>().Property(e => e.Options).HasConversion(
+            modelBuilder.Entity<PdfEntity>().Property(e => e.Options).HasConversion(
                 v => JsonConvert.SerializeObject(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
                 v => JsonConvert.DeserializeObject<JObject>(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
 
@@ -50,6 +44,5 @@ namespace Pdf.Storage.Data
         }
 
         public DbSet<PdfEntity> PdfFiles { get; set; }
-        public DbSet<PdfRawDataEntity> RawData { get; set; }
     }
 }

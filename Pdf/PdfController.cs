@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using Pdf.Storage.Data;
 using Pdf.Storage.Hangfire;
 using Pdf.Storage.Mq;
@@ -21,6 +24,7 @@ namespace Pdf.Storage.Pdf
         private readonly IStorage _pdfStorage;
         private readonly Uris _uris;
         private readonly IHangfireQueue _backgroundJobs;
+        private readonly TemplatingEngine _templatingEngine;
         private readonly IErrorPages _errorPages;
         private readonly IMqMessages _mqMessages;
 
@@ -29,6 +33,7 @@ namespace Pdf.Storage.Pdf
             IStorage pdfStorage,
             Uris uris,
             IHangfireQueue backgroundJob,
+            TemplatingEngine templatingEngine,
             IErrorPages errorPages,
             IMqMessages mqMessages)
         {
@@ -36,6 +41,7 @@ namespace Pdf.Storage.Pdf
             _pdfStorage = pdfStorage;
             _uris = uris;
             _backgroundJobs = backgroundJob;
+            _templatingEngine = templatingEngine;
             _errorPages = errorPages;
             _mqMessages = mqMessages;
         }
@@ -50,24 +56,20 @@ namespace Pdf.Storage.Pdf
         /// All generator operations are asyncronous so it might take few seconds before user can get actual template.
         /// Until then in browser user will see message page that automatically shows PDF once it's ready.
         /// </remarks>
-        /// <param name="groupId">Group id is is any string user like to provide that can be used to group PDF:s in some meaningfull manner.</param>
+        /// <param name="groupId">Group id is any string user like to provide that can be used to group PDF:s in some meaningfull manner.</param>
         /// <param name="request"></param>
         [Authorize(AuthenticationSchemes = "ApiKey")]
         [HttpPost("/v1/pdf/{groupId}/")]
         public ActionResult<IEnumerable<NewPdfResponse>> AddNewPdf([Required][FromRoute] string groupId, [FromBody] NewPdfRequest request)
         {
             if (!request.RowData.Any())
-                return BadRequest("Expected to get attleast one 'rowData' element, but got none.");
+                return BadRequest("Expected to get atleast one 'rowData' element, but got none.");
 
             var responses = request.RowData.Select(row =>
             {
-                var entity = _context.PdfFiles.Add(new PdfEntity(groupId, PdfType.Pdf)).Entity;
-
-                var rawData = _context.RawData.Add(
-                    new PdfRawDataEntity(entity.Id,
-                        request.Html,
-                        TemplateUtils.MergeBaseTemplatingWithRows(request.BaseData, row),
-                        request.Options)).Entity;
+                var entity = _context.PdfFiles.Add(new PdfEntity(groupId, PdfType.Pdf) { Options = request.Options }).Entity;
+                var templatedRow = TemplateUtils.MergeBaseTemplatingWithRows(request.BaseData, row);
+                PersistParsedHtmlTemplateOfPdfDocument(entity, request.Html, templatedRow);
 
                 _context.SaveChanges();
 
@@ -82,7 +84,14 @@ namespace Pdf.Storage.Pdf
                 return new NewPdfResponse(entity.FileId, entity.GroupId, pdfUri, htmlUri, row);
             });
 
-            return StatusCode(202, responses.ToList());
+            return Accepted(responses.ToList());
+        }
+
+        private void PersistParsedHtmlTemplateOfPdfDocument(PdfEntity entity, string html, JObject templateData)
+        {
+            var templatedHtml = _templatingEngine.Render(html, templateData);
+            templatedHtml = TemplateUtils.AddWaitForAllPageElementsFixToHtml(templatedHtml);
+            _pdfStorage.AddOrReplace(new StorageData(new StorageFileId(entity, "html"), Encoding.UTF8.GetBytes(templatedHtml)));
         }
 
         /// <summary>
@@ -124,7 +133,7 @@ namespace Pdf.Storage.Pdf
                 return _errorPages.PdfIsStillProcessingResponse();
             }
 
-            var pdf = _pdfStorage.Get(new StorageFileId(groupId, pdfId, extension));
+            var pdfOrHtml = _pdfStorage.Get(new StorageFileId(groupId, pdfId, extension));
 
             if (!noCount)
             {
@@ -133,7 +142,7 @@ namespace Pdf.Storage.Pdf
                 _mqMessages.PdfOpened(groupId, pdfId);
             }
 
-            return new FileStreamResult(new MemoryStream(pdf.Data), pdf.ContentType);
+            return new FileStreamResult(new MemoryStream(pdfOrHtml.Data), pdfOrHtml.ContentType);
         }
 
         /// <summary>
@@ -147,17 +156,15 @@ namespace Pdf.Storage.Pdf
         [HttpHead("/v1/pdf/{groupId}/{pdfId}.{extension}")]
         public IActionResult GetPdfHead([FromRoute] string groupId, [FromRoute] string pdfId)
         {
-            var pdfEntity = _context.PdfFiles.SingleOrDefault(x => x.GroupId == groupId && x.FileId == pdfId);
+            var processedFileFound = _context
+                .PdfFiles
+                .Any(x =>
+                    x.GroupId == groupId &&
+                    x.FileId == pdfId &&
+                    x.Processed);
 
-            if (pdfEntity == null)
-            {
+            if (!processedFileFound)
                 return NotFound();
-            }
-
-            if (!pdfEntity.Processed)
-            {
-                return NotFound();
-            }
 
             return Ok();
         }

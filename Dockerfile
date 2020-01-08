@@ -49,7 +49,11 @@ RUN \
     ttf-opensans \
     chromium=${chromium_version} \
     libgdiplus \
-    qpdf
+    qpdf \
+    icu-libs
+
+# https://github.com/dotnet/SqlClient/issues/81 (icu-libs is part of this too)
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
 # Tells software that it is running in container and have all requirements pre-installed.
 ENV PuppeteerChromiumPath=/usr/bin/chromium-browser
