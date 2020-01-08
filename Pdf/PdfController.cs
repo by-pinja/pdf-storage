@@ -156,19 +156,15 @@ namespace Pdf.Storage.Pdf
         [HttpHead("/v1/pdf/{groupId}/{pdfId}.{extension}")]
         public IActionResult GetPdfHead([FromRoute] string groupId, [FromRoute] string pdfId)
         {
-            var pdfEntity = _context.PdfFiles
-                .Select(x => new { x.GroupId, x.FileId, x.Processed })
-                .SingleOrDefault(x => x.GroupId == groupId && x.FileId == pdfId);
+            var processedFileFound = _context
+                .PdfFiles
+                .Any(x =>
+                    x.GroupId == groupId &&
+                    x.FileId == pdfId &&
+                    x.Processed);
 
-            if (pdfEntity == null)
-            {
+            if (!processedFileFound)
                 return NotFound();
-            }
-
-            if (!pdfEntity.Processed)
-            {
-                return NotFound();
-            }
 
             return Ok();
         }
