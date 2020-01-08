@@ -69,6 +69,8 @@ namespace Pdf.Storage
 
             services.AddTransient<IHangfireQueue, HangfireQueue>();
 
+            services.AddHostedService<ApplicationInsightsTelemetryBackgroundService>();
+
             switch (Configuration["DbType"])
             {
                 case "inMemory":

@@ -195,7 +195,21 @@ There is a special script for migrations since multiple database engines are sup
 ./AddOrRemoveMigrations.ps1 -Operation Remove -MigrationName "DescriptionForMigration"
 ```
 
+### Insights
+
+If application insights is enabled, additional metrics will be added
+with notation `pdf-storage-`.
+
+Examples:
+
+```text
+pdf-storage-hangfire-enqueued
+pdf-storage-hangfire-scheduled
+pdf-storage-hangfire-failed
+pdf-storage-hangfire-processing
+pdf-storage-hangfire-servers
+```
+
 ## License
 
 [The MIT License (MIT)](LICENSE)
-
