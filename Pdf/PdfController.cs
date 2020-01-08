@@ -55,14 +55,14 @@ namespace Pdf.Storage.Pdf
         /// All generator operations are asyncronous so it might take few seconds before user can get actual template.
         /// Until then in browser user will see message page that automatically shows PDF once it's ready.
         /// </remarks>
-        /// <param name="groupId">Group id is is any string user like to provide that can be used to group PDF:s in some meaningfull manner.</param>
+        /// <param name="groupId">Group id is any string user like to provide that can be used to group PDF:s in some meaningfull manner.</param>
         /// <param name="request"></param>
         [Authorize(AuthenticationSchemes = "ApiKey")]
         [HttpPost("/v1/pdf/{groupId}/")]
         public ActionResult<IEnumerable<NewPdfResponse>> AddNewPdf([Required][FromRoute] string groupId, [FromBody] NewPdfRequest request)
         {
             if (!request.RowData.Any())
-                return BadRequest("Expected to get attleast one 'rowData' element, but got none.");
+                return BadRequest("Expected to get atleast one 'rowData' element, but got none.");
 
             var responses = request.RowData.Select(row =>
             {
