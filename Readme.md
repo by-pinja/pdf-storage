@@ -195,7 +195,7 @@ There is a special script for migrations since multiple database engines are sup
 ./AddOrRemoveMigrations.ps1 -Operation Remove -MigrationName "DescriptionForMigration"
 ```
 
-### Insights
+## Insights
 
 If application insights is enabled, additional metrics will be added
 with notation `pdf-storage-`.
