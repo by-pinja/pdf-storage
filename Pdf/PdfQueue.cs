@@ -53,20 +53,21 @@ namespace Pdf.Storage.Pdf
         {
             _logger.LogDebug($"Generating pdf from {id}");
 
-            var browser = await Puppeteer.LaunchAsync(new LaunchOptions
-            {
-                ExecutablePath = _chromiumPath,
-                Headless = true,
-                IgnoreHTTPSErrors = true,
-                Args = new[] { "--no-sandbox", "--disable-dev-shm-usage", "--incognito", "--disable-gpu", "--disable-software-rasterizer" },
-                EnqueueTransportMessages = false
-            });
-
-            byte[] result;
+            Browser browser = default;
+            Page page = default;
 
             try
             {
-                var page = await browser.NewPageAsync();
+                await Puppeteer.LaunchAsync(new LaunchOptions
+                {
+                    ExecutablePath = _chromiumPath,
+                    Headless = true,
+                    IgnoreHTTPSErrors = true,
+                    Args = new[] { "--no-sandbox", "--disable-dev-shm-usage", "--incognito", "--disable-gpu", "--disable-software-rasterizer" },
+                    EnqueueTransportMessages = false
+                });
+
+                page = await browser.NewPageAsync();
 
                 await page.SetContentAsync(html,
                     new NavigationOptions
@@ -75,8 +76,7 @@ namespace Pdf.Storage.Pdf
                         WaitUntil = new[] { WaitUntilNavigation.Load, WaitUntilNavigation.DOMContentLoaded }
                     });
 
-                result = await page.PdfDataAsync(new PdfOptions { Format = PaperFormat.A4 });
-                await page.CloseAsync();
+                return await page.PdfDataAsync(new PdfOptions { Format = PaperFormat.A4 });
             }
             catch (Exception e)
             {
@@ -85,11 +85,11 @@ namespace Pdf.Storage.Pdf
             }
             finally
             {
-                await browser.CloseAsync();
+                await page?.CloseAsync();
+                page?.Dispose();
+                await browser?.CloseAsync();
+                browser?.Dispose();
             }
-
-
-            return result;
         }
     }
 }
