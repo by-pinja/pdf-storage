@@ -58,7 +58,7 @@ namespace Pdf.Storage.Pdf
 
             try
             {
-                await Puppeteer.LaunchAsync(new LaunchOptions
+                browser = await Puppeteer.LaunchAsync(new LaunchOptions
                 {
                     ExecutablePath = _chromiumPath,
                     Headless = true,
