@@ -9,6 +9,7 @@ using PuppeteerSharp;
 using Microsoft.Extensions.Options;
 using PuppeteerSharp.Media;
 using System.Text;
+using Newtonsoft.Json.Linq;
 
 namespace Pdf.Storage.Pdf
 {
@@ -38,7 +39,8 @@ namespace Pdf.Storage.Pdf
         {
             var entity = _context.PdfFiles.Single(x => x.Id == pdfEntityId);
             var htmlFromStorage = _storage.Get(new StorageFileId(entity, "html"));
-            var data = GeneratePdfDataFromHtml(pdfEntityId, Encoding.UTF8.GetString(htmlFromStorage.Data)).GetAwaiter().GetResult();
+            var data = GeneratePdfDataFromHtml(pdfEntityId, Encoding.UTF8.GetString(htmlFromStorage.Data),
+                entity.Options).GetAwaiter().GetResult();
 
             _storage.AddOrReplace(new StorageData(new StorageFileId(entity), data));
 
@@ -49,7 +51,7 @@ namespace Pdf.Storage.Pdf
             _context.SaveChanges();
         }
 
-        private async Task<byte[]> GeneratePdfDataFromHtml(Guid id, string html)
+        private async Task<byte[]> GeneratePdfDataFromHtml(Guid id, string html, JObject options)
         {
             _logger.LogDebug($"Generating pdf from {id}");
 
@@ -76,7 +78,23 @@ namespace Pdf.Storage.Pdf
                         WaitUntil = new[] { WaitUntilNavigation.Load, WaitUntilNavigation.DOMContentLoaded }
                     });
 
-                return await page.PdfDataAsync(new PdfOptions { Format = PaperFormat.A4 });
+                return await page.PdfDataAsync(new PdfOptions
+                {
+                    Format = PaperFormat.A4,
+                    DisplayHeaderFooter = options.ContainsKey("footerTemplate") || options.ContainsKey("headerTemplate"),
+                    FooterTemplate = options.ContainsKey("footerTemplate") ? options["footerTemplate"].Value<string>() : null,
+                    HeaderTemplate = options.ContainsKey("headerTemplate") ? options["headerTemplate"].Value<string>(): null,
+                    PrintBackground = options.ContainsKey("printBackground") && options["printBackground"].Value<bool>(),
+                    PreferCSSPageSize = options.ContainsKey("preferCSSPageSize") && options["preferCSSPageSize"].Value<bool>(),
+                    PageRanges = options.ContainsKey("pageRanges") ? options["pageRanges"].Value<string>() : null,
+                    MarginOptions = new MarginOptions
+                    {
+                        Bottom = options.ContainsKey("marginBottom") ? options["marginBottom"].Value<string>() : null,
+                        Left = options.ContainsKey("marginLeft") ? options["marginLeft"].Value<string>() : null,
+                        Right = options.ContainsKey("marginRight") ? options["marginRight"].Value<string>() : null,
+                        Top = options.ContainsKey("marginTop") ? options["marginTop"].Value<string>() : null,
+                    }
+                });
             }
             catch (Exception e)
             {
