@@ -78,21 +78,26 @@ namespace Pdf.Storage.Pdf
                         WaitUntil = new[] { WaitUntilNavigation.Load, WaitUntilNavigation.DOMContentLoaded }
                     });
 
+                var defaultPdfOptions = new PdfOptions
+                {
+                    Format = PaperFormat.A4
+                };
+
                 return await page.PdfDataAsync(new PdfOptions
                 {
-                    Format = PaperFormat.A4,
+                    Format = defaultPdfOptions.Format,
                     DisplayHeaderFooter = options.ContainsKey("footerTemplate") || options.ContainsKey("headerTemplate"),
-                    FooterTemplate = options.ContainsKey("footerTemplate") ? options["footerTemplate"].Value<string>() : null,
-                    HeaderTemplate = options.ContainsKey("headerTemplate") ? options["headerTemplate"].Value<string>(): null,
-                    PrintBackground = options.ContainsKey("printBackground") && options["printBackground"].Value<bool>(),
-                    PreferCSSPageSize = options.ContainsKey("preferCSSPageSize") && options["preferCSSPageSize"].Value<bool>(),
-                    PageRanges = options.ContainsKey("pageRanges") ? options["pageRanges"].Value<string>() : null,
+                    FooterTemplate = options.ContainsKey("footerTemplate") ? options["footerTemplate"].Value<string>() : defaultPdfOptions.FooterTemplate,
+                    HeaderTemplate = options.ContainsKey("headerTemplate") ? options["headerTemplate"].Value<string>() : defaultPdfOptions.HeaderTemplate,
+                    PrintBackground = options.ContainsKey("printBackground") ? options["printBackground"].Value<bool>() : defaultPdfOptions.PrintBackground,
+                    PreferCSSPageSize = options.ContainsKey("preferCSSPageSize") ? options["preferCSSPageSize"].Value<bool>() : defaultPdfOptions.PreferCSSPageSize,
+                    PageRanges = options.ContainsKey("pageRanges") ? options["pageRanges"].Value<string>() : defaultPdfOptions.PageRanges,
                     MarginOptions = new MarginOptions
                     {
-                        Bottom = options.ContainsKey("marginBottom") ? options["marginBottom"].Value<string>() : null,
-                        Left = options.ContainsKey("marginLeft") ? options["marginLeft"].Value<string>() : null,
-                        Right = options.ContainsKey("marginRight") ? options["marginRight"].Value<string>() : null,
-                        Top = options.ContainsKey("marginTop") ? options["marginTop"].Value<string>() : null,
+                        Top = options.ContainsKey("marginTop") ? options["marginTop"].Value<string>() : defaultPdfOptions.MarginOptions.Top,
+                        Bottom = options.ContainsKey("marginBottom") ? options["marginBottom"].Value<string>() : defaultPdfOptions.MarginOptions.Bottom,
+                        Left = options.ContainsKey("marginLeft") ? options["marginLeft"].Value<string>() : defaultPdfOptions.MarginOptions.Left,
+                        Right = options.ContainsKey("marginRight") ? options["marginRight"].Value<string>() : defaultPdfOptions.MarginOptions.Right,
                     }
                 });
             }
