@@ -85,6 +85,26 @@ Real example:
 
 ### List of translators and options
 
+#### pdf options
+
+Pdf can contain following options
+
+```json
+{
+  "footerTemplate": "<div style=\"color: black; font-size: 12px; width: 100%; margin-left: 28px;\"><span class=\"pageNumber\"></span>/<span class=\"totalPages\"></span></div>",
+  "headerTemplate": "<div style=\"color: black; font-size: 12px; width: 100%; margin-left: 28px;\">Some header</div>",
+  "printBackground": true,
+  "preferCSSPageSize": false,
+  "pageRanges": null,
+  "marginTop": "120px",
+  "marginBottom": "120px",
+  "marginLeft": "20px",
+  "marginRight": "20px"
+}
+```
+
+For further information, see [https://www.puppeteersharp.com/api/PuppeteerSharp.PdfOptions.html](https://www.puppeteersharp.com/api/PuppeteerSharp.PdfOptions.html).
+
 #### barcode
 
 Generates a barcode image of type `code128|...`

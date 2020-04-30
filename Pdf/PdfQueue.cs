@@ -9,6 +9,7 @@ using PuppeteerSharp;
 using Microsoft.Extensions.Options;
 using PuppeteerSharp.Media;
 using System.Text;
+using Newtonsoft.Json.Linq;
 
 namespace Pdf.Storage.Pdf
 {
@@ -38,7 +39,8 @@ namespace Pdf.Storage.Pdf
         {
             var entity = _context.PdfFiles.Single(x => x.Id == pdfEntityId);
             var htmlFromStorage = _storage.Get(new StorageFileId(entity, "html"));
-            var data = GeneratePdfDataFromHtml(pdfEntityId, Encoding.UTF8.GetString(htmlFromStorage.Data)).GetAwaiter().GetResult();
+            var data = GeneratePdfDataFromHtml(pdfEntityId, Encoding.UTF8.GetString(htmlFromStorage.Data),
+                entity.Options).GetAwaiter().GetResult();
 
             _storage.AddOrReplace(new StorageData(new StorageFileId(entity), data));
 
@@ -49,7 +51,7 @@ namespace Pdf.Storage.Pdf
             _context.SaveChanges();
         }
 
-        private async Task<byte[]> GeneratePdfDataFromHtml(Guid id, string html)
+        private async Task<byte[]> GeneratePdfDataFromHtml(Guid id, string html, JObject options)
         {
             _logger.LogDebug($"Generating pdf from {id}");
 
@@ -76,7 +78,28 @@ namespace Pdf.Storage.Pdf
                         WaitUntil = new[] { WaitUntilNavigation.Load, WaitUntilNavigation.DOMContentLoaded }
                     });
 
-                return await page.PdfDataAsync(new PdfOptions { Format = PaperFormat.A4 });
+                var defaultPdfOptions = new PdfOptions
+                {
+                    Format = PaperFormat.A4
+                };
+
+                return await page.PdfDataAsync(new PdfOptions
+                {
+                    Format = defaultPdfOptions.Format,
+                    DisplayHeaderFooter = options.ContainsKey("footerTemplate") || options.ContainsKey("headerTemplate"),
+                    FooterTemplate = options.ContainsKey("footerTemplate") ? options["footerTemplate"].Value<string>() : defaultPdfOptions.FooterTemplate,
+                    HeaderTemplate = options.ContainsKey("headerTemplate") ? options["headerTemplate"].Value<string>() : defaultPdfOptions.HeaderTemplate,
+                    PrintBackground = options.ContainsKey("printBackground") ? options["printBackground"].Value<bool>() : defaultPdfOptions.PrintBackground,
+                    PreferCSSPageSize = options.ContainsKey("preferCSSPageSize") ? options["preferCSSPageSize"].Value<bool>() : defaultPdfOptions.PreferCSSPageSize,
+                    PageRanges = options.ContainsKey("pageRanges") ? options["pageRanges"].Value<string>() : defaultPdfOptions.PageRanges,
+                    MarginOptions = new MarginOptions
+                    {
+                        Top = options.ContainsKey("marginTop") ? options["marginTop"].Value<string>() : defaultPdfOptions.MarginOptions.Top,
+                        Bottom = options.ContainsKey("marginBottom") ? options["marginBottom"].Value<string>() : defaultPdfOptions.MarginOptions.Bottom,
+                        Left = options.ContainsKey("marginLeft") ? options["marginLeft"].Value<string>() : defaultPdfOptions.MarginOptions.Left,
+                        Right = options.ContainsKey("marginRight") ? options["marginRight"].Value<string>() : defaultPdfOptions.MarginOptions.Right,
+                    }
+                });
             }
             catch (Exception e)
             {
