@@ -23,7 +23,7 @@ podTemplate(label: pod.label,
           def publishedImage = publishContainerToGcr(project);
           publishTagToDockerhub(project);
           if(env.BRANCH_NAME == "master") {
-              updateImageToK8sTestEnv(publishedImage)
+              updateImageToTestEnvs(publishedImage)
           }
         }
       }
