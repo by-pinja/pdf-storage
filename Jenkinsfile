@@ -1,4 +1,4 @@
-library 'jenkins-ptcs-library@2.3.0'
+library 'jenkins-ptcs-library@3.0.0'
 
 podTemplate(label: pod.label,
   containers: pod.templates + [
@@ -23,7 +23,7 @@ podTemplate(label: pod.label,
           def publishedImage = publishContainerToGcr(project);
           publishTagToDockerhub(project);
           if(env.BRANCH_NAME == "master") {
-              updateImageToK8sTestEnv(publishedImage)
+              updateImageToTestEnvs(publishedImage)
           }
         }
       }
