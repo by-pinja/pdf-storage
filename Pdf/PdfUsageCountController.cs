@@ -20,6 +20,7 @@ namespace Pdf.Storage.Pdf
         public IActionResult GetSimpleCount([Required] string groupId)
         {
             var group = _context.PdfFiles
+                .AsNoTracking()
                 .Include(x => x.Usage)
                 .Where(x => x.GroupId == groupId && x.Processed);
 
@@ -34,6 +35,7 @@ namespace Pdf.Storage.Pdf
         public IActionResult GetSimpleCount([Required] string groupId, [Required] string pdfId)
         {
             var result = _context.PdfFiles
+                .AsNoTracking()
                 .Include(x => x.Usage)
                 .Single(x => x.GroupId == groupId && x.FileId == pdfId);
 

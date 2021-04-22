@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Pdf.Storage.Data;
 using Pdf.Storage.Hangfire;
@@ -158,6 +158,7 @@ namespace Pdf.Storage.Pdf
         {
             var processedFileFound = _context
                 .PdfFiles
+                .AsNoTracking()
                 .Any(x =>
                     x.GroupId == groupId &&
                     x.FileId == pdfId &&
