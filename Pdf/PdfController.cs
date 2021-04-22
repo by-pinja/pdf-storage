@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Pdf.Storage.Data;
 using Pdf.Storage.Hangfire;
@@ -108,7 +108,7 @@ namespace Pdf.Storage.Pdf
                 return BadRequest("Only extensions 'pdf' and 'html' are supported.");
             }
 
-            var pdfEntity = _context.PdfFiles.SingleOrDefault(x => x.GroupId == groupId && x.FileId == pdfId);
+            var pdfEntity = _context.PdfFiles.FirstOrDefault(x => x.GroupId == groupId && x.FileId == pdfId);
 
             if (pdfEntity == null)
             {
@@ -158,6 +158,7 @@ namespace Pdf.Storage.Pdf
         {
             var processedFileFound = _context
                 .PdfFiles
+                .AsNoTracking()
                 .Any(x =>
                     x.GroupId == groupId &&
                     x.FileId == pdfId &&
@@ -203,7 +204,7 @@ namespace Pdf.Storage.Pdf
 
         private bool RemovePdf(string groupId, string pdfId)
         {
-            var pdfEntity = _context.PdfFiles.SingleOrDefault(x => x.GroupId == groupId && x.FileId == pdfId);
+            var pdfEntity = _context.PdfFiles.FirstOrDefault(x => x.GroupId == groupId && x.FileId == pdfId);
 
             if (pdfEntity == null)
                 return false;
