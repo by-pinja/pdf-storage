@@ -108,7 +108,7 @@ namespace Pdf.Storage.Pdf
                 return BadRequest("Only extensions 'pdf' and 'html' are supported.");
             }
 
-            var pdfEntity = _context.PdfFiles.SingleOrDefault(x => x.GroupId == groupId && x.FileId == pdfId);
+            var pdfEntity = _context.PdfFiles.FirstOrDefault(x => x.GroupId == groupId && x.FileId == pdfId);
 
             if (pdfEntity == null)
             {
@@ -204,7 +204,7 @@ namespace Pdf.Storage.Pdf
 
         private bool RemovePdf(string groupId, string pdfId)
         {
-            var pdfEntity = _context.PdfFiles.SingleOrDefault(x => x.GroupId == groupId && x.FileId == pdfId);
+            var pdfEntity = _context.PdfFiles.FirstOrDefault(x => x.GroupId == groupId && x.FileId == pdfId);
 
             if (pdfEntity == null)
                 return false;
