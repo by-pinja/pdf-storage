@@ -1,6 +1,6 @@
 # ! IMPORTANT: Keep chromium version synced with version from package 'PuppeteerSharp'
 # and match it with from https://pkgs.alpinelinux.org/packages
-ARG chromium_version=81.0.4044.113-r0
+ARG chromium_version=89.0.4389.128-r2
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1.100-alpine3.10 as dotnetBuild
 ARG chromium_version
