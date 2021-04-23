@@ -23,9 +23,9 @@
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.9.0" />
     <PackageReference Include="Google.Cloud.Storage.V1" Version="2.4.0" />
-    <PackageReference Include="Hangfire" Version="1.7.8" />
-    <PackageReference Include="Hangfire.MemoryStorage" Version="1.6.3" />
-    <PackageReference Include="Hangfire.PostgreSql" Version="1.6.3" />
+    <PackageReference Include="Hangfire" Version="1.7.22" />
+    <PackageReference Include="Hangfire.MemoryStorage" Version="1.7.0" />
+    <PackageReference Include="Hangfire.PostgreSql" Version="1.8.4" />
     <PackageReference Include="NSubstitute" Version="4.2.1" />
     <PackageReference Include="Protacon.NetCore.WebApi.ApiKeyAuth" Version="3.0.0" />
     <PackageReference Include="Protacon.NetCore.WebApi.TestUtil" Version="3.0.0" />
@@ -43,10 +43,13 @@
     <PackageReference Include="BarcodeLib" Version="2.2.3" />
     <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="11.1.1" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.12.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.14" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.1.14" />
     <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="5.0.0-rc8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.14">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
 
     <!--  When you update PuppeteerSharp you must also find corresponding version
