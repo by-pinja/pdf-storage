@@ -163,10 +163,19 @@ namespace Pdf.Storage
 
             });
 
+            var workerCount = 4;
+            if (!string.IsNullOrEmpty(Configuration["Hangfire:WorkerCount"]))
+            {
+                if (!int.TryParse(Configuration["Hangfire:WorkerCount"], out workerCount))
+                {
+                    throw new InvalidOperationException("Invalid WorkerCount on cofiguration.");
+                }
+            }
+
             var options = new BackgroundJobServerOptions
             {
                 Queues = HangfireConstants.GetQueues().ToArray(),
-                WorkerCount = 4,
+                WorkerCount = workerCount,
             };
 
             app.Map("/hangfire", appBuilder =>
