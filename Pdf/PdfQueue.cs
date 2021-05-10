@@ -65,7 +65,7 @@ namespace Pdf.Storage.Pdf
                     ExecutablePath = _chromiumPath,
                     Headless = true,
                     IgnoreHTTPSErrors = true,
-                    Args = new[] { "--no-sandbox", "--disable-dev-shm-usage", "--incognito", "--disable-gpu", "--disable-software-rasterizer" },
+                    Args = new[] { "--no-sandbox", "--no-zygote", "--disable-dev-shm-usage", "--incognito", "--disable-gpu", "--disable-software-rasterizer" },
                     EnqueueTransportMessages = false
                 });
 
