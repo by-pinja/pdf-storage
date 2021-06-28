@@ -99,9 +99,12 @@ Pdf can contain following options
   "marginTop": "120px",
   "marginBottom": "120px",
   "marginLeft": "20px",
-  "marginRight": "20px"
+  "marginRight": "20px",
+  "width": null,
+  "height": null
 }
 ```
+Values in width AND height (in inches) creates a custom sized paper. If omitted the default A4 paper size will be used.
 
 For further information, see [https://www.puppeteersharp.com/api/PuppeteerSharp.PdfOptions.html](https://www.puppeteersharp.com/api/PuppeteerSharp.PdfOptions.html).
 
