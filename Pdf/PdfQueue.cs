@@ -80,7 +80,12 @@ namespace Pdf.Storage.Pdf
 
                 var defaultPdfOptions = new PdfOptions
                 {
-                    Format = PaperFormat.A4
+                    Format = options.ContainsKey("Width") && options.ContainsKey("Height") ?
+                                    new PaperFormat(
+                                    	options["Width"].Value<decimal>(),
+                                    	options["Height"].Value<decimal>()
+                                    ) :
+                                    PaperFormat.A4
                 };
 
                 return await page.PdfDataAsync(new PdfOptions
