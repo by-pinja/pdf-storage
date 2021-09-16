@@ -19,6 +19,7 @@ using Pdf.Storage.Pdf.Config;
 using Pdf.Storage.Pdf.PdfStores;
 using Pdf.Storage.Migrations;
 using Hangfire.Dashboard;
+using System.IO.Abstractions;
 
 namespace Pdf.Storage
 {
@@ -136,6 +137,11 @@ namespace Pdf.Storage
                     break;
                 case "inMemory":
                     services.AddSingleton<IStorage, InMemoryPdfStorage>();
+                    break;
+                case "local":
+                    services.Configure<LocalStorageConfig>(Configuration.GetSection("LocalStorage"));
+                    services.AddSingleton<IFileSystem, FileSystem>();
+                    services.AddSingleton<IStorage, LocalStorage>();
                     break;
                 default:
                     throw new InvalidOperationException($"Unknown PdfStorageType from configuration '{Configuration["PdfStorageType"]}'");
