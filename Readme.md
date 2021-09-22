@@ -175,6 +175,19 @@ PDF storage supports Azure storage accounts as storage.
 }
 ```
 
+### Local storage
+
+Use local disk as storage.
+
+```json
+{
+  "PdfStorageType": "local",
+  "LocalStorage": {
+    "Folder": "/tmp"
+  }
+}
+```
+
 ## Migrations
 
 Tooling requires `dotnet-ef` available, so run:

@@ -32,6 +32,7 @@
     <PackageReference Include="Protacon.NetCore.WebApi.Util" Version="0.0.4" />
     <PackageReference Include="RabbitMQ.Client" Version="5.1.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
+    <PackageReference Include="System.IO.Abstractions" Version="13.2.47" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.0" />
@@ -55,7 +56,7 @@
     <!--  When you update PuppeteerSharp you must also find corresponding version
           in alpine at Dockerfile. Alpine limits available chromium versions available so don't update
           this without check them out. Chromium version must be about same as puppeteer expects -->
-    <PackageReference Include="PuppeteerSharp" Version="4.0.0" />
+    <PackageReference Include="PuppeteerSharp" Version="5.0.0" />
 
     <!-- Remove this once testing library is updated -->
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.0" />
