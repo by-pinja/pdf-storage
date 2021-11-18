@@ -188,6 +188,13 @@ Use local disk as storage.
 }
 ```
 
+## BaseUrl and PathBase configuration parameters
+
+BaseUrl parameter needs to be set to that domain+path where this is hosted. Eg. if it is hosted at https://pdf-storage.example.com then BaseUrl needs to be set as "https://pdf-storage.example.com"
+
+If you want to deploy this application to another than root path, eg. https://example.com/pdf-storage then PathBase needs to be set to "/pdf-storage" and BaseUrl "https://example.com/pdf-storage"
+
+
 ## Migrations
 
 Tooling requires `dotnet-ef` available, so run:
