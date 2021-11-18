@@ -154,6 +154,8 @@ namespace Pdf.Storage
 
         public void Configure(IApplicationBuilder app)
         {
+            app.UsePathBase(Configuration["PathBase"]);
+
             app.UseCors("CorsPolicy");
             app.UseRouting();
 
