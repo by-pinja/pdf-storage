@@ -80,10 +80,10 @@ namespace Pdf.Storage.Pdf
 
                 var defaultPdfOptions = new PdfOptions
                 {
-                    Format = options.ContainsKey("Width") && options.ContainsKey("Height") ?
+                    Format = options.ContainsKey("width") && options.ContainsKey("height") ?
                                     new PaperFormat(
-                                    	options["Width"].Value<decimal>(),
-                                    	options["Height"].Value<decimal>()
+                                    	options["width"].Value<decimal>(),
+                                    	options["height"].Value<decimal>()
                                     ) :
                                     PaperFormat.A4
                 };
