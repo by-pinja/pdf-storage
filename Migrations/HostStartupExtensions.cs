@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Pdf.Storage.Data;
@@ -12,7 +12,7 @@ namespace Pdf.Storage.Migrations
 {
     public static class HostStartupExtensions
     {
-        public static IWebHost MigrateDb(this IWebHost host)
+        public static IHost MigrateDb(this IHost host)
         {
             using (var scope = host.Services.CreateScope())
             {
@@ -52,7 +52,7 @@ namespace Pdf.Storage.Migrations
             return host;
         }
 
-        public static async Task<IWebHost> DownloadPrequisitiesIfNeeded(this IWebHost host)
+        public static async Task<IHost> DownloadPrequisitiesIfNeeded(this IHost host)
         {
             using var scope = host.Services.CreateScope();
 

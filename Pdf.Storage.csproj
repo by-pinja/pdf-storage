@@ -26,6 +26,7 @@
     <PackageReference Include="Hangfire" Version="1.7.22" />
     <PackageReference Include="Hangfire.MemoryStorage" Version="1.7.0" />
     <PackageReference Include="Hangfire.PostgreSql" Version="1.8.4" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="6.0.0" />
     <PackageReference Include="NSubstitute" Version="4.2.1" />
     <PackageReference Include="Protacon.NetCore.WebApi.ApiKeyAuth" Version="3.0.0" />
     <PackageReference Include="Protacon.NetCore.WebApi.TestUtil" Version="3.0.0" />
@@ -56,7 +57,7 @@
     <!--  When you update PuppeteerSharp you must also find corresponding version
           in alpine at Dockerfile. Alpine limits available chromium versions available so don't update
           this without check them out. Chromium version must be about same as puppeteer expects -->
-    <PackageReference Include="PuppeteerSharp" Version="5.0.0" />
+    <PackageReference Include="PuppeteerSharp" Version="7.0.0" />
 
     <!-- Remove this once testing library is updated -->
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.0" />

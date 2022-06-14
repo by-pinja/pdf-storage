@@ -1,8 +1,9 @@
-﻿using System.IO;
-using System.Linq;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting.WindowsServices;
 using Pdf.Storage.Migrations;
 
 namespace Pdf.Storage
@@ -11,8 +12,9 @@ namespace Pdf.Storage
     {
         public static async Task Main(string[] args)
         {
-            var host = BuildWebHost(args);
+            var isService = WindowsServiceHelpers.IsWindowsService();
 
+            var host = BuildWebHost(args, isService).Build();
             await host.DownloadPrequisitiesIfNeeded();
 
             host.MigrateDb();
@@ -20,11 +22,29 @@ namespace Pdf.Storage
             await host.RunAsync();
         }
 
-        public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
-                .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseUrls("http://0.0.0.0:5000")
-                .Build();
+        public static IHostBuilder BuildWebHost(string[] args, bool isService)
+        {
+            var builder = Host.CreateDefaultBuilder(args)
+                .UseWindowsService()
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                })
+                .UseContentRoot(Directory.GetCurrentDirectory());
+
+            if (isService)
+            {
+                using var process = Process.GetCurrentProcess();
+                var pathToExe = process.MainModule.FileName;
+                var pathToContentRoot = Path.GetDirectoryName(pathToExe);
+                builder.UseContentRoot(pathToContentRoot);
+            }
+            else
+            {
+                builder.UseConsoleLifetime();
+            }
+
+            return builder;
+        }
     }
 }

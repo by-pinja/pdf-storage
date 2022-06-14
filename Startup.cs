@@ -1,25 +1,27 @@
 ﻿using System;
+using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Hangfire;
+using Hangfire.Dashboard;
 using Hangfire.MemoryStorage;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Pdf.Storage.Config;
 using Pdf.Storage.Data;
+using Pdf.Storage.Hangfire;
+using Pdf.Storage.Migrations;
 using Pdf.Storage.Mq;
 using Pdf.Storage.Pdf;
-using Pdf.Storage.Hangfire;
+using Pdf.Storage.Pdf.Config;
+using Pdf.Storage.Pdf.PdfStores;
 using Pdf.Storage.Util;
 using Protacon.NetCore.WebApi.ApiKeyAuth;
 using Protacon.NetCore.WebApi.Util.ModelValidation;
-using Hangfire.PostgreSql;
-using Pdf.Storage.Config;
-using Pdf.Storage.Pdf.Config;
-using Pdf.Storage.Pdf.PdfStores;
-using Pdf.Storage.Migrations;
-using Hangfire.Dashboard;
-using System.IO.Abstractions;
 
 namespace Pdf.Storage
 {
@@ -205,19 +207,47 @@ namespace Pdf.Storage
                     break;
                 case "worker":
                     app.UseHangfireServer(options);
+                    AddDeleteJob();
                     break;
                 default:
                     app.UseEndpoints(endpoints => {
                         endpoints.MapControllers();
                     });
                     app.UseHangfireServer(options);
+                    AddDeleteJob();
                     break;
+            }
+        }
+
+        public void DeleteLocalStorage(string localStorageFolder)
+        {
+            var folder = new DirectoryInfo(localStorageFolder);
+            foreach (var item in folder.EnumerateFiles())
+            {
+                item.Delete();
             }
         }
 
         private string GetAppRole()
         {
             return Configuration["AppRole"] ?? "standalone";
+        }
+
+        private void AddDeleteJob()
+        {
+            if (!string.IsNullOrEmpty(Configuration["LocalStorage:Folder"]) && Configuration["PdfStorageType"] == "local")
+            {
+                var pattern = @"^[\/][a-zA-Z0-9\/_-]+$";
+                var localStorageFolder = Configuration["LocalStorage:Folder"];
+                if (Regex.IsMatch(localStorageFolder.Trim(), pattern))
+                {
+                    RecurringJob.AddOrUpdate("emptyLocalStorageFolder", () => DeleteLocalStorage(localStorageFolder), Configuration["TimeToEmptyStorageFolder:Crontab"]);
+                }
+                else
+                {
+                    throw new InvalidOperationException("Invalid local storage folder on configuration.");
+                }
+            }
         }
     }
 }
