@@ -222,9 +222,14 @@ namespace Pdf.Storage
         public void DeleteLocalStorage(string localStorageFolder)
         {
             var folder = new DirectoryInfo(localStorageFolder);
+            var difference = new TimeSpan();
             foreach (var item in folder.EnumerateFiles())
             {
-                item.Delete();
+                difference = DateTime.Now - item.CreationTime;
+                if(difference.TotalMinutes > 2)
+                {
+                    item.Delete();
+                }
             }
         }
 
