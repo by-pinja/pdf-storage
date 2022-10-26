@@ -97,6 +97,7 @@ namespace Pdf.Storage.Pdf
                     PrintBackground = options.ContainsKey("printBackground") ? options["printBackground"].Value<bool>() : defaultPdfOptions.PrintBackground,
                     PreferCSSPageSize = options.ContainsKey("preferCSSPageSize") ? options["preferCSSPageSize"].Value<bool>() : defaultPdfOptions.PreferCSSPageSize,
                     PageRanges = options.ContainsKey("pageRanges") ? options["pageRanges"].Value<string>() : defaultPdfOptions.PageRanges,
+                    Scale = options.ContainsKey("scale") ? options["scale"].Value<decimal>() : defaultPdfOptions.Scale,
                     MarginOptions = new MarginOptions
                     {
                         Top = options.ContainsKey("marginTop") ? options["marginTop"].Value<string>() : defaultPdfOptions.MarginOptions.Top,

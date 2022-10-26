@@ -101,7 +101,8 @@ Pdf can contain following options
   "marginLeft": "20px",
   "marginRight": "20px",
   "width": null,
-  "height": null
+  "height": null,
+  "scale": null
 }
 ```
 Values in width AND height (in inches) creates a custom sized paper. If omitted the default A4 paper size will be used.
