@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using PuppeteerSharp;
 
 namespace Pdf.Storage.Test.Utils
@@ -7,7 +7,7 @@ namespace Pdf.Storage.Test.Utils
     {
         public ChromiumFixture()
         {
-            new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision).Wait();
+            new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultChromiumRevision).Wait();
         }
 
         public void Dispose()

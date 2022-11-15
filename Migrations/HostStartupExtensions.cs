@@ -67,7 +67,7 @@ namespace Pdf.Storage.Migrations
             else
             {
                 logger.LogInformation("Making sure correct chromium for puppeteer is available.");
-                await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
+                await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultChromiumRevision);
             }
 
             return host;
