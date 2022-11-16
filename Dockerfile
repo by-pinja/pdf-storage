@@ -5,17 +5,29 @@ ARG chromium_version=104.0.5112.79-1~deb11u1
 FROM mcr.microsoft.com/dotnet/sdk:6.0 as build
 ARG chromium_version
 
+COPY ./ /src/
+
 RUN apt-get update
-RUN apt -y install \
+RUN apt-get install -y \
+    /src/pkg/chromium-common_${chromium_version}_amd64.deb \
+    /src/pkg/chromium_${chromium_version}_amd64.deb \
     locales \
-    libgdiplus
+    pngquant \
+    gifsicle \
+    optipng \
+    fonts-open-sans \
+    fonts-liberation \
+    libjpeg-turbo-progs \
+    libgdiplus \
+    qpdf
 RUN sed -i 's/^# *\(fi_FI.UTF-8\)/\1/' /etc/locale.gen
 RUN locale-gen
 
-COPY ./ /src/
 WORKDIR /src/
 
 RUN dotnet publish -c release -o /out
+
+ENV PuppeteerChromiumPath=/usr/bin/chromium
 
 RUN dotnet test
 
