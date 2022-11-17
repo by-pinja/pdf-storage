@@ -75,8 +75,7 @@ namespace Pdf.Storage.Pdf
 
                 _context.SaveChanges();
 
-                var template = GetParsedHtmlTemplateOfPdfDocument(entity.Id, request.Html, templatedRow);
-
+                var template = GetParsedHtmlTemplateOfPdfDocument(request.Html, templatedRow);
                 _templateCache.Store(entity.Id, template);
 
                 // There is a small chance of data loss if the program shuts down/crashes before the job is ran to persist the template
@@ -94,7 +93,7 @@ namespace Pdf.Storage.Pdf
             return Accepted(responses.ToList());
         }
 
-        private string GetParsedHtmlTemplateOfPdfDocument(Guid pdfEntityId, string html, JObject templateData)
+        private string GetParsedHtmlTemplateOfPdfDocument(string html, JObject templateData)
         {
             var templatedHtml = _templatingEngine.Render(html, templateData);
             templatedHtml = TemplateUtils.AddWaitForAllPageElementsFixToHtml(templatedHtml);
