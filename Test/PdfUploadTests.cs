@@ -65,7 +65,7 @@ namespace Pdf.Storage.Test
             newPdf.PdfUri.Should().Be($"http://localhost:5000/v1/pdf/{groupId}/{newPdf.Id}.pdf");
             newPdf.HtmlUri.Should().Be($"http://localhost:5000/v1/pdf/{groupId}/{newPdf.Id}.html");
             newPdf.GroupId.Should().Be(groupId.ToString());
-            newPdf.Data["content"].Value<string>().Should().Be("key_for_row_0");
+            newPdf.Data.RootElement.GetProperty("content").GetString().Should().Be("key_for_row_0");
         }
 
         [Fact]

@@ -1,6 +1,6 @@
-using System.Net;
+﻿using System.Net;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 using Pdf.Storage.Hangfire;
 using Protacon.NetCore.WebApi.TestUtil;
 using Xunit;
@@ -17,7 +17,7 @@ namespace Pdf.Storage.Test
 
             await host.Get("swagger/v1/swagger.json")
                 .ExpectStatusCode(HttpStatusCode.OK)
-                .WithContentOf<JObject>();
+                .WithContentOf<JsonDocument>();
         }
     }
 }
