@@ -20,35 +20,45 @@ namespace Pdf.Storage.Pdf
         private readonly IMqMessages _mqMessages;
         private readonly ILogger<PdfQueue> _logger;
         private readonly string _chromiumPath;
+        private readonly TemplateCacheService _templateCache;
 
         public PdfQueue(
             PdfDataContext context,
             IStorage storage,
             IMqMessages mqMessages,
             IOptions<CommonConfig> settings,
-            ILogger<PdfQueue> logger)
+            ILogger<PdfQueue> logger,
+            TemplateCacheService templateCache)
         {
             _context = context;
             _storage = storage;
             _mqMessages = mqMessages;
             _logger = logger;
             _chromiumPath = settings.Value.PuppeteerChromiumPath ?? new BrowserFetcher().GetExecutablePath(BrowserFetcher.DefaultChromiumRevision);
+            _templateCache = templateCache;
         }
 
         public void CreatePdf(Guid pdfEntityId)
         {
             var entity = _context.PdfFiles.Single(x => x.Id == pdfEntityId);
-            var htmlFromStorage = _storage.Get(new StorageFileId(entity, "html"));
-            var data = GeneratePdfDataFromHtml(pdfEntityId, Encoding.UTF8.GetString(htmlFromStorage.Data),
-                entity.Options).GetAwaiter().GetResult();
+            var template = _templateCache.Get(pdfEntityId) ??
+                Encoding.UTF8.GetString(_storage.Get(new StorageFileId(entity, "html")).Data) ?? // in case template was already persisted
+                throw new InvalidOperationException($"Html template missing for pdf entity id {pdfEntityId}");
 
-            _storage.AddOrReplace(new StorageData(new StorageFileId(entity), data));
+            // Persist the template in storage
+            _storage.AddOrReplace(new StorageData(new StorageFileId(entity, "html"), Encoding.UTF8.GetBytes(template)));
+            
+            var data = GeneratePdfDataFromHtml(pdfEntityId, template, entity.Options).GetAwaiter().GetResult();
+
+            _storage.AddOrReplace(new StorageData(new StorageFileId(entity, "pdf"), data));
 
             entity.Processed = true;
 
             _mqMessages.PdfGenerated(entity.GroupId, entity.FileId);
 
             _context.SaveChanges();
+
+            _templateCache.Remove(pdfEntityId);
         }
 
         private async Task<byte[]> GeneratePdfDataFromHtml(Guid id, string html, JObject options)

@@ -6,8 +6,6 @@ namespace Pdf.Storage.Data
 {
     public class PdfEntity
     {
-        public PdfEntity() {}
-
         public PdfEntity(string groupId, PdfType type)
         {
             GroupId = groupId;
@@ -24,9 +22,9 @@ namespace Pdf.Storage.Data
         public bool Removed { get; set; }
         public PdfType Type  { get; protected set; }
         public int OpenedTimes { get; set; }
-        public string HangfireJobId { get; set; }
+        public string HangfireJobId { get; set; } = string.Empty;
         public ICollection<PdfOpenedEntity> Usage { get; protected set; } = new List<PdfOpenedEntity>();
-        public JObject Options { get; set; }
+        public JObject Options { get; set; } = JObject.Parse("{}");
 
         public bool IsValidForHighPriority() => !Processed && Type == PdfType.Pdf && HangfireJobId != null;
         public void MarkAsHighPriority(string newHangfireJobId)

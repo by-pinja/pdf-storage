@@ -48,6 +48,8 @@ namespace Pdf.Storage.Hangfire
                 return (HangfireMock)provider.GetService<IHangfireQueue>();
             });
 
+            services.AddSingleton<TemplateCacheService>();
+
             var dbId = Guid.NewGuid().ToString();
             services.AddDbContext<PdfDataContext>(opt => opt.UseInMemoryDatabase(dbId));
 

@@ -27,6 +27,7 @@ namespace Pdf.Storage.Pdf
         private readonly TemplatingEngine _templatingEngine;
         private readonly IErrorPages _errorPages;
         private readonly IMqMessages _mqMessages;
+        private readonly TemplateCacheService _templateCache;
 
         public PdfController(
             PdfDataContext context,
@@ -35,7 +36,8 @@ namespace Pdf.Storage.Pdf
             IHangfireQueue backgroundJob,
             TemplatingEngine templatingEngine,
             IErrorPages errorPages,
-            IMqMessages mqMessages)
+            IMqMessages mqMessages,
+            TemplateCacheService templateCache)
         {
             _context = context;
             _pdfStorage = pdfStorage;
@@ -44,6 +46,7 @@ namespace Pdf.Storage.Pdf
             _templatingEngine = templatingEngine;
             _errorPages = errorPages;
             _mqMessages = mqMessages;
+            _templateCache = templateCache;
         }
 
         /// <summary>
@@ -69,10 +72,14 @@ namespace Pdf.Storage.Pdf
             {
                 var entity = _context.PdfFiles.Add(new PdfEntity(groupId, PdfType.Pdf) { Options = request.Options }).Entity;
                 var templatedRow = TemplateUtils.MergeBaseTemplatingWithRows(request.BaseData, row);
-                PersistParsedHtmlTemplateOfPdfDocument(entity, request.Html, templatedRow);
 
                 _context.SaveChanges();
 
+                var template = GetParsedHtmlTemplateOfPdfDocument(entity.Id, request.Html, templatedRow);
+
+                _templateCache.Store(entity.Id, template);
+
+                // There is a small chance of data loss if the program shuts down/crashes before the job is ran to persist the template
                 entity.HangfireJobId =
                     _backgroundJobs.Enqueue<IPdfQueue>(que => que.CreatePdf(entity.Id));
 
@@ -87,11 +94,11 @@ namespace Pdf.Storage.Pdf
             return Accepted(responses.ToList());
         }
 
-        private void PersistParsedHtmlTemplateOfPdfDocument(PdfEntity entity, string html, JObject templateData)
+        private string GetParsedHtmlTemplateOfPdfDocument(Guid pdfEntityId, string html, JObject templateData)
         {
             var templatedHtml = _templatingEngine.Render(html, templateData);
             templatedHtml = TemplateUtils.AddWaitForAllPageElementsFixToHtml(templatedHtml);
-            _pdfStorage.AddOrReplace(new StorageData(new StorageFileId(entity, "html"), Encoding.UTF8.GetBytes(templatedHtml)));
+            return templatedHtml;
         }
 
         /// <summary>

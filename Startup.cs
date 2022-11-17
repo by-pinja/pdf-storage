@@ -69,6 +69,8 @@ namespace Pdf.Storage
 
             services.AddHostedService<ApplicationInsightsTelemetryBackgroundService>();
 
+            services.AddSingleton<TemplateCacheService>();
+
             switch (Configuration["DbType"])
             {
                 case "inMemory":
