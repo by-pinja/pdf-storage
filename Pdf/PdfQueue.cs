@@ -78,12 +78,15 @@ namespace Pdf.Storage.Pdf
                         WaitUntil = new[] { WaitUntilNavigation.Load, WaitUntilNavigation.DOMContentLoaded }
                     });
 
+                var width = options.GetValue("width", StringComparison.OrdinalIgnoreCase);
+                var height = options.GetValue("height", StringComparison.OrdinalIgnoreCase);
+
                 var defaultPdfOptions = new PdfOptions
                 {
-                    Format = options.ContainsKey("Width") && options.ContainsKey("Height") ?
+                    Format = width != null && height != null ?
                                     new PaperFormat(
-                                    	options["Width"].Value<decimal>(),
-                                    	options["Height"].Value<decimal>()
+                                        width.Value<decimal>(),
+                                        height.Value<decimal>()
                                     ) :
                                     PaperFormat.A4
                 };
