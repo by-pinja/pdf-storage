@@ -1,5 +1,6 @@
 # ! IMPORTANT: Keep chromium version synced with version from package 'PuppeteerSharp'
-# and match it with from https://pkgs.alpinelinux.org/packages
+# and match it with from https://tracker.debian.org/pkg/chromium
+# Download the install packages and place them in the pkg/ folder and update chromium_version here accordingly
 ARG chromium_version=104.0.5112.79-1~deb11u1
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 as build
