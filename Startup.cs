@@ -12,7 +12,6 @@ using Pdf.Storage.Pdf;
 using Pdf.Storage.Hangfire;
 using Pdf.Storage.Util;
 using Protacon.NetCore.WebApi.ApiKeyAuth;
-using Protacon.NetCore.WebApi.Util.ModelValidation;
 using Hangfire.PostgreSql;
 using Pdf.Storage.Config;
 using Pdf.Storage.Pdf.Config;
@@ -58,9 +57,7 @@ namespace Pdf.Storage
                         .AllowAnyHeader());
             });
 
-            services
-                .AddMvc(options => options.Filters.Add(new ValidateModelAttribute()))
-                .AddNewtonsoftJson();
+            services.AddMvc().AddNewtonsoftJson();
 
             services.AddSwaggerGenConfiguration();
 

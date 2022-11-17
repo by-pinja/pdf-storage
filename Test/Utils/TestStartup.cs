@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Serialization;
 using Pdf.Storage.Config;
 using Pdf.Storage.Data;
 using Pdf.Storage.Mq;
@@ -14,7 +15,6 @@ using Pdf.Storage.Pdf;
 using Pdf.Storage.Test.Utils;
 using Pdf.Storage.Util;
 using Protacon.NetCore.WebApi.ApiKeyAuth;
-using Protacon.NetCore.WebApi.Util.ModelValidation;
 
 namespace Pdf.Storage.Hangfire
 {
@@ -26,8 +26,7 @@ namespace Pdf.Storage.Hangfire
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc(options => options.Filters.Add(new ValidateModelAttribute()))
-                    .AddNewtonsoftJson();
+            services.AddMvc().AddNewtonsoftJson();
 
             services.AddAuthentication()
                 .AddDisabledApiKeyAuth();

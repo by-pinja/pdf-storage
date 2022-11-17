@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>Pdf.Storage</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>Pdf.Storage</PackageId>
     <GenerateProgramFile>false</GenerateProgramFile>
     <UserSecretsId>29daae28-ca01-4571-a752-561bae77dd89</UserSecretsId>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>10.0</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
@@ -19,47 +19,52 @@
     <None Remove="out\**" />
     <None Include="ApiDescription.md" CopyToOutputDirectory="Always" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <RuntimeHostConfigurationOption Include="System.Drawing.EnableUnixSupport" Value="true" />
+  </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="5.9.0" />
+    <PackageReference Include="FluentAssertions" Version="6.8.0" />
     <PackageReference Include="Google.Cloud.Storage.V1" Version="2.4.0" />
-    <PackageReference Include="Hangfire" Version="1.7.22" />
+    <PackageReference Include="Hangfire" Version="1.7.31" />
     <PackageReference Include="Hangfire.MemoryStorage" Version="1.7.0" />
-    <PackageReference Include="Hangfire.PostgreSql" Version="1.8.4" />
-    <PackageReference Include="NSubstitute" Version="4.2.1" />
+    <PackageReference Include="Hangfire.PostgreSql" Version="1.9.9" />
+    <PackageReference Include="NSubstitute" Version="4.4.0" />
     <PackageReference Include="Protacon.NetCore.WebApi.ApiKeyAuth" Version="3.0.0" />
-    <PackageReference Include="Protacon.NetCore.WebApi.TestUtil" Version="3.0.0" />
-    <PackageReference Include="Protacon.NetCore.WebApi.Util" Version="0.0.4" />
+    <PackageReference Include="Protacon.NetCore.WebApi.TestUtil" Version="4.3.0" />
+    <PackageReference Include="Pinja.NetCore.WebApi.Util" Version="1.3.1" />
     <PackageReference Include="RabbitMQ.Client" Version="5.1.2" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
-    <PackageReference Include="System.IO.Abstractions" Version="13.2.47" />
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.0" />
+    <PackageReference Include="System.IO.Abstractions" Version="17.2.3" />
+    <PackageReference Include="xunit" Version="2.4.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.7" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.3.100.1" />
     <PackageReference Include="AWSSDK.S3" Version="3.3.100.1" />
-    <PackageReference Include="Stubble.Core" Version="1.6.3" />
+    <PackageReference Include="Stubble.Core" Version="1.9.3" />
     <PackageReference Include="Stubble.Extensions.JsonNet" Version="1.2.3" />
-    <PackageReference Include="BarcodeLib" Version="2.2.3" />
+    <PackageReference Include="BarcodeLib" Version="2.4.0" />
     <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="11.1.1" />
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.12.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.14" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.1.14" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="5.0.0-rc8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.14">
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="6.0.11" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="7.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.11">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
+    <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
 
     <!--  When you update PuppeteerSharp you must also find corresponding version
           in alpine at Dockerfile. Alpine limits available chromium versions available so don't update
           this without check them out. Chromium version must be about same as puppeteer expects -->
-    <PackageReference Include="PuppeteerSharp" Version="5.0.0" />
+    <PackageReference Include="PuppeteerSharp" Version="8.0.0" />
 
     <!-- Remove this once testing library is updated -->
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.11" />
   </ItemGroup>
 
   <ItemGroup>
