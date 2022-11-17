@@ -32,7 +32,7 @@ namespace Pdf.Storage.Pdf
             _storage = storage;
             _mqMessages = mqMessages;
             _logger = logger;
-            _chromiumPath = settings.Value.PuppeteerChromiumPath ?? new BrowserFetcher().GetExecutablePath(BrowserFetcher.DefaultRevision);
+            _chromiumPath = settings.Value.PuppeteerChromiumPath ?? new BrowserFetcher().GetExecutablePath(BrowserFetcher.DefaultChromiumRevision);
         }
 
         public void CreatePdf(Guid pdfEntityId)
@@ -55,8 +55,8 @@ namespace Pdf.Storage.Pdf
         {
             _logger.LogDebug($"Generating pdf from {id}");
 
-            Browser browser = default;
-            Page page = default;
+            IBrowser browser = default;
+            IPage page = default;
 
             try
             {
