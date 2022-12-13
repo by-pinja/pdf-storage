@@ -112,6 +112,15 @@ namespace Pdf.Storage.Pdf
 
             if (pdfEntity == null)
             {
+                try
+                {
+                    var file = _pdfStorage.Get(new StorageFileId(groupId, pdfId, extension));
+                    if (file != null)
+                    {
+                        return new FileStreamResult(new MemoryStream(file.Data), file.ContentType);
+                    }
+                }
+                catch { }
                 return _errorPages.PdfNotFoundResponse();
             }
 
