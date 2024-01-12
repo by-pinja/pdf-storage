@@ -7,7 +7,7 @@ namespace Pdf.Storage.Test.Utils
     {
         public ChromiumFixture()
         {
-            new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultChromiumRevision).Wait();
+            new BrowserFetcher().DownloadAsync(PuppeteerSharp.BrowserData.Chrome.DefaultBuildId).Wait();
         }
 
         public void Dispose()
