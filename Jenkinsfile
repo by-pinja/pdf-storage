@@ -9,7 +9,34 @@ podTemplate(label: pod.label,
 
     node(pod.label) {
       stage('Checkout') {
-         checkout scm
+          def branchHead = 'refs/heads/'+env.BRANCH_NAME
+
+          if(utils.isTagBuild())
+          {
+            branchHead = 'refs/tags/'+env.TAG_NAME
+          }
+
+          // LFS pull requires manually written scm step.
+          checkout([  $class: 'GitSCM',
+              branches: [[name: branchHead]],
+                  doGenerateSubmoduleConfigurations: false,
+                  extensions: [
+                      [$class: 'GitLFSPull'],
+                      [$class: 'CheckoutOption', timeout: 20],
+                      [$class: 'CloneOption',
+                              depth: 0,
+                              noTags: false,
+                              reference: '/other/optional/local/reference/clone',
+                              shallow: false,
+                              timeout: 120]
+                  ],
+                  submoduleCfg: [],
+                  userRemoteConfigs: [
+                      // Yeah hardcoding repository url here sucks balls big time...
+                      // But it seems it isn't available at pod.
+                      [credentialsId: 'jenkins_ci_account_for_github', url: 'https://github.com/by-pinja/pdf-storage.git']
+                  ]
+              ])
       }
       stage('Build') {
         container('dotnet') {

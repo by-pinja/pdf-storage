@@ -32,7 +32,7 @@ ENV PuppeteerChromiumPath=/usr/bin/chromium
 
 RUN dotnet test
 
-FROM mcr.microsoft.com/dotnet/aspnet:6.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 ARG chromium_version
 
 COPY --from=build /src/pkg/ /tmp/pkg/
