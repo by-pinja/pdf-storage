@@ -19,10 +19,6 @@
     <None Remove="out\**" />
     <None Include="ApiDescription.md" CopyToOutputDirectory="Always" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <RuntimeHostConfigurationOption Include="System.Drawing.EnableUnixSupport" Value="true" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="6.12.0" />
@@ -45,7 +41,6 @@
     <PackageReference Include="AWSSDK.S3" Version="3.7.305.9" />
     <PackageReference Include="Stubble.Core" Version="1.10.8" />
     <PackageReference Include="Stubble.Extensions.JsonNet" Version="1.2.3" />
-    <PackageReference Include="BarcodeLib" Version="2.4.0" />
     <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="11.2.3" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.1" />
@@ -56,7 +51,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.Drawing.Common" Version="8.0.1" />
 
     <!--  When you update PuppeteerSharp you must also find corresponding version
           in alpine at Dockerfile. Alpine limits available chromium versions available so don't update
