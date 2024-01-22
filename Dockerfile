@@ -22,16 +22,13 @@ RUN apt-get install -y --no-install-recommends \
     qpdf \
     locales
 
-# RUN sed -i 's/^# *\(fi_FI.UTF-8\)/\1/' /etc/locale.gen
-# RUN locale-gen
-
 WORKDIR /src/
 
 RUN dotnet publish -c release -o /out
 
 ENV PuppeteerChromiumPath=/usr/bin/chromium
 
-# RUN dotnet test
+RUN dotnet test
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 ARG chromium_version
