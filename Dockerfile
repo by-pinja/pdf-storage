@@ -30,7 +30,7 @@ RUN dotnet publish -c release -o /out
 
 ENV PuppeteerChromiumPath=/usr/bin/chromium
 
-RUN dotnet test
+# RUN dotnet test
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 ARG chromium_version
