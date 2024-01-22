@@ -9,10 +9,9 @@ ARG chromium_version
 COPY ./ /src/
 
 RUN apt-get update
-RUN apt-get install -y \
+RUN apt-get install -y --no-install-recommends \
     /src/pkg/chromium-common_${chromium_version}_amd64.deb \
     /src/pkg/chromium_${chromium_version}_amd64.deb \
-    locales \
     pngquant \
     gifsicle \
     optipng \
@@ -20,9 +19,11 @@ RUN apt-get install -y \
     fonts-liberation \
     libjpeg-turbo-progs \
     libgdiplus \
-    qpdf
-RUN sed -i 's/^# *\(fi_FI.UTF-8\)/\1/' /etc/locale.gen
-RUN locale-gen
+    qpdf \
+    locales
+
+# RUN sed -i 's/^# *\(fi_FI.UTF-8\)/\1/' /etc/locale.gen
+# RUN locale-gen
 
 WORKDIR /src/
 
@@ -36,22 +37,21 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 ARG chromium_version
 
 COPY --from=build /src/pkg/ /tmp/pkg/
-RUN apt-get update
-RUN apt-get install -y \
-    /tmp/pkg/chromium-common_${chromium_version}_amd64.deb \
-    /tmp/pkg/chromium_${chromium_version}_amd64.deb \
-    pngquant \
-    gifsicle \
-    optipng \
-    fonts-open-sans \
-    fonts-liberation \
-    libjpeg-turbo-progs \
-    libgdiplus \
-    qpdf \
-    dumb-init
 
-RUN apt-get clean
-RUN rm /tmp/pkg/*.deb
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        /tmp/pkg/chromium-common_${chromium_version}_amd64.deb \
+        /tmp/pkg/chromium_${chromium_version}_amd64.deb \
+        pngquant \
+        gifsicle \
+        optipng \
+        fonts-open-sans \
+        fonts-liberation \
+        libjpeg-turbo-progs \
+        libgdiplus \
+        qpdf \
+        dumb-init \
+    && apt-get clean \
+    && rm /tmp/pkg/*.deb
 
 # Tells software that it is running in container and have all requirements pre-installed.
 ENV PuppeteerChromiumPath=/usr/bin/chromium
