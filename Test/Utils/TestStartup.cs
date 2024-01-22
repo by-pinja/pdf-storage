@@ -1,13 +1,12 @@
 ﻿using System;
 using System.IO;
 using Hangfire;
-using Hangfire.Dashboard;
 using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Serialization;
+using Microsoft.Extensions.Options;
 using Pdf.Storage.Config;
 using Pdf.Storage.Data;
 using Pdf.Storage.Mq;
@@ -29,12 +28,18 @@ namespace Pdf.Storage.Hangfire
             services.AddMvc().AddNewtonsoftJson();
 
             services.AddAuthentication()
-                .AddDisabledApiKeyAuth();
+            .AddApiKeyAuth(options =>
+                {
+                    options.ValidApiKeys = ["keys"];
+                });
+                //.AddDisabledApiKeyAuth();
 
             services.AddCommonAppServices();
 
             services.AddTransient<IMqMessages, MqMessagesNullObject>();
             services.AddSingleton<IStorage, InMemoryPdfStorage>();
+
+
 
             services.AddSwaggerGenConfiguration();
 
@@ -69,24 +74,21 @@ namespace Pdf.Storage.Hangfire
 
         public void Configure(IApplicationBuilder app)
         {
+            app.UseAuthentication();
+
             app.UseRouting();
 
-            app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseSwagger();
-
-            app.Map("/hangfire", appBuilder =>
+            app.UseEndpoints(endpoints =>
             {
-                appBuilder.UseMiddleware<IpWhitelistMiddleware>();
-                appBuilder.UseMiddleware<BasicAuthMiddleware>();
-                appBuilder.UseHangfireDashboard("", new DashboardOptions
-                {
-                    Authorization = new IDashboardAuthorizationFilter[] { }
-                });
-            });
+                var config = app.ApplicationServices.GetRequiredService<IOptions<HangfireConfiguration>>();
 
-            app.UseEndpoints(endpoints => {
+                endpoints.MapHangfireDashboard("/hangfire", options: new DashboardOptions
+                {
+                    Authorization = [new HangfireBasicAuthenticationFilter(config)],
+                });
+
                 endpoints.MapControllers();
             });
         }
