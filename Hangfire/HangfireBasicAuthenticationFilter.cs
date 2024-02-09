@@ -26,24 +26,14 @@ public class HangfireBasicAuthenticationFilter : IDashboardAuthorizationFilter
             _tokens = tokens;
         }
 
-        public bool IsInvalid()
+        public bool HasEmptyPasswordOrUserName()
         {
-            return HasTwoTokens() && IsValidToken(Username) && IsValidToken(Password);
+            return _tokens.Length == 2 && (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password));
         }
 
         public bool MatchingCredentials(string? user, string? pass)
         {
             return user != null && pass != null && Username.Equals(user) && Password.Equals(pass);
-        }
-
-        private static bool IsValidToken(string token)
-        {
-            return string.IsNullOrWhiteSpace(token);
-        }
-
-        private bool HasTwoTokens()
-        {
-            return _tokens.Length == 2;
         }
     }
 
@@ -81,7 +71,7 @@ public class HangfireBasicAuthenticationFilter : IDashboardAuthorizationFilter
 
         var tokens = GetAuthenticationTokens(authValues);
 
-        if (tokens.IsInvalid())
+        if (tokens.HasEmptyPasswordOrUserName())
         {
             SetChallengeResponse(httpContext);
             return false;
