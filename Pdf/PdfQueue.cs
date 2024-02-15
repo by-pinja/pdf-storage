@@ -18,8 +18,8 @@ namespace Pdf.Storage.Pdf
         private readonly PdfDataContext _context;
         private readonly IStorage _storage;
         private readonly IMqMessages _mqMessages;
+        private readonly IOptions<CommonConfig> _settings;
         private readonly ILogger<PdfQueue> _logger;
-        private readonly string _chromiumPath;
 
         public PdfQueue(
             PdfDataContext context,
@@ -31,8 +31,8 @@ namespace Pdf.Storage.Pdf
             _context = context;
             _storage = storage;
             _mqMessages = mqMessages;
+            _settings = settings;
             _logger = logger;
-            _chromiumPath = settings.Value.PuppeteerChromiumPath ?? new BrowserFetcher().GetExecutablePath(BrowserFetcher.DefaultChromiumRevision);
         }
 
         public void CreatePdf(Guid pdfEntityId)
@@ -60,14 +60,20 @@ namespace Pdf.Storage.Pdf
 
             try
             {
-                browser = await Puppeteer.LaunchAsync(new LaunchOptions
+                var launchOptions = new LaunchOptions
                 {
-                    ExecutablePath = _chromiumPath,
                     Headless = true,
                     IgnoreHTTPSErrors = true,
-                    Args = new[] { "--no-sandbox", "--disable-dev-shm-usage", "--incognito", "--disable-gpu", "--disable-software-rasterizer" },
+                    Args = ["--no-sandbox", "--disable-dev-shm-usage", "--incognito", "--disable-gpu", "--disable-software-rasterizer"],
                     EnqueueTransportMessages = false
-                });
+                };
+
+                if(_settings.Value.PuppeteerChromiumPath != default)
+                {
+                    launchOptions.ExecutablePath = _settings.Value.PuppeteerChromiumPath;
+                }
+
+                browser = await Puppeteer.LaunchAsync(launchOptions);
 
                 page = await browser.NewPageAsync();
 
@@ -75,7 +81,7 @@ namespace Pdf.Storage.Pdf
                     new NavigationOptions
                     {
                         Timeout = 15 * 1000,
-                        WaitUntil = new[] { WaitUntilNavigation.Load, WaitUntilNavigation.DOMContentLoaded }
+                        WaitUntil = [WaitUntilNavigation.Load, WaitUntilNavigation.DOMContentLoaded]
                     });
 
                 var width = options.GetValue("width", StringComparison.OrdinalIgnoreCase);

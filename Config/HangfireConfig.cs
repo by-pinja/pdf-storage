@@ -4,7 +4,7 @@ namespace Pdf.Storage.Config
     {
         // If empty, only localhost is allowed.
         // To allow any ip addreess add "*".
-        public string[] AllowedIpAddresses { get; set; } = new string[] {};
+        public string[] AllowedIpAddresses { get; set; } = [];
 
         // If username and password is set, then authentication for hangfire is enabled.
         public string DashboardUser { get; set; }

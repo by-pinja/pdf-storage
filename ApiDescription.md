@@ -36,55 +36,6 @@ For example, the following input:
 
 generates two PDFs with data "a" and "b" per document.
 
-## Translators
-
-The storage templating supports `translators`, which convert strings to other assets.
-For example: a string as a base64 image, which is easy to embed into a template.
-
-The following data
-
-```json
-{
-  "html": "string",
-  "baseData": {},
-  "rowData": [
-    { barcode: "[translate:barcode]AE3011A" }
-  ]
-}
-```
-
-used with the template
-
-```html
-<img src="{{ barcode }}"/>
-```
-
-generates the following output:
-
-```html
-<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASIAAAB4CAYAAABW..."/>
-```
-
-### Syntax
-
-```text
-[translate:type]data
-```
-
-Translator specific options are supported and used as follows.
-
-```text
-[translate:type:{ optionValue: "value" }]data
-```
-
-Real example:
-
-```text
-[translate:barcode:{includeText: true, foregroundColor: '#4286f4'}]AE5C9B
-```
-
-### List of translators and options
-
 #### pdf options
 
 Pdf can contain following options
@@ -108,18 +59,3 @@ Pdf can contain following options
 Values in width AND height (in inches) creates a custom sized paper. If omitted the default A4 paper size will be used.
 
 For further information, see [https://www.puppeteersharp.com/api/PuppeteerSharp.PdfOptions.html](https://www.puppeteersharp.com/api/PuppeteerSharp.PdfOptions.html).
-
-#### barcode
-
-Generates a barcode image of type `code128|...`
-
-```json
-{
-  "type":"code128|ean13|ean8|upca|upce|itf14|code39",
-  "width": 290,
-  "height": 120,
-  "includeText": false,
-  "foregroundColor": "#ffffff",
-  "backgroundColor": "#000000"
-}
-```

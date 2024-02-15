@@ -19,6 +19,7 @@ using Pdf.Storage.Pdf.PdfStores;
 using Pdf.Storage.Migrations;
 using Hangfire.Dashboard;
 using System.IO.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace Pdf.Storage
 {
@@ -62,6 +63,10 @@ namespace Pdf.Storage
             services.AddSwaggerGenConfiguration();
 
             services.Configure<CommonConfig>(Configuration);
+
+            services.AddOptions<HangfireConfiguration>()
+                .Bind(Configuration.GetSection("Hangfire"))
+                .ValidateDataAnnotations();
 
             services.AddCommonAppServices();
 
@@ -183,20 +188,21 @@ namespace Pdf.Storage
                 WorkerCount = workerCount,
             };
 
-            app.Map("/hangfire", appBuilder =>
+            app.UseEndpoints(endpoints =>
             {
-                appBuilder.UseMiddleware<IpWhitelistMiddleware>();
-                appBuilder.UseMiddleware<BasicAuthMiddleware>();
-                appBuilder.UseHangfireDashboard("", new DashboardOptions
+                var config = app.ApplicationServices.GetRequiredService<IOptions<HangfireConfiguration>>();
+
+                endpoints.MapHangfireDashboard("/hangfire", options: new DashboardOptions
                 {
-                    Authorization = new IDashboardAuthorizationFilter[] {}
+                    Authorization = [new HangfireBasicAuthenticationFilter(config)],
                 });
             });
 
             switch (GetAppRole())
             {
                 case "api":
-                    app.UseEndpoints(endpoints => {
+                    app.UseEndpoints(endpoints =>
+                    {
                         endpoints.MapControllers();
                     });
                     break;
@@ -204,7 +210,8 @@ namespace Pdf.Storage
                     app.UseHangfireServer(options);
                     break;
                 default:
-                    app.UseEndpoints(endpoints => {
+                    app.UseEndpoints(endpoints =>
+                    {
                         endpoints.MapControllers();
                     });
                     app.UseHangfireServer(options);
