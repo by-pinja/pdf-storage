@@ -28,18 +28,12 @@ namespace Pdf.Storage.Hangfire
             services.AddMvc().AddNewtonsoftJson();
 
             services.AddAuthentication()
-            .AddApiKeyAuth(options =>
-                {
-                    options.ValidApiKeys = ["keys"];
-                });
-                //.AddDisabledApiKeyAuth();
+                .AddDisabledApiKeyAuth();
 
             services.AddCommonAppServices();
 
             services.AddTransient<IMqMessages, MqMessagesNullObject>();
             services.AddSingleton<IStorage, InMemoryPdfStorage>();
-
-
 
             services.AddSwaggerGenConfiguration();
 
