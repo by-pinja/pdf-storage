@@ -2,17 +2,17 @@ name: Build
 
 on:
   push:
-    branches: [ "*" ]
+    branches: ["*"]
   pull_request:
-    branches: [ "*" ]
+    branches: ["*"]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile
+      - uses: actions/checkout@v3
+        with:
+          lfs: "true"
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile
