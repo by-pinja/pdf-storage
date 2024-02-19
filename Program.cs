@@ -24,7 +24,6 @@ namespace Pdf.Storage
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
                 .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseUrls("http://0.0.0.0:5005")
                 .Build();
     }
 }

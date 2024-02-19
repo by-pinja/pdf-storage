@@ -58,6 +58,8 @@ ENV ASPNETCORE_ENVIRONMENT=Production
 WORKDIR /app
 COPY --from=build /out/ /app/
 
+ENV ASPNETCORE_URLS=http://+:80;http://+:5000;
+
 EXPOSE 5000
 
 # dump-init fixes zombie (defunct) process problem with chrome
