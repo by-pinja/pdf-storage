@@ -42,6 +42,7 @@ Pdf can contain following options
 
 ```json
 {
+  "format": "A4",
   "footerTemplate": "<div style=\"color: black; font-size: 12px; width: 100%; margin-left: 28px;\"><span class=\"pageNumber\"></span>/<span class=\"totalPages\"></span></div>",
   "headerTemplate": "<div style=\"color: black; font-size: 12px; width: 100%; margin-left: 28px;\">Some header</div>",
   "printBackground": true,
@@ -57,6 +58,6 @@ Pdf can contain following options
   "scale": null
 }
 ```
-Values in width AND height (in inches) creates a custom sized paper. If omitted the default A4 paper size will be used.
+Format takes priority over width and height values. Values in width AND height (in inches) creates a custom sized paper. If format and size params are omitted the default A4 paper size will be used.
 
 For further information, see [https://www.puppeteersharp.com/api/PuppeteerSharp.PdfOptions.html](https://www.puppeteersharp.com/api/PuppeteerSharp.PdfOptions.html).
