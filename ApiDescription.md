@@ -45,6 +45,7 @@ Pdf can contain following options
   "footerTemplate": "<div style=\"color: black; font-size: 12px; width: 100%; margin-left: 28px;\"><span class=\"pageNumber\"></span>/<span class=\"totalPages\"></span></div>",
   "headerTemplate": "<div style=\"color: black; font-size: 12px; width: 100%; margin-left: 28px;\">Some header</div>",
   "printBackground": true,
+  "landscape": false,
   "preferCSSPageSize": false,
   "pageRanges": null,
   "marginTop": "120px",

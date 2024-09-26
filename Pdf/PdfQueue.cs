@@ -104,6 +104,7 @@ namespace Pdf.Storage.Pdf
                     FooterTemplate = options.ContainsKey("footerTemplate") ? options["footerTemplate"].Value<string>() : defaultPdfOptions.FooterTemplate,
                     HeaderTemplate = options.ContainsKey("headerTemplate") ? options["headerTemplate"].Value<string>() : defaultPdfOptions.HeaderTemplate,
                     PrintBackground = options.ContainsKey("printBackground") ? options["printBackground"].Value<bool>() : defaultPdfOptions.PrintBackground,
+                    Landscape = options.ContainsKey("landscape") ? options["landscape"].Value<bool>() : defaultPdfOptions.Landscape,
                     PreferCSSPageSize = options.ContainsKey("preferCSSPageSize") ? options["preferCSSPageSize"].Value<bool>() : defaultPdfOptions.PreferCSSPageSize,
                     PageRanges = options.ContainsKey("pageRanges") ? options["pageRanges"].Value<string>() : defaultPdfOptions.PageRanges,
                     Scale = options.ContainsKey("scale") ? options["scale"].Value<decimal>() : defaultPdfOptions.Scale,
