@@ -99,11 +99,12 @@ namespace Pdf.Storage.Pdf
 
                 return await page.PdfDataAsync(new PdfOptions
                 {
-                    Format = defaultPdfOptions.Format,
+                    Format = options.ContainsKey("format") ? Format(options["format"].Value<string>()) : defaultPdfOptions.Format,
                     DisplayHeaderFooter = options.ContainsKey("footerTemplate") || options.ContainsKey("headerTemplate"),
                     FooterTemplate = options.ContainsKey("footerTemplate") ? options["footerTemplate"].Value<string>() : defaultPdfOptions.FooterTemplate,
                     HeaderTemplate = options.ContainsKey("headerTemplate") ? options["headerTemplate"].Value<string>() : defaultPdfOptions.HeaderTemplate,
                     PrintBackground = options.ContainsKey("printBackground") ? options["printBackground"].Value<bool>() : defaultPdfOptions.PrintBackground,
+                    Landscape = options.ContainsKey("landscape") ? options["landscape"].Value<bool>() : defaultPdfOptions.Landscape,
                     PreferCSSPageSize = options.ContainsKey("preferCSSPageSize") ? options["preferCSSPageSize"].Value<bool>() : defaultPdfOptions.PreferCSSPageSize,
                     PageRanges = options.ContainsKey("pageRanges") ? options["pageRanges"].Value<string>() : defaultPdfOptions.PageRanges,
                     Scale = options.ContainsKey("scale") ? options["scale"].Value<decimal>() : defaultPdfOptions.Scale,
@@ -129,5 +130,20 @@ namespace Pdf.Storage.Pdf
                 browser?.Dispose();
             }
         }
+
+        private static PaperFormat Format(string format) => format switch {
+            "Letter" => PaperFormat.Letter,
+            "Legal" => PaperFormat.Legal,
+            "Tabloid" => PaperFormat.Tabloid,
+            "Ledger" => PaperFormat.Ledger,
+            "A0" => PaperFormat.A0,
+            "A1" => PaperFormat.A1,
+            "A2" => PaperFormat.A2,
+            "A3" => PaperFormat.A3,
+            "A4" => PaperFormat.A4,
+            "A5" => PaperFormat.A5,
+            "A6" => PaperFormat.A6,
+            _ => PaperFormat.A4,
+        };
     }
 }
