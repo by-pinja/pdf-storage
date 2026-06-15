@@ -55,27 +55,23 @@ namespace Pdf.Storage.Pdf
         {
             _logger.LogDebug($"Generating pdf from {id}");
 
-            IBrowser browser = default;
-            IPage page = default;
+            var launchOptions = new LaunchOptions
+            {
+                Headless = true,
+                IgnoreHTTPSErrors = true,
+                Args = ["--no-sandbox", "--disable-dev-shm-usage", "--incognito", "--disable-gpu", "--disable-software-rasterizer"],
+                EnqueueTransportMessages = false
+            };
+
+            if (_settings.Value.PuppeteerChromiumPath != default)
+            {
+                launchOptions.ExecutablePath = _settings.Value.PuppeteerChromiumPath;
+            }
 
             try
             {
-                var launchOptions = new LaunchOptions
-                {
-                    Headless = true,
-                    IgnoreHTTPSErrors = true,
-                    Args = ["--no-sandbox", "--disable-dev-shm-usage", "--incognito", "--disable-gpu", "--disable-software-rasterizer"],
-                    EnqueueTransportMessages = false
-                };
-
-                if(_settings.Value.PuppeteerChromiumPath != default)
-                {
-                    launchOptions.ExecutablePath = _settings.Value.PuppeteerChromiumPath;
-                }
-
-                browser = await Puppeteer.LaunchAsync(launchOptions);
-
-                page = await browser.NewPageAsync();
+                await using var browser = await Puppeteer.LaunchAsync(launchOptions);
+                await using var page = await browser.NewPageAsync();
 
                 await page.SetContentAsync(html,
                     new NavigationOptions
@@ -121,13 +117,6 @@ namespace Pdf.Storage.Pdf
             {
                 _logger.LogError(e, $"Failed to generate pdf from {id}");
                 throw;
-            }
-            finally
-            {
-                await page?.CloseAsync();
-                page?.Dispose();
-                await browser?.CloseAsync();
-                browser?.Dispose();
             }
         }
 
