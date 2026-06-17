@@ -1,29 +1,34 @@
 name: Publish
 
 on:
-  # Allow workflow to be run manually
-  workflow_dispatch:
   # Trigger the workflow on publish
   release:
     types: [ published ]
 
 jobs:
-  build-test-publish:
+  publish:
     runs-on: ubuntu-22.04
     # Google authentication (google-github-actions/auth) requires these permissions
     # (by-pinja/cs-reusable-github-actions-workflows/.github/composite/gcp-artifactregistry-docker-build-and-upload)
     permissions:
-        contents: read
-        id-token: write
+      contents: read
+      id-token: write
     timeout-minutes: 30
 
     steps:
       - name: Set Docker Tag (publish)
+        if: github.event_name == 'release'
         shell: bash
         run: echo "DOCKER_TAG=$(echo ${GITHUB_REF#refs/tags/})" >> $GITHUB_ENV
 
-      - name: Print Docker Tag (debug)
-        run: echo "${{ env.DOCKER_TAG }}"
+      - name: Verify Docker Tag is set
+        shell: bash
+        run: |
+          if [ -z "${DOCKER_TAG}" ]; then
+            echo "::error::DOCKER_TAG is not set; aborting."
+            exit 1
+          fi
+          echo "DOCKER_TAG=${DOCKER_TAG}"
 
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
