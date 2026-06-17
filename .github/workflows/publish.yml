@@ -1,36 +1,41 @@
-name: Publish Docker image
+name: Publish
 
 on:
+  # Allow workflow to be run manually
+  workflow_dispatch:
+  # Trigger the workflow on publish
   release:
-    types: [published]
+    types: [ published ]
 
 jobs:
-  push_to_registry:
-    name: Push Docker image to Docker Hub
-    runs-on: ubuntu-latest
+  build-test-publish:
+    runs-on: ubuntu-22.04
+    # Google authentication (google-github-actions/auth) requires these permissions
+    # (by-pinja/cs-reusable-github-actions-workflows/.github/composite/gcp-artifactregistry-docker-build-and-upload)
+    permissions:
+        contents: read
+        id-token: write
+    timeout-minutes: 30
+
     steps:
-      - name: Check out the repo
-        uses: actions/checkout@v4
+      - name: Set Docker Tag (publish)
+        shell: bash
+        run: echo "DOCKER_TAG=$(echo ${GITHUB_REF#refs/tags/})" >> $GITHUB_ENV
+
+      - name: Print Docker Tag (debug)
+        run: echo "${{ env.DOCKER_TAG }}"
+
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           lfs: "true"
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+      
+      - name: Build and upload to GAR
+        if: github.actor != 'dependabot[bot]'
+        uses: by-pinja/cs-reusable-github-actions-workflows/.github/composite/gcp-artifactregistry-docker-build-and-upload@0.17.0
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          additionaltags: "${{ env.DOCKER_TAG }};"
+          gcp_gar_repo: europe-north1-docker.pkg.dev/ptcs-docker-registry/pinja-common-docker
+          gcp_service_account: pinja-common-gar-uploader@ptcs-docker-registry.iam.gserviceaccount.com
+          gcp_workload_identity_provider_url: projects/460821833685/locations/global/workloadIdentityPools/pinja-common-artifactregistry/providers/github
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
-        with:
-          images: ptcos/pdf-storage  
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
