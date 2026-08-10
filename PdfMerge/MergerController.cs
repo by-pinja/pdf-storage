@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -13,7 +11,7 @@ using Pdf.Storage.Pdf.PdfStores;
 
 namespace Pdf.Storage.PdfMerge
 {
-    public class MergerController: Controller
+    public class MergerController : Controller
     {
         private readonly IHangfireQueue _backgroundJob;
         private readonly PdfDataContext _context;
@@ -51,14 +49,15 @@ namespace Pdf.Storage.PdfMerge
 
             var underlayingPdfFiles = _context.PdfFiles
                 .Where(x => x.GroupId == groupId && !x.Removed)
-                .Where(x => request.PdfIds.Any(id => x.FileId == id))
+                .Where(x => request.PdfIds.Contains(x.FileId))
                 .ToList();
 
-            var missingPdfFiles = request.PdfIds.Where(x => ! underlayingPdfFiles.Any(file => x == file.FileId));
+            var foundFileIds = underlayingPdfFiles.Select(x => x.FileId).ToHashSet();
+            var missingPdfFiles = request.PdfIds.Where(x => !foundFileIds.Contains(x)).ToList();
 
             if (missingPdfFiles.Any())
             {
-                var message = $"Pdf files not found, missing files from group '{groupId}' are '{missingPdfFiles.Aggregate("", (a, b) => $"{a}, {b}").Trim(',')}'";
+                var message = $"Pdf files not found, missing files from group '{groupId}' are '{string.Join(", ", missingPdfFiles)}'";
 
                 _logger.LogWarning($"Requested merge but it failed: {message}");
 
@@ -69,17 +68,17 @@ namespace Pdf.Storage.PdfMerge
 
             var filePath = $"{_settings.BaseUrl}/v1/pdf/{groupId}/{mergeEntity.FileId}.pdf";
 
+            var pdfLookup = underlayingPdfFiles.ToDictionary(x => x.FileId);
+
             request.PdfIds.ToList().ForEach(id =>
             {
                 _mqMessages.PdfOpened(groupId, id);
-                underlayingPdfFiles.Single(x => x.FileId == id).Usage.Add(new PdfOpenedEntity());
+                pdfLookup[id].Usage.Add(new PdfOpenedEntity());
             });
 
-            var entitiesToPriritize =
-                underlayingPdfFiles
-                    .Where(x => !x.Processed)
-                    .Where(x => x.IsValidForHighPriority())
-                    .ToList();
+            var entitiesToPriritize = underlayingPdfFiles
+                .Where(x => !x.Processed && x.IsValidForHighPriority())
+                .ToList();
 
             entitiesToPriritize.ForEach(pdfEntity =>
             {
