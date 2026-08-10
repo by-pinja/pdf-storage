@@ -47,13 +47,27 @@ namespace Pdf.Storage.PdfMerge
             if (request.PdfIds.Length < 1)
                 return BadRequest("Atleast one pdf must be defined, current length 0");
 
-            var underlayingPdfFiles = _context.PdfFiles
+            // Also make sure that there are no null/empty Ids in the set.
+            var validRequestedIds = request.PdfIds
+                .Where(id => !string.IsNullOrEmpty(id))
+                .ToArray();
+
+            if (validRequestedIds.Length != request.PdfIds.Length)
+            {
+                var invalidIds = request.PdfIds.Except(validRequestedIds).ToList();
+                return BadRequest($"Invalid PDF IDs provided (null or empty): '{string.Join(", ", invalidIds.Select(x => x ?? "null"))}'");
+            }
+
+            var underlyingPdfFiles = _context.PdfFiles
                 .Where(x => x.GroupId == groupId && !x.Removed)
-                .Where(x => request.PdfIds.Contains(x.FileId))
+                .Where(x => validRequestedIds.Contains(x.FileId))
                 .ToList();
 
-            var pdfLookup = underlayingPdfFiles.ToDictionary(x => x.FileId);
-            var missingPdfFiles = request.PdfIds.Where(x => !pdfLookup.ContainsKey(x)).ToList();
+            var pdfLookup = underlyingPdfFiles
+                .Where(x => !string.IsNullOrEmpty(x.FileId))
+                .ToDictionary(x => x.FileId);
+
+            var missingPdfFiles = validRequestedIds.Where(x => !pdfLookup.ContainsKey(x)).ToList();
 
             if (missingPdfFiles.Any())
             {
@@ -68,13 +82,13 @@ namespace Pdf.Storage.PdfMerge
 
             var filePath = $"{_settings.BaseUrl}/v1/pdf/{groupId}/{mergeEntity.FileId}.pdf";
 
-            foreach (var id in request.PdfIds)
+            foreach (var id in validRequestedIds)
             {
                 _mqMessages.PdfOpened(groupId, id);
                 pdfLookup[id].Usage.Add(new PdfOpenedEntity());
             }
 
-            var entitiesToPrioritize = underlayingPdfFiles
+            var entitiesToPrioritize = underlyingPdfFiles
                 .Where(x => !x.Processed && x.IsValidForHighPriority())
                 .ToList();
 
@@ -88,7 +102,7 @@ namespace Pdf.Storage.PdfMerge
 
             var storageFile = new StorageFileId(mergeEntity, "pdf");
 
-            mergeEntity.HangfireJobId = _backgroundJob.EnqueueWithHighPriority<IPdfMerger>(merger => merger.MergePdf(storageFile, request.PdfIds));
+            mergeEntity.HangfireJobId = _backgroundJob.EnqueueWithHighPriority<IPdfMerger>(merger => merger.MergePdf(storageFile, validRequestedIds));
 
             _context.SaveChanges();
 
