@@ -52,8 +52,8 @@ namespace Pdf.Storage.PdfMerge
                 .Where(x => request.PdfIds.Contains(x.FileId))
                 .ToList();
 
-            var foundFileIds = underlayingPdfFiles.Select(x => x.FileId).ToHashSet();
-            var missingPdfFiles = request.PdfIds.Where(x => !foundFileIds.Contains(x)).ToList();
+            var pdfLookup = underlayingPdfFiles.ToDictionary(x => x.FileId);
+            var missingPdfFiles = request.PdfIds.Where(x => !pdfLookup.ContainsKey(x)).ToList();
 
             if (missingPdfFiles.Any())
             {
@@ -68,23 +68,21 @@ namespace Pdf.Storage.PdfMerge
 
             var filePath = $"{_settings.BaseUrl}/v1/pdf/{groupId}/{mergeEntity.FileId}.pdf";
 
-            var pdfLookup = underlayingPdfFiles.ToDictionary(x => x.FileId);
-
-            request.PdfIds.ToList().ForEach(id =>
+            foreach (var id in request.PdfIds)
             {
                 _mqMessages.PdfOpened(groupId, id);
                 pdfLookup[id].Usage.Add(new PdfOpenedEntity());
-            });
+            }
 
-            var entitiesToPriritize = underlayingPdfFiles
+            var entitiesToPrioritize = underlayingPdfFiles
                 .Where(x => !x.Processed && x.IsValidForHighPriority())
                 .ToList();
 
-            entitiesToPriritize.ForEach(pdfEntity =>
+            foreach (var pdfEntity in entitiesToPrioritize)
             {
                 pdfEntity.MarkAsHighPriority(
                     _backgroundJob.EnqueueWithHighPriority<IPdfQueue>(que => que.CreatePdf(pdfEntity.Id), originalJobId: pdfEntity.HangfireJobId));
-            });
+            }
 
             _context.SaveChanges();
 
