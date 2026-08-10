@@ -44,12 +44,12 @@ namespace Pdf.Storage.PdfMerge
         [HttpPost("v1/merge/{groupId}/")]
         public ActionResult<MergeResponse> MergePdfs(string groupId, [Required][FromBody] PdfMergeRequest request)
         {
-            if (request.PdfIds.Length < 1)
+            if (request?.PdfIds == null || request.PdfIds.Length < 1)
                 return BadRequest("Atleast one pdf must be defined, current length 0");
 
             // Also make sure that there are no null/empty Ids in the set.
             var validRequestedIds = request.PdfIds
-                .Where(id => !string.IsNullOrEmpty(id))
+                .Where(id => !string.IsNullOrWhiteSpace(id))
                 .ToArray();
 
             if (validRequestedIds.Length != request.PdfIds.Length)
@@ -64,7 +64,7 @@ namespace Pdf.Storage.PdfMerge
                 .ToList();
 
             var pdfLookup = underlyingPdfFiles
-                .Where(x => !string.IsNullOrEmpty(x.FileId))
+                .Where(x => !string.IsNullOrWhiteSpace(x.FileId))
                 .ToDictionary(x => x.FileId);
 
             var missingPdfFiles = validRequestedIds.Where(x => !pdfLookup.ContainsKey(x)).ToList();
