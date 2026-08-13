@@ -44,7 +44,7 @@ namespace Pdf.Storage.PdfMerge
         [HttpPost("v1/merge/{groupId}/")]
         public ActionResult<MergeResponse> MergePdfs(string groupId, [Required][FromBody] PdfMergeRequest request)
         {
-            if (request?.PdfIds == null || request.PdfIds.Length < 1)
+            if (request?.PdfIds is null or [])
                 return BadRequest("Atleast one pdf must be defined, current length 0");
 
             // Also make sure that there are no null/empty Ids in the set.
