@@ -24,7 +24,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v6
         with:
-          images: ptcos/pdf-storage  
+          images: ptcos/pdf-storage
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v7
