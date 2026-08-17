@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -13,7 +11,7 @@ using Pdf.Storage.Pdf.PdfStores;
 
 namespace Pdf.Storage.PdfMerge
 {
-    public class MergerController: Controller
+    public class MergerController : Controller
     {
         private readonly IHangfireQueue _backgroundJob;
         private readonly PdfDataContext _context;
@@ -46,19 +44,34 @@ namespace Pdf.Storage.PdfMerge
         [HttpPost("v1/merge/{groupId}/")]
         public ActionResult<MergeResponse> MergePdfs(string groupId, [Required][FromBody] PdfMergeRequest request)
         {
-            if (request.PdfIds.Length < 1)
+            if (request?.PdfIds is null or [])
                 return BadRequest("Atleast one pdf must be defined, current length 0");
 
-            var underlayingPdfFiles = _context.PdfFiles
+            // Also make sure that there are no null/empty Ids in the set.
+            var validRequestedIds = request.PdfIds
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .ToArray();
+
+            if (validRequestedIds.Length != request.PdfIds.Length)
+            {
+                var invalidIds = request.PdfIds.Except(validRequestedIds).ToList();
+                return BadRequest($"Invalid PDF IDs provided (null or empty): '{string.Join(", ", invalidIds.Select(x => x ?? "null"))}'");
+            }
+
+            var underlyingPdfFiles = _context.PdfFiles
                 .Where(x => x.GroupId == groupId && !x.Removed)
-                .Where(x => request.PdfIds.Any(id => x.FileId == id))
+                .Where(x => validRequestedIds.Contains(x.FileId))
                 .ToList();
 
-            var missingPdfFiles = request.PdfIds.Where(x => ! underlayingPdfFiles.Any(file => x == file.FileId));
+            var pdfLookup = underlyingPdfFiles
+                .Where(x => !string.IsNullOrWhiteSpace(x.FileId))
+                .ToDictionary(x => x.FileId);
+
+            var missingPdfFiles = validRequestedIds.Where(x => !pdfLookup.ContainsKey(x)).ToList();
 
             if (missingPdfFiles.Any())
             {
-                var message = $"Pdf files not found, missing files from group '{groupId}' are '{missingPdfFiles.Aggregate("", (a, b) => $"{a}, {b}").Trim(',')}'";
+                var message = $"Pdf files not found, missing files from group '{groupId}' are '{string.Join(", ", missingPdfFiles)}'";
 
                 _logger.LogWarning($"Requested merge but it failed: {message}");
 
@@ -69,29 +82,27 @@ namespace Pdf.Storage.PdfMerge
 
             var filePath = $"{_settings.BaseUrl}/v1/pdf/{groupId}/{mergeEntity.FileId}.pdf";
 
-            request.PdfIds.ToList().ForEach(id =>
+            foreach (var id in validRequestedIds)
             {
                 _mqMessages.PdfOpened(groupId, id);
-                underlayingPdfFiles.Single(x => x.FileId == id).Usage.Add(new PdfOpenedEntity());
-            });
+                pdfLookup[id].Usage.Add(new PdfOpenedEntity());
+            }
 
-            var entitiesToPriritize =
-                underlayingPdfFiles
-                    .Where(x => !x.Processed)
-                    .Where(x => x.IsValidForHighPriority())
-                    .ToList();
+            var entitiesToPrioritize = underlyingPdfFiles
+                .Where(x => !x.Processed && x.IsValidForHighPriority())
+                .ToList();
 
-            entitiesToPriritize.ForEach(pdfEntity =>
+            foreach (var pdfEntity in entitiesToPrioritize)
             {
                 pdfEntity.MarkAsHighPriority(
                     _backgroundJob.EnqueueWithHighPriority<IPdfQueue>(que => que.CreatePdf(pdfEntity.Id), originalJobId: pdfEntity.HangfireJobId));
-            });
+            }
 
             _context.SaveChanges();
 
             var storageFile = new StorageFileId(mergeEntity, "pdf");
 
-            mergeEntity.HangfireJobId = _backgroundJob.EnqueueWithHighPriority<IPdfMerger>(merger => merger.MergePdf(storageFile, request.PdfIds));
+            mergeEntity.HangfireJobId = _backgroundJob.EnqueueWithHighPriority<IPdfMerger>(merger => merger.MergePdf(storageFile, validRequestedIds));
 
             _context.SaveChanges();
 
