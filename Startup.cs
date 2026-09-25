@@ -97,7 +97,7 @@ namespace Pdf.Storage
                     services.AddHangfire(config =>
                         config
                             .UseFilter(new PreserveOriginalQueueAttribute())
-                            .UsePostgreSqlStorage(Configuration["ConnectionString"] ?? throw new InvalidOperationException("Missing: ConnectionString")));
+                            .UsePostgreSqlStorage(options => options.UseNpgsqlConnection(Configuration["ConnectionString"] ?? throw new InvalidOperationException("Missing: ConnectionString"))));
                     break;
                 case "sqlServer":
                     services.AddDbContext<MsSqlDataContextForMigrations>(opt =>
@@ -158,6 +158,24 @@ namespace Pdf.Storage
             services.Configure<ApiKeyAuthenticationOptions>(Configuration.GetSection("ApiAuthentication"));
 
             services.Configure<HangfireConfig>(Configuration.GetSection("Hangfire"));
+
+            if (GetAppRole() != "api")
+            {
+                var workerCount = 4;
+                if (!string.IsNullOrEmpty(Configuration["Hangfire:WorkerCount"]))
+                {
+                    if (!int.TryParse(Configuration["Hangfire:WorkerCount"], out workerCount))
+                    {
+                        throw new InvalidOperationException("Invalid WorkerCount in configuration.");
+                    }
+                }
+
+                services.AddHangfireServer(options =>
+                {
+                    options.Queues = HangfireConstants.GetQueues().ToArray();
+                    options.WorkerCount = workerCount;
+                });
+            }
         }
 
         public void Configure(IApplicationBuilder app)
@@ -179,21 +197,6 @@ namespace Pdf.Storage
 
             });
 
-            var workerCount = 4;
-            if (!string.IsNullOrEmpty(Configuration["Hangfire:WorkerCount"]))
-            {
-                if (!int.TryParse(Configuration["Hangfire:WorkerCount"], out workerCount))
-                {
-                    throw new InvalidOperationException("Invalid WorkerCount on cofiguration.");
-                }
-            }
-
-            var options = new BackgroundJobServerOptions
-            {
-                Queues = HangfireConstants.GetQueues().ToArray(),
-                WorkerCount = workerCount,
-            };
-
             app.UseEndpoints(endpoints =>
             {
                 var config = app.ApplicationServices.GetRequiredService<IOptions<HangfireConfiguration>>();
@@ -204,24 +207,13 @@ namespace Pdf.Storage
                 });
             });
 
-            switch (GetAppRole())
+            // Hangfire server for "worker" and standalone roles is registered in ConfigureServices.
+            if (GetAppRole() != "worker")
             {
-                case "api":
-                    app.UseEndpoints(endpoints =>
-                    {
-                        endpoints.MapControllers();
-                    });
-                    break;
-                case "worker":
-                    app.UseHangfireServer(options);
-                    break;
-                default:
-                    app.UseEndpoints(endpoints =>
-                    {
-                        endpoints.MapControllers();
-                    });
-                    app.UseHangfireServer(options);
-                    break;
+                app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapControllers();
+                });
             }
         }
 

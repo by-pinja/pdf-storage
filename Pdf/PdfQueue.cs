@@ -74,7 +74,7 @@ namespace Pdf.Storage.Pdf
                 await using var page = await browser.NewPageAsync();
 
                 await page.SetContentAsync(html,
-                    new NavigationOptions
+                    new SetContentOptions
                     {
                         Timeout = 15 * 1000,
                         WaitUntil = [WaitUntilNavigation.Load, WaitUntilNavigation.DOMContentLoaded]

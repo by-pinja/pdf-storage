@@ -1,8 +1,8 @@
 # ! IMPORTANT: Keep chrome_version synced with the version package 'PuppeteerSharp' expects
 # (PuppeteerSharp.BrowserData.Chrome.DefaultBuildId). Chrome for Testing builds are listed at
 # https://googlechromelabs.github.io/chrome-for-testing/
-# The image uses the 'chrome-headless-shell' build instead of full Chrome, since pdf generation
-# only runs headless and it keeps the image smaller.
+# The image uses the 'chrome-headless-shell' build, which is enough for headless pdf generation
+# and keeps the image small. Download that build, not 'chrome', when updating the version.
 ARG chrome_version=154.0.8037.57
 
 # Runtime libraries chrome-headless-shell needs on Ubuntu 24.04 (noble).

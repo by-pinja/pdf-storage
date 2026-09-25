@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -61,15 +63,15 @@ public class HangfireBasicAuthenticationFilter : IDashboardAuthorizationFilter
             return false;
         }
 
-        var authValues = AuthenticationHeaderValue.Parse(header);
+        var authValues = AuthenticationHeaderValue.Parse(header.ToString());
 
-        if (IsNotBasicAuthentication(authValues))
+        if (IsNotBasicAuthentication(authValues) || authValues.Parameter is null)
         {
             SetChallengeResponse(httpContext);
             return false;
         }
 
-        var tokens = GetAuthenticationTokens(authValues);
+        var tokens = GetAuthenticationTokens(authValues.Parameter);
 
         if (tokens.HasEmptyPasswordOrUserName())
         {
@@ -92,9 +94,9 @@ public class HangfireBasicAuthenticationFilter : IDashboardAuthorizationFilter
         return !string.IsNullOrWhiteSpace(header);
     }
 
-    private static Tokens GetAuthenticationTokens(AuthenticationHeaderValue authValues)
+    private static Tokens GetAuthenticationTokens(string authParameter)
     {
-        var parameter = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(authValues.Parameter));
+        var parameter = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(authParameter));
         var parts = parameter.Split(':');
         return new Tokens(parts);
     }
