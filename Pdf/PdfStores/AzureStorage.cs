@@ -1,7 +1,5 @@
-﻿using System;
-using System.IO;
-using Microsoft.Azure.Storage;
-using Microsoft.Azure.Storage.Blob;
+using System;
+using Azure.Storage.Blobs;
 using Microsoft.Extensions.Options;
 using Pdf.Storage.Pdf.Config;
 
@@ -9,15 +7,13 @@ namespace Pdf.Storage.Pdf.PdfStores
 {
     public class AzureStorage : IStorage
     {
-        private readonly Lazy<CloudBlobContainer> _blobContainer;
+        private readonly Lazy<BlobContainerClient> _blobContainer;
 
         public AzureStorage(IOptions<AzureStorageConfig> azureConfig)
         {
-            _blobContainer = new Lazy<CloudBlobContainer>(() =>
+            _blobContainer = new Lazy<BlobContainerClient>(() =>
             {
-                var storageAccount = CloudStorageAccount.Parse(azureConfig.Value.StorageConnectionString);
-                var blobClient = storageAccount.CreateCloudBlobClient();
-                var blobContainer = blobClient.GetContainerReference(azureConfig.Value.ContainerName);
+                var blobContainer = new BlobContainerClient(azureConfig.Value.StorageConnectionString, azureConfig.Value.ContainerName);
                 blobContainer.CreateIfNotExists();
                 return blobContainer;
             });
@@ -25,43 +21,30 @@ namespace Pdf.Storage.Pdf.PdfStores
 
         public void AddOrReplace(StorageData storageData)
         {
-            var blob = _blobContainer.Value;
-            var blobRef = GetBlobRef(storageData.StorageFileId, blob);
-            blobRef.UploadFromByteArray(storageData.Data, 0, storageData.Data.Length);
+            var blobRef = GetBlobRef(storageData.StorageFileId);
+            blobRef.Upload(BinaryData.FromBytes(storageData.Data), overwrite: true);
         }
 
-        private static CloudBlockBlob GetBlobRef(StorageFileId storageFileId, CloudBlobContainer blob)
+        private BlobClient GetBlobRef(StorageFileId storageFileId)
         {
-            return blob.GetBlockBlobReference(GetBlobName(storageFileId));
+            return _blobContainer.Value.GetBlobClient(GetBlobName(storageFileId));
         }
 
         public StorageData Get(StorageFileId storageFileId)
         {
-            using var memorySteam = new MemoryStream();
-
-            var blob = _blobContainer.Value;
-
-            var blobRef = GetBlobRef(storageFileId, blob);
+            var blobRef = GetBlobRef(storageFileId);
 
             if (!blobRef.Exists())
                 throw new InvalidOperationException($"Tried to open non existent blob '{GetBlobName(storageFileId)}'");
 
-            blobRef.DownloadToStream(memorySteam);
-
-            var asDataArray = memorySteam.ToArray();
+            var asDataArray = blobRef.DownloadContent().Value.Content.ToArray();
 
             return new StorageData(storageFileId, asDataArray);
         }
 
         public void Remove(StorageFileId storageFileId)
         {
-            var blob = _blobContainer.Value;
-            var blobRef = GetBlobRef(storageFileId, blob);
-
-            if (!blobRef.Exists())
-                return;
-
-            blobRef.Delete();
+            GetBlobRef(storageFileId).DeleteIfExists();
         }
 
         private static string GetBlobName(StorageFileId storageFileId)

@@ -34,7 +34,15 @@ namespace Pdf.Storage
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddApplicationInsightsTelemetry();
+            // Application Insights 3.x throws on startup without a connection string.
+            var appInsightsEnabled = !string.IsNullOrWhiteSpace(Configuration["ApplicationInsights:ConnectionString"])
+                || !string.IsNullOrWhiteSpace(Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]);
+
+            if (appInsightsEnabled)
+            {
+                services.AddApplicationInsightsTelemetry();
+                services.AddHostedService<ApplicationInsightsTelemetryBackgroundService>();
+            }
 
             services.AddAuthentication()
                 .AddApiKeyAuth(options =>
@@ -71,8 +79,6 @@ namespace Pdf.Storage
             services.AddCommonAppServices();
 
             services.AddTransient<IHangfireQueue, HangfireQueue>();
-
-            services.AddHostedService<ApplicationInsightsTelemetryBackgroundService>();
 
             switch (Configuration["DbType"])
             {

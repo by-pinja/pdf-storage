@@ -58,7 +58,7 @@ namespace Pdf.Storage.Pdf
             var launchOptions = new LaunchOptions
             {
                 Headless = true,
-                IgnoreHTTPSErrors = true,
+                AcceptInsecureCerts = true,
                 Args = ["--no-sandbox", "--disable-dev-shm-usage", "--incognito", "--disable-gpu", "--disable-software-rasterizer"],
                 EnqueueTransportMessages = false
             };

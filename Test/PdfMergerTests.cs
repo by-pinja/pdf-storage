@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using Pdf.Storage.Hangfire;
 using Pdf.Storage.Pdf.Dto;
 using Pdf.Storage.PdfMerge;

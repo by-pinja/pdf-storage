@@ -1,17 +1,27 @@
-# ! IMPORTANT: Keep chromium version synced with version from package 'PuppeteerSharp'
-# and match it with from https://tracker.debian.org/pkg/chromium
-# Download the install packages and place them in the pkg/ folder and update chromium_version here accordingly
-ARG chromium_version=119.0.6045.199-1~deb12u1
+# ! IMPORTANT: Keep chrome_version synced with the version package 'PuppeteerSharp' expects
+# (PuppeteerSharp.BrowserData.Chrome.DefaultBuildId). Chrome for Testing builds are listed at
+# https://googlechromelabs.github.io/chrome-for-testing/
+# The image uses the 'chrome-headless-shell' build instead of full Chrome, since pdf generation
+# only runs headless and it keeps the image smaller.
+ARG chrome_version=154.0.8037.57
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 as build
-ARG chromium_version
+# Runtime libraries chrome-headless-shell needs on Ubuntu 24.04 (noble).
+ARG chrome_deps="ca-certificates libasound2t64 libatk-bridge2.0-0t64 libatk1.0-0t64 libatspi2.0-0t64 libdbus-1-3 libexpat1 libgbm1 libglib2.0-0t64 libnspr4 libnss3 libx11-6 libxcb1 libxcomposite1 libxdamage1 libxext6 libxfixes3 libxkbcommon0 libxrandr2"
 
-COPY ./ /src/
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS chrome
+ARG chrome_version
 
-RUN apt-get update
-RUN apt-get install -y --no-install-recommends \
-    /src/pkg/chromium-common_${chromium_version}_amd64.deb \
-    /src/pkg/chromium_${chromium_version}_amd64.deb \
+RUN apt-get update && apt-get install -y --no-install-recommends unzip \
+    && curl -fsSL -o /tmp/chrome.zip https://storage.googleapis.com/chrome-for-testing-public/${chrome_version}/linux64/chrome-headless-shell-linux64.zip \
+    && unzip -q /tmp/chrome.zip -d /opt \
+    && mv /opt/chrome-headless-shell-linux64 /opt/chrome \
+    && rm /tmp/chrome.zip
+
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+ARG chrome_deps
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ${chrome_deps} \
     pngquant \
     gifsicle \
     optipng \
@@ -22,22 +32,23 @@ RUN apt-get install -y --no-install-recommends \
     qpdf \
     locales
 
+COPY --from=chrome /opt/chrome/ /opt/chrome/
+
+COPY ./ /src/
+
 WORKDIR /src/
 
 RUN dotnet publish -c release -o /out
 
-ENV PuppeteerChromiumPath=/usr/bin/chromium
+ENV PuppeteerChromiumPath=/opt/chrome/chrome-headless-shell
 
 RUN dotnet test
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
-ARG chromium_version
-
-COPY --from=build /src/pkg/ /tmp/pkg/
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
+ARG chrome_deps
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        /tmp/pkg/chromium-common_${chromium_version}_amd64.deb \
-        /tmp/pkg/chromium_${chromium_version}_amd64.deb \
+        ${chrome_deps} \
         pngquant \
         gifsicle \
         optipng \
@@ -48,10 +59,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         qpdf \
         dumb-init \
     && apt-get clean \
-    && rm /tmp/pkg/*.deb
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=chrome /opt/chrome/ /opt/chrome/
 
 # Tells software that it is running in container and have all requirements pre-installed.
-ENV PuppeteerChromiumPath=/usr/bin/chromium
+ENV PuppeteerChromiumPath=/opt/chrome/chrome-headless-shell
 
 ENV ASPNETCORE_ENVIRONMENT=Production
 
