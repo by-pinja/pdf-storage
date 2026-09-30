@@ -1,8 +1,7 @@
 ﻿using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using Pdf.Storage.Migrations;
 
 namespace Pdf.Storage
@@ -11,19 +10,19 @@ namespace Pdf.Storage
     {
         public static async Task Main(string[] args)
         {
-            var host = BuildWebHost(args);
+            var host = BuildHost(args);
 
-            await host.DownloadPrequisitiesIfNeeded();
+            await host.DownloadPrerequisitesIfNeeded();
 
             host.MigrateDb();
 
             await host.RunAsync();
         }
 
-        public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
+        public static IHost BuildHost(string[] args) =>
+            Host.CreateDefaultBuilder(args)
                 .UseContentRoot(Directory.GetCurrentDirectory())
+                .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>())
                 .Build();
     }
 }

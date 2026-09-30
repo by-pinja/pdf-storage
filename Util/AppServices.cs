@@ -2,11 +2,10 @@ using System;
 using System.IO;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Pdf.Storage.Pdf;
 using Pdf.Storage.Pdf.CustomPages;
 using Pdf.Storage.PdfMerge;
-using Protacon.NetCore.WebApi.ApiKeyAuth;
 using Swashbuckle.AspNetCore.Filters;
 
 namespace Pdf.Storage.Util
@@ -31,8 +30,19 @@ namespace Pdf.Storage.Util
 
                 c.ExampleFilters();
 
-                c.AddSecurityDefinition("ApiKey", ApiKey.OpenApiSecurityScheme);
-                c.AddSecurityRequirement(ApiKey.OpenApiSecurityRequirement("ApiKey"));
+                // Protacon.NetCore.WebApi.ApiKeyAuth ships these as Microsoft.OpenApi v1 types,
+                // which Swashbuckle 10 (Microsoft.OpenApi v2) can't use, so they're defined here.
+                c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+                {
+                    Type = SecuritySchemeType.ApiKey,
+                    Description = "Apikey authorization. Example: \"Authorization: ApiKey {key}\"",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header
+                });
+                c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+                {
+                    [new OpenApiSecuritySchemeReference("ApiKey", document)] = []
+                });
 
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(basePath, xmlFile);

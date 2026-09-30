@@ -1,4 +1,6 @@
-﻿namespace Pdf.Storage.Hangfire;
+﻿#nullable enable
+
+namespace Pdf.Storage.Hangfire;
 
 public class HangfireConfiguration
 {

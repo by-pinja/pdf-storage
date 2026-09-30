@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using Pdf.Storage.Hangfire;
 using Pdf.Storage.Utils.Test;
 using Protacon.NetCore.WebApi.TestUtil;

@@ -58,7 +58,7 @@ namespace Pdf.Storage.Pdf
             var launchOptions = new LaunchOptions
             {
                 Headless = true,
-                IgnoreHTTPSErrors = true,
+                AcceptInsecureCerts = true,
                 Args = ["--no-sandbox", "--disable-dev-shm-usage", "--incognito", "--disable-gpu", "--disable-software-rasterizer"],
                 EnqueueTransportMessages = false
             };
@@ -74,7 +74,7 @@ namespace Pdf.Storage.Pdf
                 await using var page = await browser.NewPageAsync();
 
                 await page.SetContentAsync(html,
-                    new NavigationOptions
+                    new SetContentOptions
                     {
                         Timeout = 15 * 1000,
                         WaitUntil = [WaitUntilNavigation.Load, WaitUntilNavigation.DOMContentLoaded]
