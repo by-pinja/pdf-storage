@@ -3,6 +3,8 @@ name: Publish Docker image
 on:
   release:
     types: [ published ]
+  push:
+    branches: [ master ]
 
 jobs:
   push_to_registry:
@@ -25,6 +27,12 @@ jobs:
         uses: docker/metadata-action@v6
         with:
           images: ptcos/pdf-storage
+          flavor: |
+            latest=false
+          tags: |
+            type=ref,event=tag
+            type=raw,value=latest,enable=${{ github.event_name == 'release' }}
+            type=edge,branch=master
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v7
